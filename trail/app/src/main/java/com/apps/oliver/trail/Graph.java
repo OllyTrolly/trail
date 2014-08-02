@@ -75,8 +75,8 @@ public class Graph {
 
         switch (difficultyLevel) {
             case 1:
-                vRows = 4;
-                vColumns = 4;
+                vRows = 3;
+                vColumns = 3;
                 eulCircuit = true;
                 break;
             case 2:
@@ -271,7 +271,7 @@ public class Graph {
     }
 
     private void constructSideEdges() {
-
+        //THIS IS DISGUSTING CODE
         int origin;
 
         //Top sides
@@ -389,10 +389,23 @@ public class Graph {
         for (int i = (vColumns*(vRows - 1)) + 1; i < (vColumns*vRows) - 1; i++) {
             origin = i;
             Vertex[] adjVertices = {vertexArray[origin - 1], vertexArray[origin - vColumns - 1], vertexArray[origin - vColumns], vertexArray[origin - vColumns + 1], vertexArray[origin + 1]};
-            //Either 2 or 4 edges wanted for Euler path
-            if (vertexArray[origin].numConnected() > 2)
+
+
+            int locked = 0;
+            for (int v = 0; v < 5; v++) {
+                if(adjVertices[v].isLocked()) {
+                    locked++;
+                }
+            }
+            if(vertexArray[origin].numConnected() == 0)
+                if(5 - locked < 2)
+                    randNum = 0;
+                else randNum = 2;
+            else if(vertexArray[origin].numConnected() % 2 == 1)
+                    randNum = vertexArray[origin].numConnected() + 1;
+            else if (locked < 4)
                 randNum = 4;
-            else randNum = (randInt(1, 2)) * 2;
+            else randNum = 2;
             Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
@@ -421,9 +434,29 @@ public class Graph {
             }
             Log.d(TAG, "Locking vertex "+ origin);
             vertexArray[origin].setLocked();
-            //Badabingbadabong
         }
 
+    }
+
+    private void constructInnerEdges() {
+        int origin;
+        int locked;
+        for (int i = 1; i < vRows-1; i++) {
+            for (int j = 1; j < vColumns-1; j++) {
+                origin = (i*vColumns) + j;
+                Vertex[] adjVertices = {vertexArray[origin - vColumns - 1], vertexArray[origin - vColumns], vertexArray[origin - vColumns + 1], vertexArray[origin - 1],
+                                        vertexArray[origin + 1], vertexArray[origin + vColumns - 1], vertexArray[origin + vColumns], vertexArray[origin + vColumns + 1]};
+                locked = 0;
+                for (int v = 0; v < 8; v++) {
+                    if(adjVertices[v].isLocked()) {
+                        locked++;
+                    }
+                }
+                if(locked == 8 && !eulCircuit) {
+                    //Draw completely random line (just make sure it doesn't already exist)
+                }
+            }
+        }
     }
 }
 
