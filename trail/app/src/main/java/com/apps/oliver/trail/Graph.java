@@ -421,6 +421,7 @@ public class Graph {
             }
             Log.d(TAG, "Locking vertex "+ origin);
             vertexArray[origin].setLocked();
+            //Badabingbadabong
         }
 
     }
