@@ -17,6 +17,8 @@ public class Graph {
     private boolean eulCircuit; //True if Euler circuit, false if non-circuit Euler trail
     private boolean incomplete;
     private ArrayList<Edge> edgeArrayList = new ArrayList<Edge>();
+    private ArrayList<Edge> activeEdgeList = new ArrayList<Edge>();
+    private ArrayList<Vertex> activeVertexList = new ArrayList<Vertex>();
     private Vertex[] vertexArray;
     private Score score;
     private Timer timer;
@@ -27,6 +29,11 @@ public class Graph {
     private int origin;
     private int limit;
     private int locked;
+    private int initHoriz;
+    private int initVert;
+    private Vertex selected;
+    private boolean vertexSelected;
+    private int activated = 0;
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
     public Graph(int gameMode, int stageNo) {
@@ -98,7 +105,7 @@ public class Graph {
             case 5:
                 vRows = 6;
                 vColumns = 6;
-                eulCircuit = false;
+                eulCircuit = true;
                 break;
         }
 
@@ -147,9 +154,6 @@ public class Graph {
     }
 
     private void constructVertices() {
-        int initHoriz;
-        int initVert;
-
         if(vColumns % 2 != 0) initHoriz = 360-(100*(vColumns/2));
         else initHoriz = 360+50-(100*(vColumns/2));
         if(vRows % 2 != 0) initVert = 500-(100*(vRows/2));
@@ -315,7 +319,7 @@ public class Graph {
                     //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
                     int randNum2 = randInt(0, 4);
                     if (!(adjVertices[randNum2].isLocked())) {
-                        if(adjVertices[randNum2].isNotConnected(vertexArray[origin])) {
+                        if(!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
                             Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
                             edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
                             break;
@@ -359,7 +363,7 @@ public class Graph {
                     //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
                     int randNum2 = randInt(0, 4);
                     if (!(adjVertices[randNum2].isLocked())) {
-                        if(adjVertices[randNum2].isNotConnected(vertexArray[origin])) {
+                        if(!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
                             Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
                             edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
                             break;
@@ -403,7 +407,7 @@ public class Graph {
                     //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
                     int randNum2 = randInt(0, 4);
                     if (!(adjVertices[randNum2].isLocked())) {
-                        if(adjVertices[randNum2].isNotConnected(vertexArray[origin])) {
+                        if(!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
                             Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
                             edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
                             break;
@@ -449,7 +453,7 @@ public class Graph {
                     //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
                     int randNum2 = randInt(0, 4);
                     if (!(adjVertices[randNum2].isLocked())) {
-                        if(adjVertices[randNum2].isNotConnected(vertexArray[origin])) {
+                        if(!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
                             Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
                             edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
                             break;
@@ -512,7 +516,7 @@ public class Graph {
                         //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
                         int randNum2 = randInt(0, 7);
                         if (!(adjVertices[randNum2].isLocked())) {
-                            if(adjVertices[randNum2].isNotConnected(vertexArray[origin])) {
+                            if(!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
                                 Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
                                 edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
                                 break;
@@ -534,6 +538,85 @@ public class Graph {
     }
 
     private void constructTimer() {}
+
+    public Vertex getSelected() {
+        return selected;
+    }
+
+    private boolean vertexSelection(Vertex vertex1, Vertex vertex2, int eventX, int eventY) {
+        if((eventX >= (vertex1.getX() - vertex1.getR() - vertex1.getH()) &&
+                (eventX <= (vertex2.getX() + vertex2.getR() + vertex2.getH())))
+                && (eventY >= (vertex1.getY() - vertex1.getR() - vertex1.getH()) &&
+                (eventY <= vertex2.getY() + vertex2.getR() + vertex2.getH()))) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean vertexSelection(Vertex vertex, int eventX, int eventY) {
+        if((eventX >= (vertex.getX() - vertex.getR() - vertex.getH()) &&
+                (eventX <= (vertex.getX() + vertex.getR() + vertex.getH())))
+                && (eventY >= (vertex.getY() - vertex.getR() - vertex.getH()) &&
+                (eventY <= vertex.getY() + vertex.getR() + vertex.getH()))) {
+            return true;
+        }
+        return false;
+    }
+
+    public void handleActionDown(int eventX, int eventY) {
+        //Check if touch is in the bounds of the graph
+        if(activated == 0 || vertexSelection(selected, eventX, eventY)) {
+            if (vertexSelection(vertexArray[0], vertexArray[(vRows*vColumns)-1], eventX, eventY)) {
+                //Check the row that has been touched
+                for (int i = 0; i < vColumns; i++) {
+                    if (eventX >= (initHoriz + (i * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventX <= (initHoriz + (i * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
+                        Log.d(TAG, "Touched vertex in column " + (i + 1));
+                        for (int j = 0; j < vRows; j++) {
+                            if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
+
+                                Log.d(TAG, "Touched vertex in row " + (j + 1));
+                                Log.d(TAG, "Setting vertex " + ((j * vColumns) + i) + " as touched");
+                                vertexArray[(j * vColumns) + i].setTouched(true);
+                                selected = vertexArray[(j * vColumns) + i];
+                                vertexSelected = true;
+                                activated++;
+                                return;
+                            }
+                        }
+                        return;
+                    }
+                }
+                return;
+            }
+        }
+    }
+
+    public void handleActionMove(int eventX, int eventY) {
+        if(vertexSelected) {
+            for (int i = 0; i < vColumns; i++) {
+                if (eventX >= (initHoriz + (i * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventX <= (initHoriz + (i * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
+                    Log.d(TAG, "Touched vertex in column " + (i + 1));
+                    for (int j = 0; j < vRows; j++) {
+                        if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
+                            //Check for adjacency to currently selected vertex
+                            if (selected.isConnectedTo(vertexArray[(j * vColumns) + i])) {
+                                if (isActivated)
+                                    Log.d(TAG, "Touched vertex in row " + (j + 1));
+                                    Log.d(TAG, "Setting vertex " + ((j * vColumns) + i) + " as touched");
+                                    vertexArray[(j * vColumns) + i].setTouched(true);
+                                    selected = vertexArray[(j * vColumns) + i];
+                                    vertexSelected = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void handleActionUp(int eventX, int eventY) {
+        vertexSelected = false;
+    }
 }
 
 

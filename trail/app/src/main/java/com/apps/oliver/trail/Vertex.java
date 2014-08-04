@@ -19,6 +19,7 @@ public class Vertex {
     private int h; // The hitbox
     private boolean touched; // If vertex is touched
     Paint paint = new Paint(); // Instantiate paint
+    Paint paintBorder = new Paint();
     private boolean isActivated;
     private boolean isLocked;
     ArrayList<Vertex> conVertices = new ArrayList<Vertex>();
@@ -31,6 +32,8 @@ public class Vertex {
         isActivated = false;
         paint.setColor(Color.rgb(237, 145, 33)); //Take color as input later on (can change colour scheme this way)
         paint.setAntiAlias(true);
+        paintBorder.setColor(Color.WHITE);
+        paintBorder.setAntiAlias(true);
     }
 /*
     public Bitmap getBitmap() {
@@ -45,16 +48,16 @@ public class Vertex {
         return x;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
     public int getY() {
         return y;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public int getR() {
+        return r;
+    }
+
+    public int getH() {
+        return h;
     }
 
     public boolean isTouched() {
@@ -67,7 +70,15 @@ public class Vertex {
 
     public void draw(Canvas canvas) {
         //Log.d(TAG, "Drawing vertex at x = " + x + ", y = " + y + ", r = " + r);
-        canvas.drawCircle((float)(x),(float)(y),(float) r, paint); // Because coordinates need to be CENTRE of circle rather than top left corner
+        if(touched) {
+            //Draw circle border in background
+            canvas.drawCircle((float) x, (float) y, (float) r, paintBorder);
+            //Draw diminished circle over top
+            canvas.drawCircle((float) x, (float) y, (float) r-7, paint);
+        }
+        else {
+            canvas.drawCircle((float) x, (float) y, (float) r, paint); // Because coordinates need to be CENTRE of circle rather than top left corner
+        }
     }
 
     public void handleActionDown(int eventX, int eventY) {
@@ -85,13 +96,13 @@ public class Vertex {
         conVertices.add(vertex);
     }
 
-    public boolean isNotConnected(Vertex vertex) {
+    public boolean isConnectedTo(Vertex vertex) {
         for(int i = 0; i < conVertices.size(); i++) {
             if(vertex == conVertices.get(i)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public int numConnected() {

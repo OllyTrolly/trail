@@ -9,6 +9,7 @@ import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -23,10 +24,9 @@ public class GamePanel extends SurfaceView implements
     private Canvas canvas;
     private Graph graph;
     private int gameMode = 0; //Placeholder value
-    private int stageNo = 1;
+    private int stageNo = 10;
     private int difficultyLevel = 1;
     private Score gameScore;
-
 
     public GamePanel(Context context) {
         super(context);
@@ -94,45 +94,50 @@ public class GamePanel extends SurfaceView implements
         return true;
     }
     */
-/*
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if(event.getAction() == MotionEvent.ACTION_DOWN) {
             // Delegating event handling to the vertex
-            vertex.handleActionDown((int)event.getX(), (int)event.getY());
-            Log.d(TAG, "Co-ords: x=" + event.getX() + ",y=" + event.getY());
+            graph.handleActionDown((int) event.getX(), (int) event.getY());
             /*
-            // Check if in the lower part of the screen we exit
             if(event.getY() > getHeight() - 300) { //Checking press was in lowest 300 pixels, (0,0) is at top left corner
                 loop.setRunning(false);
                 ((Activity)getContext()).finish(); //Effectively exit application by telling the main activity to finish.
-            }
-            else {
-                Log.d(TAG, "Co-ords: x=" + event.getX() + ",y=" + event.getY());
-            }
+            */
         }
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            // The gestures
-            if (vertex.isTouched()) {
-                // The dot was picked up and is being dragged
-                vertex.setX((int) event.getX());
-                vertex.setY((int) event.getY());
-            }
+            graph.handleActionMove((int) event.getX(), (int) event.getY());
         }
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            // Touch was released
-            if (vertex.isTouched()) {
-                vertex.setTouched(false);
-            }
+            graph.handleActionUp((int) event.getX(), (int) event.getY());
         }
         return true;
     }
-    */
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        // Fills the canvas with black
+    public void update() {
+
+    }
+
+    //The fps to be displayed
+    private String avgFps;
+    public void setAvgFps(String avgFps) {
+        this.avgFps = avgFps;
+    }
+
+    public void render(Canvas canvas) {
         canvas.drawColor(Color.DKGRAY);
         graph.draw(canvas);
+        //Display FPS
+        displayFps(canvas, avgFps);
+    }
+
+    private void displayFps(Canvas canvas, String fps) {
+        if (canvas != null && fps != null) {
+            Paint paint = new Paint();
+            paint.setARGB(255,255,255,255);
+            paint.setTextSize(20);
+            canvas.drawText(fps,this.getWidth() - 100, 20, paint);
+        }
     }
 }
