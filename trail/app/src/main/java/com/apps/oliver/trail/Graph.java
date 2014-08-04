@@ -26,6 +26,7 @@ public class Graph {
     private int randNum;
     private int origin;
     private int limit;
+    private int locked;
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
     public Graph(int gameMode, int stageNo) {
@@ -80,12 +81,24 @@ public class Graph {
                 eulCircuit = true;
                 break;
             case 2:
+                vRows = randInt(3,4);
+                vColumns = randInt(3,4);
+                eulCircuit = true;
                 break;
             case 3:
+                vRows = randInt(4,5);
+                vColumns = randInt(4,5);
+                eulCircuit = true;
                 break;
             case 4:
+                vRows = randInt(5,6);
+                vColumns = randInt(5,6);
+                eulCircuit = true;
                 break;
             case 5:
+                vRows = 6;
+                vColumns = 6;
+                eulCircuit = false;
                 break;
         }
 
@@ -95,6 +108,9 @@ public class Graph {
 
         constructSideEdges();
 
+        constructInnerEdges();
+
+        constructTimer();
     }
 
     private void endlessMode() {
@@ -278,10 +294,16 @@ public class Graph {
         for (int i = 1; i < vColumns - 1; i++) {
             origin = i;
             Vertex[] adjVertices = {vertexArray[origin - 1], vertexArray[origin + vColumns - 1], vertexArray[origin + vColumns], vertexArray[origin + vColumns + 1], vertexArray[origin + 1]};
+            locked = 0;
+            for (int v = 0; v < 5; v++) {
+                if(adjVertices[v].isLocked()) {
+                    locked++;
+                }
+            }
             //Either 2 or 4 edges wanted for Euler path
-            if (vertexArray[origin].numConnected() > 2)
-                randNum = 4;
-            else randNum = (randInt(1, 2)) * 2;
+            if((5-locked) + vertexArray[origin].numConnected() >= 4)
+                randNum = (randInt(1, 2)) * 2;
+            else randNum = 2;
             Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
@@ -316,9 +338,16 @@ public class Graph {
             origin = vColumns*i;
             Vertex[] adjVertices = {vertexArray[origin - vColumns], vertexArray[origin - vColumns + 1], vertexArray[origin + 1], vertexArray[origin + vColumns], vertexArray[origin + vColumns + 1]};
             //Either 2 or 4 edges wanted for Euler path
-            if (vertexArray[origin].numConnected() > 2)
-                randNum = 4;
-            else randNum = (randInt(1, 2)) * 2;
+            locked = 0;
+            for (int v = 0; v < 5; v++) {
+                if(adjVertices[v].isLocked()) {
+                    locked++;
+                }
+            }
+            //Either 2 or 4 edges wanted for Euler path
+            if((5-locked) + vertexArray[origin].numConnected() >= 4)
+                randNum = (randInt(1, 2)) * 2;
+            else randNum = 2;
             Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
@@ -353,9 +382,16 @@ public class Graph {
             origin = (vColumns*i)+(vRows-1);
             Vertex[] adjVertices = {vertexArray[origin - vColumns], vertexArray[origin - vColumns - 1], vertexArray[origin - 1], vertexArray[origin + vColumns - 1], vertexArray[origin + vColumns]};
             //Either 2 or 4 edges wanted for Euler path
-            if (vertexArray[origin].numConnected() > 2)
-                randNum = 4;
-            else randNum = (randInt(1, 2)) * 2;
+            locked = 0;
+            for (int v = 0; v < 5; v++) {
+                if(adjVertices[v].isLocked()) {
+                    locked++;
+                }
+            }
+            //Either 2 or 4 edges wanted for Euler path
+            if((5-locked) + vertexArray[origin].numConnected() >= 4)
+                randNum = (randInt(1, 2)) * 2;
+            else randNum = 2;
             Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
@@ -389,23 +425,19 @@ public class Graph {
         for (int i = (vColumns*(vRows - 1)) + 1; i < (vColumns*vRows) - 1; i++) {
             origin = i;
             Vertex[] adjVertices = {vertexArray[origin - 1], vertexArray[origin - vColumns - 1], vertexArray[origin - vColumns], vertexArray[origin - vColumns + 1], vertexArray[origin + 1]};
-
-
-            int locked = 0;
+            locked = 0;
             for (int v = 0; v < 5; v++) {
                 if(adjVertices[v].isLocked()) {
                     locked++;
                 }
             }
-            if(vertexArray[origin].numConnected() == 0)
-                if(5 - locked < 2)
-                    randNum = 0;
-                else randNum = 2;
-            else if(vertexArray[origin].numConnected() % 2 == 1)
-                    randNum = vertexArray[origin].numConnected() + 1;
-            else if (locked < 4)
-                randNum = 4;
-            else randNum = 2;
+            int potential = (5-locked) + vertexArray[origin].numConnected();
+            //Either 2 or 4 edges wanted for Euler path
+            if(potential >= 4)
+                randNum = (randInt(1, 2)) * 2;
+            else if(potential >= 2)
+                randNum = 2;
+            else randNum = 0;
             Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
@@ -441,6 +473,8 @@ public class Graph {
     private void constructInnerEdges() {
         int origin;
         int locked;
+        if (vRows == 3 || vColumns == 3)
+            return;
         for (int i = 1; i < vRows-1; i++) {
             for (int j = 1; j < vColumns-1; j++) {
                 origin = (i*vColumns) + j;
@@ -454,10 +488,52 @@ public class Graph {
                 }
                 if(locked == 8 && !eulCircuit) {
                     //Draw completely random line (just make sure it doesn't already exist)
+                    //TO BE COMPLETED
+                    while(true) {
+                        randNum = randInt(0,(vRows*vColumns)-1);
+                        if(vertexArray[randNum].numConnected() != 8) {
+                            while(true) {
+                                int randNum2;
+                            }
+                        }
+                    }
                 }
+                while(true) {
+                    randNum = (randInt(1,4)) * 2;
+                    if((8-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                        break;
+                }
+                Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
+                limit = randNum - vertexArray[origin].numConnected();
+                Log.d(TAG, "Limit is " + limit);
+                for (int k = 0; k < limit; k++) {
+                    Log.d(TAG, "On iteration " + k);
+                    while (true) {
+                        //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
+                        int randNum2 = randInt(0, 7);
+                        if (!(adjVertices[randNum2].isLocked())) {
+                            if(adjVertices[randNum2].isNotConnected(vertexArray[origin])) {
+                                Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
+                                edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
+                                break;
+                            }
+
+                            else {
+                                Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
+                            }
+                        }
+                        else {
+                            Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
+                        }
+                    }
+                }
+                Log.d(TAG, "Locking vertex "+ origin);
+                vertexArray[origin].setLocked();
             }
         }
     }
+
+    private void constructTimer() {}
 }
 
 
