@@ -20,9 +20,11 @@ public class Graph {
     private ArrayList<Edge> activeEdgeList = new ArrayList<Edge>();
     private ArrayList<Vertex> activeVertexList = new ArrayList<Vertex>();
     private Vertex[] vertexArray;
+    private int edgeCount;
     private Score score;
     private Timer timer;
     private int stageNo;
+    private int gameMode;
     private int midPoint;
     private int spacing;
     private int randNum;
@@ -31,13 +33,17 @@ public class Graph {
     private int locked;
     private int initHoriz;
     private int initVert;
-    private Vertex selected;
+    private Vertex selectedVertex;
+    private Edge selectedEdge;
     private boolean vertexSelected;
     private int activated = 0;
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
     public Graph(int gameMode, int stageNo) {
         this.stageNo = stageNo;
+        this.gameMode = gameMode;
+        edgeArrayList.clear();
+        activated = 0;
         //score.addToScore(0); //Add as display element later
         switch (gameMode){ //Switch statement
             case 0: timedMode();
@@ -48,6 +54,7 @@ public class Graph {
     }
 
     public void timedMode() {
+
         switch (stageNo) { //difficultyLevel switch should make it easy to modify difficulty curve later on and add or take away number of stages
             case 1:
                 difficultyLevel = 1;
@@ -117,7 +124,10 @@ public class Graph {
 
         constructInnerEdges();
 
+        edgeCount = edgeArrayList.size();
+
         constructTimer();
+
     }
 
     private void endlessMode() {
@@ -540,7 +550,7 @@ public class Graph {
     private void constructTimer() {}
 
     public Vertex getSelected() {
-        return selected;
+        return selectedVertex;
     }
 
     private boolean vertexSelection(Vertex vertex1, Vertex vertex2, int eventX, int eventY) {
@@ -563,9 +573,13 @@ public class Graph {
         return false;
     }
 
+    private void reset() {
+
+    }
+
     public void handleActionDown(int eventX, int eventY) {
         //Check if touch is in the bounds of the graph
-        if(activated == 0 || vertexSelection(selected, eventX, eventY)) {
+        if(activated == 0) {
             if (vertexSelection(vertexArray[0], vertexArray[(vRows*vColumns)-1], eventX, eventY)) {
                 //Check the row that has been touched
                 for (int i = 0; i < vColumns; i++) {
@@ -573,11 +587,10 @@ public class Graph {
                         Log.d(TAG, "Touched vertex in column " + (i + 1));
                         for (int j = 0; j < vRows; j++) {
                             if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
-
                                 Log.d(TAG, "Touched vertex in row " + (j + 1));
                                 Log.d(TAG, "Setting vertex " + ((j * vColumns) + i) + " as touched");
                                 vertexArray[(j * vColumns) + i].setTouched(true);
-                                selected = vertexArray[(j * vColumns) + i];
+                                selectedVertex = vertexArray[(j * vColumns) + i];
                                 vertexSelected = true;
                                 activated++;
                                 return;
@@ -589,23 +602,33 @@ public class Graph {
                 return;
             }
         }
+
+        else if(vertexSelection(selectedVertex, eventX, eventY)) {
+            vertexSelected = true;
+        }
     }
 
     public void handleActionMove(int eventX, int eventY) {
-        if(vertexSelected) {
-            for (int i = 0; i < vColumns; i++) {
-                if (eventX >= (initHoriz + (i * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventX <= (initHoriz + (i * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
-                    Log.d(TAG, "Touched vertex in column " + (i + 1));
-                    for (int j = 0; j < vRows; j++) {
-                        if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
-                            //Check for adjacency to currently selected vertex
-                            if (selected.isConnectedTo(vertexArray[(j * vColumns) + i])) {
-                                if (isActivated)
-                                    Log.d(TAG, "Touched vertex in row " + (j + 1));
-                                    Log.d(TAG, "Setting vertex " + ((j * vColumns) + i) + " as touched");
-                                    vertexArray[(j * vColumns) + i].setTouched(true);
-                                    selected = vertexArray[(j * vColumns) + i];
-                                    vertexSelected = true;
+        if (edgeCount > 0) {
+            if (vertexSelected) {
+                for (int i = 0; i < vColumns; i++) {
+                    if (eventX >= (initHoriz + (i * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventX <= (initHoriz + (i * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
+                        Log.d(TAG, "Touched vertex in column " + (i + 1));
+                        for (int j = 0; j < vRows; j++) {
+                            if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
+                                //Check for adjacency to currently selected vertex
+                                if (selectedVertex.isConnectedTo(vertexArray[(j * vColumns) + i])) {
+                                    if (!selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).isActivated) {
+                                        Log.d(TAG, "Touched vertex in row " + (j + 1));
+                                        Log.d(TAG, "Setting vertex " + ((j * vColumns) + i) + " as touched");
+                                        selectedVertex.notLastSelected();
+                                        selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).toggleActivation(true);
+                                        vertexArray[(j * vColumns) + i].setTouched(true);
+                                        selectedVertex = vertexArray[(j * vColumns) + i];
+                                        vertexSelected = true;
+                                        edgeCount--;
+                                    }
+                                }
                             }
                         }
                     }
@@ -616,6 +639,20 @@ public class Graph {
 
     public void handleActionUp(int eventX, int eventY) {
         vertexSelected = false;
+        if(edgeCount == 0) {
+            stageNo++;
+            if(stageNo > 10) {
+                //Finish game somehow
+            }
+
+            if(gameMode == 0) {
+                timedMode();
+            }
+
+            else if(gameMode == 1) {
+                endlessMode();
+            }
+        }
     }
 }
 

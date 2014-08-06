@@ -23,6 +23,7 @@ public class Vertex {
     private boolean isActivated;
     private boolean isLocked;
     ArrayList<Vertex> conVertices = new ArrayList<Vertex>();
+    ArrayList<Edge> conEdges = new ArrayList<Edge>();
 
     public Vertex(int x, int y) {
         this.x = x;
@@ -66,6 +67,11 @@ public class Vertex {
 
     public void setTouched(boolean touched) {
         this.touched = touched;
+        paintBorder.setColor(Color.RED);
+    }
+
+    public void notLastSelected() {
+        paintBorder.setColor(Color.WHITE);
     }
 
     public void draw(Canvas canvas) {
@@ -92,8 +98,19 @@ public class Vertex {
         }
     }
 
-    public void setConnected(Vertex vertex) {
+    public void setConnected(Vertex vertex, Edge edge) {
         conVertices.add(vertex);
+        conEdges.add(edge);
+    }
+
+    public Edge getEdge(Vertex vertex) {
+        for(int i = 0; i < conVertices.size(); i++) {
+            if(vertex == conVertices.get(i)) {
+                return conEdges.get(i);
+            }
+        }
+        Log.d(TAG, "No connected edge, returning first edge");
+        return conEdges.get(0);
     }
 
     public boolean isConnectedTo(Vertex vertex) {

@@ -24,8 +24,7 @@ public class GamePanel extends SurfaceView implements
     private Canvas canvas;
     private Graph graph;
     private int gameMode = 0; //Placeholder value
-    private int stageNo = 10;
-    private int difficultyLevel = 1;
+    private int stageNo = 1;
     private Score gameScore;
 
     public GamePanel(Context context) {

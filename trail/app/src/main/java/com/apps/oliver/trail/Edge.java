@@ -25,12 +25,12 @@ public class Edge {
 
     public Edge(Vertex vertexA, Vertex vertexB) {
         this.vertexA = vertexA;
-        vertexA.setConnected(vertexB);
+        vertexA.setConnected(vertexB, this);
         this.vertexB = vertexB;
-        vertexB.setConnected(vertexA);
+        vertexB.setConnected(vertexA, this);
         isActivated = false;
         constructRectangle();
-        paint.setColor(Color.rgb(200, 200, 200)); //Take color as input later on (can change colour scheme this way)
+        paint.setColor(Color.WHITE); //Take color as input later on (can change colour scheme this way)
         paint.setAntiAlias(true);
         r = 45;
     }
@@ -56,10 +56,12 @@ public class Edge {
         rect = new RectF(smallX, smallY, bigX, bigY);
     }
 
-    private void toggleActivation() {
-        if(isActivated)
-            isActivated = false;
-        else isActivated = true;
+    public void toggleActivation(Boolean isActivated) {
+        this.isActivated = isActivated;
+        if(isActivated) paint.setColor(Color.RED);
+
+
+        else paint.setColor(Color.WHITE);
     }
 
     private boolean isActivated() {
