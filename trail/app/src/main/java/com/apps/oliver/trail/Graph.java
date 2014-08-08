@@ -15,17 +15,13 @@ public class Graph {
     private int vRows; //Minimum value 3, maximum value provisionally 6
     private int vColumns; //Minimum value 3, maximum value provisionally 6
     private boolean eulCircuit; //True if Euler circuit, false if non-circuit Euler trail
-    private boolean incomplete;
     private ArrayList<Edge> edgeArrayList = new ArrayList<Edge>();
-    private ArrayList<Edge> activeEdgeList = new ArrayList<Edge>();
-    private ArrayList<Vertex> activeVertexList = new ArrayList<Vertex>();
     private Vertex[] vertexArray;
     private int edgeCount;
     private Score score;
     private Timer timer;
     private int stageNo;
     private int gameMode;
-    private int midPoint;
     private int spacing;
     private int randNum;
     private int origin;
@@ -42,8 +38,6 @@ public class Graph {
     public Graph(int gameMode, int stageNo) {
         this.stageNo = stageNo;
         this.gameMode = gameMode;
-        edgeArrayList.clear();
-        activated = 0;
         //score.addToScore(0); //Add as display element later
         switch (gameMode){ //Switch statement
             case 0: timedMode();
@@ -54,6 +48,9 @@ public class Graph {
     }
 
     public void timedMode() {
+
+        edgeArrayList.clear();
+        activated = 0;
 
         switch (stageNo) { //difficultyLevel switch should make it easy to modify difficulty curve later on and add or take away number of stages
             case 1:
@@ -315,9 +312,11 @@ public class Graph {
                 }
             }
             //Either 2 or 4 edges wanted for Euler path
-            if((5-locked) + vertexArray[origin].numConnected() >= 4)
-                randNum = (randInt(1, 2)) * 2;
-            else randNum = 2;
+            while(true) {
+                randNum = (randInt(1,2)) * 2;
+                if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                    break;
+            }
             Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
@@ -359,9 +358,11 @@ public class Graph {
                 }
             }
             //Either 2 or 4 edges wanted for Euler path
-            if((5-locked) + vertexArray[origin].numConnected() >= 4)
-                randNum = (randInt(1, 2)) * 2;
-            else randNum = 2;
+            while(true) {
+                randNum = (randInt(1,2)) * 2;
+                if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                    break;
+            }
             Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
@@ -403,9 +404,11 @@ public class Graph {
                 }
             }
             //Either 2 or 4 edges wanted for Euler path
-            if((5-locked) + vertexArray[origin].numConnected() >= 4)
-                randNum = (randInt(1, 2)) * 2;
-            else randNum = 2;
+            while(true) {
+                randNum = (randInt(1,2)) * 2;
+                if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                    break;
+            }
             Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
@@ -445,13 +448,11 @@ public class Graph {
                     locked++;
                 }
             }
-            int potential = (5-locked) + vertexArray[origin].numConnected();
-            //Either 2 or 4 edges wanted for Euler path
-            if(potential >= 4)
-                randNum = (randInt(1, 2)) * 2;
-            else if(potential >= 2)
-                randNum = 2;
-            else randNum = 0;
+            while(true) {
+                randNum = (randInt(1,2)) * 2;
+                if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                    break;
+            }
             Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
@@ -549,10 +550,6 @@ public class Graph {
 
     private void constructTimer() {}
 
-    public Vertex getSelected() {
-        return selectedVertex;
-    }
-
     private boolean vertexSelection(Vertex vertex1, Vertex vertex2, int eventX, int eventY) {
         if((eventX >= (vertex1.getX() - vertex1.getR() - vertex1.getH()) &&
                 (eventX <= (vertex2.getX() + vertex2.getR() + vertex2.getH())))
@@ -589,7 +586,8 @@ public class Graph {
                             if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
                                 Log.d(TAG, "Touched vertex in row " + (j + 1));
                                 Log.d(TAG, "Setting vertex " + ((j * vColumns) + i) + " as touched");
-                                vertexArray[(j * vColumns) + i].setTouched(true);
+                                vertexArray[(j * vColumns) + i].toggleActivation(true);
+                                vertexArray[(j * vColumns) + i].lastSelected(true);
                                 selectedVertex = vertexArray[(j * vColumns) + i];
                                 vertexSelected = true;
                                 activated++;
@@ -618,15 +616,26 @@ public class Graph {
                             if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
                                 //Check for adjacency to currently selected vertex
                                 if (selectedVertex.isConnectedTo(vertexArray[(j * vColumns) + i])) {
-                                    if (!selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).isActivated) {
+                                    if (!selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).isActivated()) {
                                         Log.d(TAG, "Touched vertex in row " + (j + 1));
                                         Log.d(TAG, "Setting vertex " + ((j * vColumns) + i) + " as touched");
-                                        selectedVertex.notLastSelected();
+                                        selectedVertex.lastSelected(false);
                                         selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).toggleActivation(true);
-                                        vertexArray[(j * vColumns) + i].setTouched(true);
+                                        vertexArray[(j * vColumns) + i].toggleActivation(true);
+                                        vertexArray[(j * vColumns) + i].lastSelected(true);
                                         selectedVertex = vertexArray[(j * vColumns) + i];
                                         vertexSelected = true;
                                         edgeCount--;
+                                    }
+
+                                    else {
+                                        selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).toggleActivation(false);
+                                        selectedVertex.lastSelected(false);
+                                        //selectedVertex.toggleActivation(false);
+                                        vertexArray[(j * vColumns) + i].lastSelected(true);
+                                        vertexArray[(j * vColumns) + i].toggleActivation(true);
+                                        vertexSelected = true;
+                                        edgeCount++;
                                     }
                                 }
                             }
@@ -641,9 +650,6 @@ public class Graph {
         vertexSelected = false;
         if(edgeCount == 0) {
             stageNo++;
-            if(stageNo > 10) {
-                //Finish game somehow
-            }
 
             if(gameMode == 0) {
                 timedMode();

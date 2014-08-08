@@ -61,22 +61,22 @@ public class Vertex {
         return h;
     }
 
-    public boolean isTouched() {
-        return touched;
+    public boolean isActivated() {
+        return isActivated;
     }
 
-    public void setTouched(boolean touched) {
-        this.touched = touched;
-        paintBorder.setColor(Color.RED);
+    public void toggleActivation(boolean isActivated) {
+        this.isActivated = isActivated;
     }
 
-    public void notLastSelected() {
-        paintBorder.setColor(Color.WHITE);
+    public void lastSelected(boolean lastSelected) {
+        if(lastSelected) paintBorder.setColor(Color.RED);
+        else paintBorder.setColor(Color.WHITE);
     }
 
     public void draw(Canvas canvas) {
         //Log.d(TAG, "Drawing vertex at x = " + x + ", y = " + y + ", r = " + r);
-        if(touched) {
+        if(isActivated) {
             //Draw circle border in background
             canvas.drawCircle((float) x, (float) y, (float) r, paintBorder);
             //Draw diminished circle over top
@@ -84,17 +84,6 @@ public class Vertex {
         }
         else {
             canvas.drawCircle((float) x, (float) y, (float) r, paint); // Because coordinates need to be CENTRE of circle rather than top left corner
-        }
-    }
-
-    public void handleActionDown(int eventX, int eventY) {
-        if ( (eventX >= (x - r - h) && (eventX <= (x + r + h)))
-                && (eventY >= (y - r - h) && eventY <= (y + r + h)) ) {
-            // Vertex touched
-            setTouched(true);
-        }
-        else {
-            setTouched(false);
         }
     }
 

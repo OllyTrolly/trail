@@ -21,6 +21,16 @@ public class GameActivity extends Activity {
         Log.d(TAG, "View added");
     }
 
+    @Override
+    protected void onPause() {
+
+    }
+
+    @Override
+    protected void onResume() {
+
+    }
+
     @Override //Just adds Log dialogue to overridden method
     protected void onDestroy() {
         Log.d(TAG, "Destroying...");

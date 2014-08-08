@@ -21,7 +21,7 @@ public class Edge {
     private float r;
     RectF rect;
     Paint paint = new Paint(); // Instantiate paint
-    boolean isActivated;
+    private boolean isActivated;
 
     public Edge(Vertex vertexA, Vertex vertexB) {
         this.vertexA = vertexA;
@@ -29,7 +29,7 @@ public class Edge {
         this.vertexB = vertexB;
         vertexB.setConnected(vertexA, this);
         isActivated = false;
-        constructRectangle();
+        //constructRectangle();
         paint.setColor(Color.WHITE); //Take color as input later on (can change colour scheme this way)
         paint.setAntiAlias(true);
         r = 45;
@@ -56,21 +56,17 @@ public class Edge {
         rect = new RectF(smallX, smallY, bigX, bigY);
     }
 
-    public void toggleActivation(Boolean isActivated) {
+    public void toggleActivation(boolean isActivated) {
         this.isActivated = isActivated;
         if(isActivated) paint.setColor(Color.RED);
-
-
         else paint.setColor(Color.WHITE);
     }
 
-    private boolean isActivated() {
+    public boolean isActivated() {
         return isActivated;
     }
 
     public void draw(Canvas canvas) {
-        //Log.d(TAG, "Drawing vertex at x = " + x + ", y = " + y + ", r = " + r);
-        //canvas.drawRoundRect(rect, r, r, paint);
         canvas.drawLine(vertexA.getX(), vertexA.getY(), vertexB.getX(), vertexB.getY(), paint);
     }
 }
