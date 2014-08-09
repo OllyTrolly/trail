@@ -22,13 +22,11 @@ public class GameActivity extends Activity {
     }
 
     @Override
-    protected void onPause() {
-
-    }
-
-    @Override
-    protected void onResume() {
-
+    protected void onRestart() {
+        Log.d(TAG, "Restarting...");
+        super.onRestart();
+        GameLoop.setRunning(true);
+        
     }
 
     @Override //Just adds Log dialogue to overridden method
@@ -41,8 +39,17 @@ public class GameActivity extends Activity {
     protected void onStop() {
         Log.d(TAG, "Stopping...");
         super.onStop();
+        GameLoop.setRunning(false);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        Log.d(TAG, "Saving instance state...");
+        super.onSaveInstanceState(savedInstanceState); // the UI component values are saved here.
+        //outState.putDouble("VALUE", liter);
+        //Toast.makeText(this, "Activity state saved", Toast.LENGTH_LONG).show();
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
