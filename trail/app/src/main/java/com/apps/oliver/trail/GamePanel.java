@@ -112,7 +112,6 @@ public class GamePanel extends SurfaceView implements
     }
 
     private void drawResetButton(Canvas canvas) {
-
-        canvas.drawBitmap(reset, cameraPos, (reset.getHeight() / 2), null);
+        canvas.drawBitmap(reset, cameraPos, cameraPos, null);
     }
 }
