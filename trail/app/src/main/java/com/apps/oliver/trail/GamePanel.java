@@ -6,6 +6,7 @@ package com.apps.oliver.trail;
  */
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -25,13 +26,16 @@ public class GamePanel extends SurfaceView implements
     private Graph graph;
     private int gameMode = 0; //Placeholder value
     private int stageNo = 1;
+    private int cameraPos = 20;
+    private int h = 15;
     private Score gameScore;
+    private Bitmap reset;
 
     public GamePanel(Context context) {
         super(context);
         // adding the callback (this) to the surface holder to intercept events
         getHolder().addCallback(this);
-        //camera = new Camera(BitmapFactory.decodeResource(getResources(), R.drawable.android_camera), 50, 50);
+        reset = BitmapFactory.decodeResource(getResources(), R.drawable.reset);
         graph = new Graph(gameMode,stageNo);
         loop = new GameLoop(getHolder(), this); //Passes the SurfaceHolder and GamePanel class (this) to the loop instance of GameLoop
         setFocusable(true); // Make the GamePanel focusable so it can handle events
@@ -60,50 +64,15 @@ public class GamePanel extends SurfaceView implements
         }
     }
 
-    /*
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if(event.getAction() == MotionEvent.ACTION_DOWN) {
-            // Delegating event handling to the camera
-            camera.handleActionDown((int)event.getX(), (int)event.getY());
-
-            // Check if in the lower part of the screen we exit
-            if(event.getY() > getHeight() - 300) { //Checking press was in lowest 300 pixels, (0,0) is at top left corner
-                loop.setRunning(false);
-                ((Activity)getContext()).finish(); //Effectively exit application by telling the main activity to finish.
+            // Delegating event handling to the graph
+            if(event.getX() < cameraPos + (reset.getWidth() / 2) + h && event.getX() > cameraPos - (reset.getWidth() / 2) - h &&
+                    event.getY() < cameraPos + (reset.getHeight() / 2) + h && event.getY() > cameraPos - (reset.getHeight() / 2) - h) {
+                graph.reset();
             }
-            else {
-                Log.d(TAG, "Co-ords: x=" + event.getX() + ",y=" + event.getY());
-            }
-        }
-        if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            // The gestures
-            if (camera.isTouched()) {
-                // The droid was picked up and is being dragged
-                camera.setX((int) event.getX());
-                camera.setY((int) event.getY());
-            }
-        }
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            // Touch was released
-            if (camera.isTouched()) {
-                camera.setTouched(false);
-            }
-        }
-        return true;
-    }
-    */
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-            // Delegating event handling to the vertex
-            graph.handleActionDown((int) event.getX(), (int) event.getY());
-            /*
-            if(event.getY() > getHeight() - 300) { //Checking press was in lowest 300 pixels, (0,0) is at top left corner
-                loop.setRunning(false);
-                ((Activity)getContext()).finish(); //Effectively exit application by telling the main activity to finish.
-            */
+            else graph.handleActionDown((int) event.getX(), (int) event.getY());
         }
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
             graph.handleActionMove((int) event.getX(), (int) event.getY());
@@ -124,11 +93,13 @@ public class GamePanel extends SurfaceView implements
         this.avgFps = avgFps;
     }
 
+
     public void render(Canvas canvas) {
         canvas.drawColor(Color.DKGRAY);
         graph.draw(canvas);
         //Display FPS
         displayFps(canvas, avgFps);
+        drawResetButton(canvas);
     }
 
     private void displayFps(Canvas canvas, String fps) {
@@ -138,5 +109,10 @@ public class GamePanel extends SurfaceView implements
             paint.setTextSize(20);
             canvas.drawText(fps,this.getWidth() - 100, 20, paint);
         }
+    }
+
+    private void drawResetButton(Canvas canvas) {
+
+        canvas.drawBitmap(reset, cameraPos, (reset.getHeight() / 2), null);
     }
 }

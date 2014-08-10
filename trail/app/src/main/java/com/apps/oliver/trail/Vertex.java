@@ -70,7 +70,7 @@ public class Vertex {
     }
 
     public void lastSelected(boolean lastSelected) {
-        if(lastSelected) paintBorder.setColor(Color.RED);
+        if(lastSelected) paintBorder.setColor(Color.YELLOW);
         else paintBorder.setColor(Color.WHITE);
     }
 
@@ -100,6 +100,13 @@ public class Vertex {
         }
         Log.d(TAG, "No connected edge, returning first edge");
         return conEdges.get(0);
+    }
+
+    public boolean hasActiveEdge() {
+        for (Edge edge : conEdges) {
+            if(edge.isActivated()) return true;
+        }
+        return false;
     }
 
     public boolean isConnectedTo(Vertex vertex) {

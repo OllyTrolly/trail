@@ -22,6 +22,7 @@ public class Edge {
     RectF rect;
     Paint paint = new Paint(); // Instantiate paint
     private boolean isActivated;
+    private boolean lastSelected;
 
     public Edge(Vertex vertexA, Vertex vertexB) {
         this.vertexA = vertexA;
@@ -58,8 +59,28 @@ public class Edge {
 
     public void toggleActivation(boolean isActivated) {
         this.isActivated = isActivated;
-        if(isActivated) paint.setColor(Color.RED);
+        if(isActivated) {
+            paint.setColor(Color.RED);
+            Log.d(TAG, "Setting edge as activated (red)");
+        }
+        else {
+            paint.setColor(Color.WHITE);
+            Log.d(TAG, "Setting edge as deactivated (white)");
+        }
+    }
+
+    public void lastSelected(boolean lastSelected) {
+        this.lastSelected = lastSelected;
+        if(lastSelected) {
+            paint.setColor(Color.YELLOW);
+            Log.d(TAG, "Setting edge as last selected (yellow)");
+        }
+        else if(isActivated) paint.setColor(Color.RED);
         else paint.setColor(Color.WHITE);
+    }
+
+    public boolean isLastSelected() {
+        return lastSelected;
     }
 
     public boolean isActivated() {

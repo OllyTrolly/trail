@@ -88,7 +88,7 @@ public class GameLoop extends Thread {
                     // Update game state
                     this.gamePanel.update();
                     // Draws the canvas on the panel
-                    this.gamePanel.render(canvas);
+                    if (canvas != null) this.gamePanel.render(canvas);
                     //Calculate how long did the cycle take
                     timeDiff = System.currentTimeMillis() - beginTime;
                     //Calculate sleep time

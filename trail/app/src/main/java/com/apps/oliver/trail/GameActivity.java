@@ -13,11 +13,14 @@ public class GameActivity extends Activity {
     private int gameMode;
     private int stageNo;
     private Score gameScore;
+    private GamePanel panel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new GamePanel(this));
+        GamePanel panel = new GamePanel(this);
+        setContentView(panel);
         Log.d(TAG, "View added");
     }
 
@@ -25,8 +28,17 @@ public class GameActivity extends Activity {
     protected void onRestart() {
         Log.d(TAG, "Restarting...");
         super.onRestart();
-        GameLoop.setRunning(true);
-        
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "Pausing...");
+        super.onPause();
+    }
+
+    protected void onResume() {
+        Log.d(TAG, "Resuming...");
+        super.onResume();
     }
 
     @Override //Just adds Log dialogue to overridden method
@@ -39,7 +51,6 @@ public class GameActivity extends Activity {
     protected void onStop() {
         Log.d(TAG, "Stopping...");
         super.onStop();
-        GameLoop.setRunning(false);
     }
 
     @Override

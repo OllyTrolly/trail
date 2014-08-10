@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.RatingBar;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Stack;
 
 /**
  * Created by Oliver on 13/07/2014.
@@ -30,7 +31,7 @@ public class Graph {
     private int initHoriz;
     private int initVert;
     private Vertex selectedVertex;
-    private Edge selectedEdge;
+    private Stack<Edge> selectedEdges = new Stack<Edge>();
     private boolean vertexSelected;
     private int activated = 0;
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
@@ -139,13 +140,11 @@ public class Graph {
 
         //Draw edges
         for (Edge edge : edgeArrayList) {
-            //Log.d(TAG, "Drawing edge " + edge);
             edge.draw(canvas);
         }
 
         //Draw vertices
         for (Vertex vertex : vertexArray) {
-            //Log.d(TAG, "Drawing vertex " + vertex);
             vertex.draw(canvas);
         }
     }
@@ -298,7 +297,6 @@ public class Graph {
     }
 
     private void constructSideEdges() {
-        //THIS IS DISGUSTING CODE
         int origin;
 
         //Top sides
@@ -448,6 +446,10 @@ public class Graph {
                     locked++;
                 }
             }
+            if(vertexArray[origin].numConnected() == 0) {
+                Log.d(TAG, "Regenerating graph due to no connections to bottom vertex");
+                timedMode();
+            }
             while(true) {
                 randNum = (randInt(1,2)) * 2;
                 if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
@@ -570,8 +572,21 @@ public class Graph {
         return false;
     }
 
-    private void reset() {
+    public void reset() {
+        for (Edge edge : edgeArrayList) {
+            edge.toggleActivation(false);
+            edge.lastSelected(false);
+        }
 
+        for (Vertex vertex : vertexArray) {
+            vertex.toggleActivation(false);
+            vertex.lastSelected(false);
+        }
+
+        activated = 0;
+        vertexSelected = false;
+        selectedEdges.clear();
+        edgeCount = edgeArrayList.size();
     }
 
     public void handleActionDown(int eventX, int eventY) {
@@ -581,11 +596,11 @@ public class Graph {
                 //Check the row that has been touched
                 for (int i = 0; i < vColumns; i++) {
                     if (eventX >= (initHoriz + (i * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventX <= (initHoriz + (i * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
-                        Log.d(TAG, "Touched vertex in column " + (i + 1));
+                        //Log.d(TAG, "Touched vertex in column " + (i + 1));
                         for (int j = 0; j < vRows; j++) {
                             if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
-                                Log.d(TAG, "Touched vertex in row " + (j + 1));
-                                Log.d(TAG, "Setting vertex " + ((j * vColumns) + i) + " as touched");
+                                //Log.d(TAG, "Touched vertex in row " + (j + 1));
+                                Log.d(TAG, "Selecting vertex");
                                 vertexArray[(j * vColumns) + i].toggleActivation(true);
                                 vertexArray[(j * vColumns) + i].lastSelected(true);
                                 selectedVertex = vertexArray[(j * vColumns) + i];
@@ -611,29 +626,39 @@ public class Graph {
             if (vertexSelected) {
                 for (int i = 0; i < vColumns; i++) {
                     if (eventX >= (initHoriz + (i * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventX <= (initHoriz + (i * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
-                        Log.d(TAG, "Touched vertex in column " + (i + 1));
+                        //Log.d(TAG, "Touched vertex in column " + (i + 1));
                         for (int j = 0; j < vRows; j++) {
                             if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
                                 //Check for adjacency to currently selected vertex
                                 if (selectedVertex.isConnectedTo(vertexArray[(j * vColumns) + i])) {
                                     if (!selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).isActivated()) {
-                                        Log.d(TAG, "Touched vertex in row " + (j + 1));
-                                        Log.d(TAG, "Setting vertex " + ((j * vColumns) + i) + " as touched");
+                                        //Log.d(TAG, "Touched vertex in row " + (j + 1));
+                                        Log.d(TAG, "Selecting vertex and previous edge");
                                         selectedVertex.lastSelected(false);
-                                        selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).toggleActivation(true);
-                                        vertexArray[(j * vColumns) + i].toggleActivation(true);
-                                        vertexArray[(j * vColumns) + i].lastSelected(true);
+                                        if(!selectedEdges.empty()) {selectedEdges.peek().lastSelected(false);}
+                                        selectedEdges.push(selectedVertex.getEdge(vertexArray[(j * vColumns) + i]));
                                         selectedVertex = vertexArray[(j * vColumns) + i];
+                                        selectedEdges.peek().toggleActivation(true);
+                                        selectedEdges.peek().lastSelected(true);
+                                        selectedVertex.toggleActivation(true);
+                                        selectedVertex.lastSelected(true);
                                         vertexSelected = true;
                                         edgeCount--;
                                     }
 
-                                    else {
-                                        selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).toggleActivation(false);
+                                    else if(selectedEdges.peek() == selectedVertex.getEdge(vertexArray[(j * vColumns) + i])) {
+                                        Log.d(TAG, "Deselecting vertex and previous edge");
+                                        selectedEdges.peek().toggleActivation(false);
+                                        selectedEdges.pop().lastSelected(false);
+                                        if(!selectedEdges.empty()) {
+                                            selectedEdges.peek().toggleActivation(true);
+                                            selectedEdges.peek().lastSelected(true);
+                                        }
                                         selectedVertex.lastSelected(false);
-                                        //selectedVertex.toggleActivation(false);
-                                        vertexArray[(j * vColumns) + i].lastSelected(true);
-                                        vertexArray[(j * vColumns) + i].toggleActivation(true);
+                                        if(!selectedVertex.hasActiveEdge()) selectedVertex.toggleActivation(false);
+                                        selectedVertex = vertexArray[(j * vColumns) + i];
+                                        selectedVertex.lastSelected(true);
+                                        selectedVertex.toggleActivation(true);
                                         vertexSelected = true;
                                         edgeCount++;
                                     }
