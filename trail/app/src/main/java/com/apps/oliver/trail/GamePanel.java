@@ -22,29 +22,25 @@ public class GamePanel extends SurfaceView implements
 
     private static final String TAG = GamePanel.class.getSimpleName();
     private GameLoop loop;
-    private Vertex[] vertexArray;
-    private Canvas canvas;
     private Graph graph;
-    private Timer timer;
-    private int gameMode = 0; //Placeholder value
+    //private int gameMode; //Placeholder value
     private int stageNo = 1;
     private int cameraPos = 20;
     private int h = 15;
-    private Score gameScore;
     private Bitmap reset;
     public Paint textPaint = new Paint();
 
-    public GamePanel(Context context, Typeface robotoLight) {
+    public GamePanel(Context context, Typeface robotoLight, int gameMode) {
         super(context);
         textPaint.setAntiAlias(true);
         textPaint.setColor(Color.LTGRAY);
         textPaint.setTypeface(robotoLight);
         textPaint.setTextSize(36);
+        textPaint.setTextAlign(Paint.Align.CENTER);
         // adding the callback (this) to the surface holder to intercept events
         getHolder().addCallback(this);
         reset = BitmapFactory.decodeResource(getResources(), R.drawable.reset);
-        graph = new Graph(gameMode,stageNo);
-        timer = new Timer(graph.timerSecs, robotoLight);
+        graph = new Graph(gameMode,stageNo, robotoLight);
         loop = new GameLoop(getHolder(), this); //Passes the SurfaceHolder and GamePanel class (this) to the loop instance of GameLoop
         setFocusable(true); // Make the GamePanel focusable so it can handle events
     }
@@ -108,10 +104,7 @@ public class GamePanel extends SurfaceView implements
         //Display FPS
         displayFps(canvas, avgFps);
         canvas.drawBitmap(reset, cameraPos, cameraPos, null);
-        if (graph.gameMode == 0) {
-            timer.draw(canvas);
-        }
-        canvas.drawText("Stage" + graph.stageNo, 360, 120, textPaint);
+        canvas.drawText("Stage " + graph.stageNo, 360, 120, textPaint);
         canvas.drawText("trail", 360, 1150, textPaint);
     }
 

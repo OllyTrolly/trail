@@ -24,19 +24,23 @@ public class Timer{
         paint = new Paint();
         paint.setTypeface(robotoLight);
         paint.setColor(Color.LTGRAY);
-        paint.setTextSize(40);
+        paint.setTextSize(70);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setAntiAlias(true);
     }
 
-    public boolean draw(Canvas canvas) {
+    public int getTimeLeft() {
+        int timeElapsed = (int) ((System.nanoTime() - startTime)/1000000000);
+        timeLeft = timerSecs - timeElapsed;
+        return timeLeft;
+    }
+
+    public void draw(Canvas canvas) {
         int timeElapsed = (int) ((System.nanoTime() - startTime)/1000000000);
         timeLeft = timerSecs - timeElapsed;
         if(timeLeft <= 0) {
             canvas.drawText("Too slow!", 360, 850, paint);
-            return false;
         }
-        canvas.drawText(timeLeft + "", 360, 850, paint);
-        return true;
+        else canvas.drawText(timeLeft + "", 360, 850, paint);
     }
 }

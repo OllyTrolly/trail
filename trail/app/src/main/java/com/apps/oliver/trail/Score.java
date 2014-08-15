@@ -8,21 +8,20 @@ public class Score {
     private long scoreValue;
     private String scoreName;
 
-    void Score() {
+    public Score() {
         scoreValue = 0;
         scoreName = "Player";
     }
 
-    long addToScore(long score) {
+    public void addToScore(long score) {
         scoreValue += score;
-        return scoreValue;
     }
 
-    void nameScore(String inputName) {
+    public void nameScore(String inputName) {
         scoreName = inputName;
     }
 
-    void addToBoard() {
+    public void addToBoard() {
         //Write the score with its name to SQLite
         //Learn to use SQLite of course
     }

@@ -22,12 +22,14 @@ public class GameActivity extends Activity {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             gameMode = extras.getInt("GAME_MODE");
+            Log.d(TAG, "gameMode is " + gameMode);
         }
         else {
-            gameMode = 0;
+            Log.d(TAG, "Can't find gameMode");
+            gameMode = 1;
         }
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
-        GamePanel panel = new GamePanel(this, robotoLight);
+        GamePanel panel = new GamePanel(this, robotoLight, gameMode);
         setContentView(panel);
         Log.d(TAG, "View added");
     }

@@ -1,6 +1,7 @@
 package com.apps.oliver.trail;
 
 import android.graphics.Canvas;
+import android.graphics.Typeface;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.RatingBar;
@@ -13,6 +14,7 @@ import java.util.Stack;
  */
 public class Graph {
 
+    public boolean generatingGraph;
     private int difficultyLevel; //Minimum value 1, maximum value 5
     private int vRows; //Minimum value 3, maximum value provisionally 6
     private int vColumns; //Minimum value 3, maximum value provisionally 6
@@ -24,6 +26,7 @@ public class Graph {
     private Timer timer;
     public int stageNo;
     public int gameMode;
+    private Typeface robotoLight;
     private int spacing;
     private int randNum;
     private int origin;
@@ -38,9 +41,11 @@ public class Graph {
     public int timerSecs;
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
-    public Graph(int gameMode, int stageNo) {
+    public Graph(int gameMode, int stageNo, Typeface robotoLight) {
+        this.robotoLight = robotoLight;
         this.stageNo = stageNo;
         this.gameMode = gameMode;
+        score = new Score();
         //score.addToScore(0); //Add as display element later
         switch (gameMode){ //Switch statement
             case 0: timedMode();
@@ -51,6 +56,9 @@ public class Graph {
     }
 
     public void timedMode() {
+
+        //Need to find a way to pause gameloop while drawing graph
+        generatingGraph = true;
 
         edgeArrayList.clear();
         activated = 0;
@@ -127,10 +135,69 @@ public class Graph {
         edgeCount = edgeArrayList.size();
 
         timerSecs = vRows*vColumns*3;
+
+        timer = new Timer(timerSecs, robotoLight);
+
+        generatingGraph = false;
     }
 
     private void endlessMode() {
 
+        generatingGraph = true;
+
+        edgeArrayList.clear();
+        activated = 0;
+
+        if(stageNo <= 10)
+            difficultyLevel = 1;
+        else if (stageNo <= 20)
+            difficultyLevel = 2;
+        else if (stageNo <= 30)
+            difficultyLevel = 3;
+        else if (stageNo <= 40)
+            difficultyLevel = 4;
+        else
+            difficultyLevel = 5;
+
+        switch (difficultyLevel) {
+            case 1:
+                vRows = 3;
+                vColumns = 3;
+                eulCircuit = true;
+                break;
+            case 2:
+                vRows = randInt(3,4);
+                vColumns = randInt(3,4);
+                eulCircuit = true;
+                break;
+            case 3:
+                vRows = randInt(4,5);
+                vColumns = randInt(4,5);
+                eulCircuit = true;
+                break;
+            case 4:
+                vRows = randInt(5,6);
+                vColumns = randInt(5,6);
+                eulCircuit = true;
+                break;
+            case 5:
+                vRows = 6;
+                vColumns = 6;
+                eulCircuit = true;
+                break;
+        }
+
+        constructVertices();
+
+        constructCornerEdges();
+
+        constructSideEdges();
+
+        constructInnerEdges();
+
+        edgeCount = edgeArrayList.size();
+
+        generatingGraph = false;
     }
 
     public Vertex[] getVertices() {
@@ -140,17 +207,24 @@ public class Graph {
     public void draw(Canvas canvas) {
 
         //Draw edges
-        for (Edge edge : edgeArrayList) {
-            edge.draw(canvas);
+        if(!generatingGraph) {
+            for (Edge edge : edgeArrayList) {
+                edge.draw(canvas);
+            }
+
+            //Draw vertices
+            for (Vertex vertex : vertexArray) {
+                vertex.draw(canvas);
+            }
+
+            if(gameMode == 0) {
+                timer.draw(canvas);
+
+                if (timer.timeLeft <= 0) {
+                    //QUIT TO MENU
+                }
+            }
         }
-
-        //Draw vertices
-        for (Vertex vertex : vertexArray) {
-            vertex.draw(canvas);
-        }
-
-
-
     }
 
     private boolean isEulCircuit(int weighting) {
@@ -442,6 +516,7 @@ public class Graph {
 
         //Bottom sides
         for (int i = (vColumns*(vRows - 1)) + 1; i < (vColumns*vRows) - 1; i++) {
+            Log.d(TAG, "i is " + i);
             origin = i;
             Vertex[] adjVertices = {vertexArray[origin - 1], vertexArray[origin - vColumns - 1], vertexArray[origin - vColumns], vertexArray[origin - vColumns + 1], vertexArray[origin + 1]};
             locked = 0;
@@ -452,10 +527,12 @@ public class Graph {
             }
             if(vertexArray[origin].numConnected() == 0) {
                 Log.d(TAG, "Regenerating graph due to no connections to bottom vertex");
-                timedMode();
+                if(gameMode == 0) timedMode();
+                else if(gameMode == 1) endlessMode();
             }
             while(true) {
                 randNum = (randInt(1,2)) * 2;
+                Log.d(TAG, "origin is " + origin);
                 if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
                     break;
             }
@@ -679,6 +756,7 @@ public class Graph {
             stageNo++;
 
             if(gameMode == 0) {
+                score.addToScore((long) timer.getTimeLeft()*1000);
                 timedMode();
             }
 
