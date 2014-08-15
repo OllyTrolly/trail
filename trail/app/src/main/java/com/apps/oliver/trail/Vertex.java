@@ -29,7 +29,7 @@ public class Vertex {
         this.x = x;
         this.y = y;
         this.r = 25;
-        this.h = 15;
+        this.h = 10;
         isActivated = false;
         paint.setColor(Color.rgb(237, 145, 33)); //Take color as input later on (can change colour scheme this way)
         paint.setAntiAlias(true);

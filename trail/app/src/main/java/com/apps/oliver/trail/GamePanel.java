@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -24,19 +25,26 @@ public class GamePanel extends SurfaceView implements
     private Vertex[] vertexArray;
     private Canvas canvas;
     private Graph graph;
+    private Timer timer;
     private int gameMode = 0; //Placeholder value
     private int stageNo = 1;
     private int cameraPos = 20;
     private int h = 15;
     private Score gameScore;
     private Bitmap reset;
+    public Paint textPaint = new Paint();
 
-    public GamePanel(Context context) {
+    public GamePanel(Context context, Typeface robotoLight) {
         super(context);
+        textPaint.setAntiAlias(true);
+        textPaint.setColor(Color.LTGRAY);
+        textPaint.setTypeface(robotoLight);
+        textPaint.setTextSize(36);
         // adding the callback (this) to the surface holder to intercept events
         getHolder().addCallback(this);
         reset = BitmapFactory.decodeResource(getResources(), R.drawable.reset);
         graph = new Graph(gameMode,stageNo);
+        timer = new Timer(graph.timerSecs, robotoLight);
         loop = new GameLoop(getHolder(), this); //Passes the SurfaceHolder and GamePanel class (this) to the loop instance of GameLoop
         setFocusable(true); // Make the GamePanel focusable so it can handle events
     }
@@ -99,7 +107,12 @@ public class GamePanel extends SurfaceView implements
         graph.draw(canvas);
         //Display FPS
         displayFps(canvas, avgFps);
-        drawResetButton(canvas);
+        canvas.drawBitmap(reset, cameraPos, cameraPos, null);
+        if (graph.gameMode == 0) {
+            timer.draw(canvas);
+        }
+        canvas.drawText("Stage" + graph.stageNo, 360, 120, textPaint);
+        canvas.drawText("trail", 360, 1150, textPaint);
     }
 
     private void displayFps(Canvas canvas, String fps) {
@@ -109,9 +122,5 @@ public class GamePanel extends SurfaceView implements
             paint.setTextSize(20);
             canvas.drawText(fps,this.getWidth() - 100, 20, paint);
         }
-    }
-
-    private void drawResetButton(Canvas canvas) {
-        canvas.drawBitmap(reset, cameraPos, cameraPos, null);
     }
 }

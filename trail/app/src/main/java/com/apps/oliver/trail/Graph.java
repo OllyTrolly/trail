@@ -1,6 +1,7 @@
 package com.apps.oliver.trail;
 
 import android.graphics.Canvas;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.RatingBar;
 import java.util.ArrayList;
@@ -21,8 +22,8 @@ public class Graph {
     private int edgeCount;
     private Score score;
     private Timer timer;
-    private int stageNo;
-    private int gameMode;
+    public int stageNo;
+    public int gameMode;
     private int spacing;
     private int randNum;
     private int origin;
@@ -34,6 +35,7 @@ public class Graph {
     private Stack<Edge> selectedEdges = new Stack<Edge>();
     private boolean vertexSelected;
     private int activated = 0;
+    public int timerSecs;
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
     public Graph(int gameMode, int stageNo) {
@@ -124,8 +126,7 @@ public class Graph {
 
         edgeCount = edgeArrayList.size();
 
-        constructTimer();
-
+        timerSecs = vRows*vColumns*3;
     }
 
     private void endlessMode() {
@@ -147,6 +148,9 @@ public class Graph {
         for (Vertex vertex : vertexArray) {
             vertex.draw(canvas);
         }
+
+
+
     }
 
     private boolean isEulCircuit(int weighting) {
@@ -549,8 +553,6 @@ public class Graph {
             }
         }
     }
-
-    private void constructTimer() {}
 
     private boolean vertexSelection(Vertex vertex1, Vertex vertex2, int eventX, int eventY) {
         if((eventX >= (vertex1.getX() - vertex1.getR() - vertex1.getH()) &&

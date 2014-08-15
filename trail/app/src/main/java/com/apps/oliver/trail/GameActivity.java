@@ -1,6 +1,7 @@
 package com.apps.oliver.trail;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -9,7 +10,6 @@ import android.view.MenuItem;
 public class GameActivity extends Activity {
 
     private static final String TAG = GameActivity.class.getSimpleName();
-
     private int gameMode;
     private int stageNo;
     private Score gameScore;
@@ -19,7 +19,15 @@ public class GameActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GamePanel panel = new GamePanel(this);
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            gameMode = extras.getInt("GAME_MODE");
+        }
+        else {
+            gameMode = 0;
+        }
+        Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
+        GamePanel panel = new GamePanel(this, robotoLight);
         setContentView(panel);
         Log.d(TAG, "View added");
     }
