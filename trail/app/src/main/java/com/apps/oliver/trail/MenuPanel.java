@@ -90,8 +90,9 @@ public class MenuPanel extends SurfaceView implements
         canvas.drawText("Endless", horizCentre, circle2Vert + 15, textPaint);
         canvas.drawText("Scores", horizCentre, circle3Vert + 15, textPaint);
         textPaint.setColor(Color.LTGRAY);
-        canvas.drawText("Menu", horizCentre, 150, textPaint);
         canvas.drawText("trail", horizCentre, 1150, textPaint);
+        textPaint.setTextSize(50);
+        canvas.drawText("Menu", horizCentre, 150, textPaint);
         //Unlock user interaction with the canvas
         surfaceHolder.unlockCanvasAndPost(canvas);
     }

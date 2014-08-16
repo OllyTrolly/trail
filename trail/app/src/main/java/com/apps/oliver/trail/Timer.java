@@ -38,9 +38,14 @@ public class Timer{
     public void draw(Canvas canvas) {
         int timeElapsed = (int) ((System.nanoTime() - startTime)/1000000000);
         timeLeft = timerSecs - timeElapsed;
+        int minsLeft = timeLeft / 60;
+        int secsLeft = timeLeft % 60;
         if(timeLeft <= 0) {
             canvas.drawText("Too slow!", 360, 850, paint);
         }
-        else canvas.drawText(timeLeft + "", 360, 850, paint);
+        else if(secsLeft < 10) {
+            canvas.drawText(minsLeft + ":0" + secsLeft, 360, 850, paint);
+        }
+        else canvas.drawText(minsLeft + ":" + secsLeft, 360, 850, paint);
     }
 }

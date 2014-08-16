@@ -6,6 +6,7 @@ package com.apps.oliver.trail;
  */
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -25,9 +26,11 @@ public class GamePanel extends SurfaceView implements
     private Graph graph;
     //private int gameMode; //Placeholder value
     private int stageNo = 1;
-    private int cameraPos = 20;
+    private int resetPos = 650;
+    private int backPos = 20;
     private int h = 15;
     private Bitmap reset;
+    private Bitmap back;
     public Paint textPaint = new Paint();
 
     public GamePanel(Context context, Typeface robotoLight, int gameMode) {
@@ -35,11 +38,11 @@ public class GamePanel extends SurfaceView implements
         textPaint.setAntiAlias(true);
         textPaint.setColor(Color.LTGRAY);
         textPaint.setTypeface(robotoLight);
-        textPaint.setTextSize(36);
         textPaint.setTextAlign(Paint.Align.CENTER);
         // adding the callback (this) to the surface holder to intercept events
         getHolder().addCallback(this);
         reset = BitmapFactory.decodeResource(getResources(), R.drawable.reset);
+        back = BitmapFactory.decodeResource(getResources(), R.drawable.back);
         graph = new Graph(gameMode,stageNo, robotoLight);
         loop = new GameLoop(getHolder(), this); //Passes the SurfaceHolder and GamePanel class (this) to the loop instance of GameLoop
         setFocusable(true); // Make the GamePanel focusable so it can handle events
@@ -72,9 +75,15 @@ public class GamePanel extends SurfaceView implements
     public boolean onTouchEvent(MotionEvent event) {
         if(event.getAction() == MotionEvent.ACTION_DOWN) {
             // Delegating event handling to the graph
-            if(event.getX() < cameraPos + (reset.getWidth() / 2) + h && event.getX() > cameraPos - (reset.getWidth() / 2) - h &&
-                    event.getY() < cameraPos + (reset.getHeight() / 2) + h && event.getY() > cameraPos - (reset.getHeight() / 2) - h) {
+            if(event.getX() < resetPos + (reset.getWidth() / 2) + h && event.getX() > resetPos - (reset.getWidth() / 2) - h &&
+                    event.getY() < 20 + (reset.getHeight() / 2) + h && event.getY() > 20 - (reset.getHeight() / 2) - h) {
                 graph.reset();
+            }
+            if(event.getX() < backPos + (back.getWidth() / 2) + h && event.getX() > backPos - (back.getWidth() / 2) - h &&
+                    event.getY() < 20 + (back.getHeight() / 2) + h && event.getY() > 20 - (back.getHeight() / 2) - h) {
+                Intent i = new Intent();
+                i.setClass(this.getContext(), MenuActivity.class);
+                getContext().startActivity(i);
             }
             else graph.handleActionDown((int) event.getX(), (int) event.getY());
         }
@@ -102,10 +111,13 @@ public class GamePanel extends SurfaceView implements
         canvas.drawColor(Color.DKGRAY);
         graph.draw(canvas);
         //Display FPS
-        displayFps(canvas, avgFps);
-        canvas.drawBitmap(reset, cameraPos, cameraPos, null);
-        canvas.drawText("Stage " + graph.stageNo, 360, 120, textPaint);
+        //displayFps(canvas, avgFps);
+        canvas.drawBitmap(reset, resetPos, 20, null);
+        canvas.drawBitmap(back, backPos, 20, null);
+        textPaint.setTextSize(36);
         canvas.drawText("trail", 360, 1150, textPaint);
+        textPaint.setTextSize(50);
+        canvas.drawText("Stage " + graph.stageNo, 360, 120, textPaint);
     }
 
     private void displayFps(Canvas canvas, String fps) {
