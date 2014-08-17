@@ -39,6 +39,7 @@ public class Graph {
     private boolean vertexSelected;
     private int activated = 0;
     public int timerSecs;
+    private boolean alreadyDrawn = false;
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
     public Graph(int gameMode, int stageNo, Typeface robotoLight) {
@@ -60,6 +61,7 @@ public class Graph {
         //Need to find a way to pause gameloop while drawing graph
         generatingGraph = true;
 
+        alreadyDrawn = false;
         edgeArrayList.clear();
         activated = 0;
 
@@ -124,27 +126,32 @@ public class Graph {
                 break;
         }
 
+        Log.d(TAG, "Number of rows: " + vRows  + ", number of columns: " + vColumns + ", is an Euler circuit: " + eulCircuit);
+
         constructVertices();
 
         constructCornerEdges();
 
         constructSideEdges();
 
-        constructInnerEdges();
+        if(!alreadyDrawn) {
+            constructInnerEdges();
 
-        edgeCount = edgeArrayList.size();
+            edgeCount = edgeArrayList.size();
 
-        timerSecs = vRows*vColumns*3;
+            timerSecs = vRows * vColumns * 3;
 
-        timer = new Timer(timerSecs, robotoLight);
+            timer = new Timer(timerSecs, robotoLight);
 
-        generatingGraph = false;
+            generatingGraph = false;
+        }
     }
 
     private void endlessMode() {
 
         generatingGraph = true;
 
+        alreadyDrawn = false;
         edgeArrayList.clear();
         activated = 0;
 
@@ -193,11 +200,13 @@ public class Graph {
 
         constructSideEdges();
 
-        constructInnerEdges();
+        if(!alreadyDrawn) {
+            constructInnerEdges();
 
-        edgeCount = edgeArrayList.size();
+            edgeCount = edgeArrayList.size();
 
-        generatingGraph = false;
+            generatingGraph = false;
+        }
     }
 
     public Vertex[] getVertices() {
@@ -258,27 +267,27 @@ public class Graph {
         origin = 0;
         switch (randNum) {
             case 0:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+1]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+vColumns]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 1:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+1]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns+1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+vColumns+1]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 2:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+vColumns]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns+1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+vColumns+1]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
         }
@@ -288,27 +297,27 @@ public class Graph {
         origin = vColumns-1;
         switch (randNum) {
             case 0:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-1]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin*2));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin*2));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin*2]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 1:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-1]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + ((origin*2)+1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + ((origin*2)+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[(origin*2)+1]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 2:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin*2));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin*2));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin*2]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + ((origin*2)+1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + ((origin*2)+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[(origin*2)+1]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
         }
@@ -318,27 +327,27 @@ public class Graph {
         origin = (vRows-1)*vColumns;
         switch (randNum) {
             case 0:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns+1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns+1]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 1:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+1]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 2:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns+1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns+1]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+1]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
         }
@@ -348,27 +357,27 @@ public class Graph {
         origin = (vRows*vColumns)-1;
         switch (randNum) {
             case 0:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns-1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns-1]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 1:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns-1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns-1]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-1]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 2:
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns]));
-                Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
+                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-1]));
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
         }
@@ -393,32 +402,32 @@ public class Graph {
                 if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
                     break;
             }
-            Log.d(TAG, "randNum is " + randNum);
+            //Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
-            Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
+            //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
             limit = randNum - vertexArray[origin].numConnected();
-            Log.d(TAG, "Limit is " + limit);
+            //Log.d(TAG, "Limit is " + limit);
             for (int j = 0; j < limit; j++) {
-                Log.d(TAG, "On iteration " + j);
+                //Log.d(TAG, "On iteration " + j);
                 while (true) {
                     //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
                     int randNum2 = randInt(0, 4);
                     if (!(adjVertices[randNum2].isLocked())) {
                         if(!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
-                            Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
+                            //Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
                             edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
                             break;
                         }
                         else {
-                            Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
+                            //Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
                         }
                     }
                     else {
-                        Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
+                        //Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
                     }
                 }
             }
-            Log.d(TAG, "Locking vertex "+ origin);
+            //Log.d(TAG, "Locking vertex "+ origin);
             vertexArray[origin].setLocked();
         }
 
@@ -439,38 +448,38 @@ public class Graph {
                 if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
                     break;
             }
-            Log.d(TAG, "randNum is " + randNum);
+            //Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
-            Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
+            //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
             limit = randNum - vertexArray[origin].numConnected();
-            Log.d(TAG, "Limit is " + limit);
+            //Log.d(TAG, "Limit is " + limit);
             for (int j = 0; j < limit; j++) {
-                Log.d(TAG, "On iteration " + j);
+                //Log.d(TAG, "On iteration " + j);
                 while (true) {
                     //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
                     int randNum2 = randInt(0, 4);
                     if (!(adjVertices[randNum2].isLocked())) {
                         if(!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
-                            Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
+                            //Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
                             edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
                             break;
                         }
                         else {
-                            Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
+                            //Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
                         }
                     }
                     else {
-                        Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
+                        //Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
                     }
                 }
             }
-            Log.d(TAG, "Locking vertex "+ origin);
+            //Log.d(TAG, "Locking vertex "+ origin);
             vertexArray[origin].setLocked();
         }
 
         //Right sides
         for (int i = 1; i < vRows - 1; i++) {
-            origin = (vColumns*i)+(vRows-1);
+            origin = (vColumns*(i+1))-1;
             Vertex[] adjVertices = {vertexArray[origin - vColumns], vertexArray[origin - vColumns - 1], vertexArray[origin - 1], vertexArray[origin + vColumns - 1], vertexArray[origin + vColumns]};
             //Either 2 or 4 edges wanted for Euler path
             locked = 0;
@@ -485,32 +494,32 @@ public class Graph {
                 if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
                     break;
             }
-            Log.d(TAG, "randNum is " + randNum);
+            //Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
-            Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
+            //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
             limit = randNum - vertexArray[origin].numConnected();
-            Log.d(TAG, "Limit is " + limit);
+            //Log.d(TAG, "Limit is " + limit);
             for (int j = 0; j < limit; j++) {
-                Log.d(TAG, "On iteration " + j);
+                //Log.d(TAG, "On iteration " + j);
                 while (true) {
                     //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
                     int randNum2 = randInt(0, 4);
                     if (!(adjVertices[randNum2].isLocked())) {
                         if(!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
-                            Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
+                            //Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
                             edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
                             break;
                         }
                         else {
-                            Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
+                            //Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
                         }
                     }
                     else {
-                        Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
+                        //Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
                     }
                 }
             }
-            Log.d(TAG, "Locking vertex "+ origin);
+            //Log.d(TAG, "Locking vertex "+ origin);
             vertexArray[origin].setLocked();
         }
 
@@ -521,51 +530,51 @@ public class Graph {
             Vertex[] adjVertices = {vertexArray[origin - 1], vertexArray[origin - vColumns - 1], vertexArray[origin - vColumns], vertexArray[origin - vColumns + 1], vertexArray[origin + 1]};
             locked = 0;
             for (int v = 0; v < 5; v++) {
-                if(adjVertices[v].isLocked()) {
+                if (adjVertices[v].isLocked()) {
                     locked++;
                 }
             }
-            if(vertexArray[origin].numConnected() == 0) {
+            if (vertexArray[origin].numConnected() == 0) {
                 Log.d(TAG, "Regenerating graph due to no connections to bottom vertex");
-                if(gameMode == 0) timedMode();
-                else if(gameMode == 1) endlessMode();
+                if (gameMode == 0) timedMode();
+                else if (gameMode == 1) endlessMode();
+                alreadyDrawn = true;
             }
-            while(true) {
-                randNum = (randInt(1,2)) * 2;
-                Log.d(TAG, "origin is " + origin);
-                if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
-                    break;
-            }
-            Log.d(TAG, "randNum is " + randNum);
-            //Want 2 or 4 edges minus the number of existing edges to be generated
-            Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
-            limit = randNum - vertexArray[origin].numConnected();
-            Log.d(TAG, "Limit is " + limit);
-            for (int j = 0; j < limit; j++) {
-                Log.d(TAG, "On iteration " + j);
+            if (!alreadyDrawn) {
+                Log.d(TAG, "Origin is " + origin);
                 while (true) {
-                    //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
-                    int randNum2 = randInt(0, 4);
-                    if (!(adjVertices[randNum2].isLocked())) {
-                        if(!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
-                            Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
-                            edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
-                            break;
+                    randNum = (randInt(1, 2)) * 2;
+                    Log.d(TAG, "Attempted randNum is " + randNum);
+                    if ((5 - locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                        break;
+                }
+                Log.d(TAG, "Final randNum is " + randNum);
+                //Want 2 or 4 edges minus the number of existing edges to be generated
+                //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
+                limit = randNum - vertexArray[origin].numConnected();
+                //Log.d(TAG, "Limit is " + limit);
+                for (int j = 0; j < limit; j++) {
+                    //Log.d(TAG, "On iteration " + j);
+                    while (true) {
+                        //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
+                        int randNum2 = randInt(0, 4);
+                        if (!(adjVertices[randNum2].isLocked())) {
+                            if (!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
+                                //Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
+                                edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
+                                break;
+                            } else {
+                                //Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
+                            }
+                        } else {
+                            //Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
                         }
-
-                        else {
-                            Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
-                        }
-                    }
-                    else {
-                        Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
                     }
                 }
+                Log.d(TAG, "Locking vertex " + origin);
+                vertexArray[origin].setLocked();
             }
-            Log.d(TAG, "Locking vertex "+ origin);
-            vertexArray[origin].setLocked();
         }
-
     }
 
     private void constructInnerEdges() {
@@ -601,34 +610,46 @@ public class Graph {
                     if((8-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
                         break;
                 }
-                Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
+                //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
                 limit = randNum - vertexArray[origin].numConnected();
-                Log.d(TAG, "Limit is " + limit);
+                //Log.d(TAG, "Limit is " + limit);
                 for (int k = 0; k < limit; k++) {
-                    Log.d(TAG, "On iteration " + k);
+                    //Log.d(TAG, "On iteration " + k);
                     while (true) {
                         //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
                         int randNum2 = randInt(0, 7);
                         if (!(adjVertices[randNum2].isLocked())) {
                             if(!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
-                                Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
+                                //Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
                                 edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
                                 break;
                             }
 
                             else {
-                                Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
+                                //Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
                             }
                         }
                         else {
-                            Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
+                            //Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
                         }
                     }
                 }
-                Log.d(TAG, "Locking vertex "+ origin);
+                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
             }
         }
+    }
+
+    private boolean checkConnectedness() {
+        //Top left to bottom right
+
+        //Top right to bottom left
+
+        //Top to bottom
+
+        //Left to right
+
+        return true;
     }
 
     private boolean vertexSelection(Vertex vertex1, Vertex vertex2, int eventX, int eventY) {
@@ -757,6 +778,10 @@ public class Graph {
 
             if(gameMode == 0) {
                 score.addToScore((long) timer.getTimeLeft()*1000);
+                if(stageNo > 10) {
+                    //End game and tally score, allow user to enter name for score
+                    
+                }
                 timedMode();
             }
 
