@@ -184,7 +184,7 @@ public class GameLoop extends Thread {
         fpsStore = new double[FPS_HISTORY_NR];
         for (int i = 0; i < FPS_HISTORY_NR; i++) {
             fpsStore[i] = 0.0;
-            Log.d(TAG, "i is " + i);
+            //Log.d(TAG, "i is " + i);
         }
         Log.d(TAG + ".initTimingElements()", "Timing elements for stats initialised");
     }
