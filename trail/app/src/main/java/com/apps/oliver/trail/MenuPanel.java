@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -21,15 +23,40 @@ public class MenuPanel extends SurfaceView implements
     private SurfaceHolder surfaceHolder;
 
     //Set common co-ordinates
+    /*
     int horizCentre = 360;
     int circle1Vert = 350;
     int circle2Vert = circle1Vert + 250;
     int circle3Vert = circle2Vert + 250;
     int rectRadius = 20;
     int circleRadius = 90;
+    */
+    int horizCentre;
+    int circle1Vert;
+    int circle2Vert;
+    int circle3Vert;
+    int rectRadius;
+    int circleRadius;
+    int panelWidth;
+    int panelHeight;
 
     public MenuPanel(Context context, Typeface robotoLight) {
         super(context);
+
+        panelWidth = context.getResources().getDisplayMetrics().widthPixels;
+        panelHeight = context.getResources().getDisplayMetrics().heightPixels;
+
+        Log.d(TAG, "Panel width is: " + panelWidth);
+        Log.d(TAG, "Panel height is: " + panelHeight);
+
+        horizCentre = panelWidth/2;
+        circle1Vert = (panelHeight * 30) / 100;
+        circle2Vert = (panelHeight * 50) / 100;
+        circle3Vert = (panelHeight * 70) / 100;
+        rectRadius = panelWidth/36;
+        circleRadius = (panelHeight * 8) / 100;
+
+
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this); // Adding the callback (this) to the surface holder to intercept events
         this.robotoLight = robotoLight;
@@ -52,18 +79,22 @@ public class MenuPanel extends SurfaceView implements
         rectPaint.setAntiAlias(true);
         rectPaint.setColor(Color.LTGRAY);
         //First line
+        /*
         canvas.save();
         canvas.rotate(-45);
-        canvas.drawRect(horizCentre, circle1Vert - rectRadius, 750, circle1Vert + rectRadius, rectPaint);
+        canvas.drawRect(horizCentre, circle1Vert - rectRadius, panelWidth, circle1Vert + rectRadius, rectPaint);
         canvas.restore();
+        */
         //Second line
         canvas.drawRect(horizCentre - rectRadius, circle2Vert, horizCentre + rectRadius, circle3Vert, rectPaint);
         //Third line
+        /*
         rectPaint.setColor(Color.GRAY);
         canvas.save();
         canvas.rotate(45);
         canvas.drawRect(0, circle2Vert - rectRadius, horizCentre, circle2Vert + rectRadius, rectPaint);
         canvas.restore();
+        */
         //Fourth line
         canvas.drawRect(0, circle1Vert - rectRadius, horizCentre, circle1Vert + rectRadius, rectPaint);
         //Set paint for drawing dots
@@ -86,13 +117,13 @@ public class MenuPanel extends SurfaceView implements
         textPaint.setTypeface(robotoLight);
         textPaint.setTextSize(36);
         //Draw text
-        canvas.drawText("Timed", horizCentre, circle1Vert + 15, textPaint);
-        canvas.drawText("Endless", horizCentre, circle2Vert + 15, textPaint);
-        canvas.drawText("Scores", horizCentre, circle3Vert + 15, textPaint);
+        canvas.drawText("Timed", horizCentre, circle1Vert + (panelHeight * 1) / 100, textPaint);
+        canvas.drawText("Endless", horizCentre, circle2Vert + (panelHeight * 1) / 100, textPaint);
+        canvas.drawText("Scores", horizCentre, circle3Vert + (panelHeight * 1) / 100, textPaint);
         textPaint.setColor(Color.LTGRAY);
-        canvas.drawText("trail", horizCentre, 1150, textPaint);
+        canvas.drawText("trail", horizCentre, (panelHeight * 97) / 100, textPaint);
         textPaint.setTextSize(50);
-        canvas.drawText("Menu", horizCentre, 150, textPaint);
+        canvas.drawText("Menu", horizCentre, (panelHeight * 10) / 100, textPaint);
         //Unlock user interaction with the canvas
         surfaceHolder.unlockCanvasAndPost(canvas);
     }
@@ -141,4 +172,5 @@ public class MenuPanel extends SurfaceView implements
         }
         return false;
     }
+
 }

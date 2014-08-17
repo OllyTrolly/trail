@@ -32,6 +32,11 @@ public class Graph {
     private int origin;
     private int limit;
     private int locked;
+    private int panelWidth;
+    private int panelHeight;
+    private int centreHoriz;
+    private int centreVert;
+    private int vertexSpacing;
     private int initHoriz;
     private int initVert;
     private Vertex selectedVertex;
@@ -42,12 +47,19 @@ public class Graph {
     private boolean alreadyDrawn = false;
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
-    public Graph(int gameMode, int stageNo, Typeface robotoLight) {
+    public Graph(int gameMode, int stageNo, int panelWidth, int panelHeight, Typeface robotoLight) {
+        this.panelWidth = panelWidth;
+        this.panelHeight = panelHeight;
         this.robotoLight = robotoLight;
         this.stageNo = stageNo;
         this.gameMode = gameMode;
-        score = new Score();
-        //score.addToScore(0); //Add as display element later
+
+        centreHoriz = panelWidth / 2;
+        centreVert = panelHeight / 2;
+        vertexSpacing = (panelWidth * 18) / 100;
+
+
+        score = new Score(robotoLight, panelWidth, panelHeight);
         switch (gameMode){ //Switch statement
             case 0: timedMode();
                 break;
@@ -155,12 +167,13 @@ public class Graph {
 
             timerSecs = vRows * vColumns * 3;
 
-            timer = new Timer(timerSecs, robotoLight);
+            timer = new Timer(timerSecs, robotoLight, panelWidth, panelHeight);
 
-            generatingGraph = false;
 
             if(!checkConnectedness())
                 timedMode();
+
+            generatingGraph = false;
         }
     }
 
@@ -190,23 +203,37 @@ public class Graph {
                 eulCircuit = true;
                 break;
             case 2:
-                vRows = randInt(3,4);
-                vColumns = randInt(3,4);
+                randNum = randInt(1,2);
+                if(randNum == 1) {
+                    vRows = 3;
+                    vColumns = 4;
+                }
+                else {
+                    vRows = 4;
+                    vColumns = 3;
+                }
                 eulCircuit = true;
                 break;
             case 3:
-                vRows = randInt(4,5);
-                vColumns = randInt(4,5);
+                vRows = 4;
+                vColumns = 4;
                 eulCircuit = true;
                 break;
             case 4:
-                vRows = randInt(5,6);
-                vColumns = randInt(5,6);
+                randNum = randInt(1,2);
+                if(randNum == 1) {
+                    vRows = 5;
+                    vColumns = 4;
+                }
+                else {
+                    vRows = 4;
+                    vColumns = 5;
+                }
                 eulCircuit = true;
                 break;
             case 5:
-                vRows = 6;
-                vColumns = 6;
+                vRows = 5;
+                vColumns = 5;
                 eulCircuit = true;
                 break;
         }
@@ -222,10 +249,10 @@ public class Graph {
 
             edgeCount = edgeArrayList.size();
 
-            generatingGraph = false;
-
             if(!checkConnectedness())
                 endlessMode();
+
+            generatingGraph = false;
         }
     }
 
@@ -253,6 +280,8 @@ public class Graph {
                     //QUIT TO MENU
                 }
             }
+
+            score.draw(canvas);
         }
     }
 
@@ -267,16 +296,16 @@ public class Graph {
     }
 
     private void constructVertices() {
-        if(vColumns % 2 != 0) initHoriz = 360-(100*(vColumns/2));
-        else initHoriz = 360+50-(100*(vColumns/2));
-        if(vRows % 2 != 0) initVert = 500-(100*(vRows/2));
-        else initVert = 500+50-(100*(vRows/2));
+        if(vColumns % 2 != 0) initHoriz = centreHoriz - (vertexSpacing * (vColumns / 2));
+        else initHoriz = centreHoriz + (vertexSpacing / 2) - (vertexSpacing * (vColumns / 2));
+        if(vRows % 2 != 0) initVert = centreVert - (vertexSpacing * (vRows / 2));
+        else initVert = centreVert + (vertexSpacing / 2) - (vertexSpacing * (vRows / 2));
 
         vertexArray = new Vertex[vRows*vColumns];
         for (int i = 0; i < vRows; i++) {
             for (int j = 0; j < vColumns; j++) {
                 int vertexNo = (i * vColumns) + j;
-                vertexArray[vertexNo] = new Vertex(initHoriz+(j*100),initVert+(i*100));
+                vertexArray[vertexNo] = new Vertex(initHoriz+(j * vertexSpacing),initVert+(i * vertexSpacing), panelWidth, panelHeight);
             }
         }
     }
@@ -1069,10 +1098,10 @@ public class Graph {
             if (vertexSelection(vertexArray[0], vertexArray[(vRows*vColumns)-1], eventX, eventY)) {
                 //Check the row that has been touched
                 for (int i = 0; i < vColumns; i++) {
-                    if (eventX >= (initHoriz + (i * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventX <= (initHoriz + (i * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
+                    if (eventX >= (initHoriz + (i * vertexSpacing) - vertexArray[0].getR() - vertexArray[0].getH()) && eventX <= (initHoriz + (i * vertexSpacing) + vertexArray[0].getR() + vertexArray[0].getH())) {
                         //Log.d(TAG, "Touched vertex in column " + (i + 1));
                         for (int j = 0; j < vRows; j++) {
-                            if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
+                            if (eventY >= (initVert + (j * vertexSpacing) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * vertexSpacing) + vertexArray[0].getR() + vertexArray[0].getH())) {
                                 //Log.d(TAG, "Touched vertex in row " + (j + 1));
                                 Log.d(TAG, "Selecting vertex");
                                 vertexArray[(j * vColumns) + i].toggleActivation(true);
@@ -1099,10 +1128,10 @@ public class Graph {
         if (edgeCount > 0) {
             if (vertexSelected) {
                 for (int i = 0; i < vColumns; i++) {
-                    if (eventX >= (initHoriz + (i * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventX <= (initHoriz + (i * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
+                    if (eventX >= (initHoriz + (i * vertexSpacing) - vertexArray[0].getR() - vertexArray[0].getH()) && eventX <= (initHoriz + (i * vertexSpacing) + vertexArray[0].getR() + vertexArray[0].getH())) {
                         //Log.d(TAG, "Touched vertex in column " + (i + 1));
                         for (int j = 0; j < vRows; j++) {
-                            if (eventY >= (initVert + (j * 100) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * 100) + vertexArray[0].getR() + vertexArray[0].getH())) {
+                            if (eventY >= (initVert + (j * vertexSpacing) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * vertexSpacing) + vertexArray[0].getR() + vertexArray[0].getH())) {
                                 //Check for adjacency to currently selected vertex
                                 if (selectedVertex.isConnectedTo(vertexArray[(j * vColumns) + i])) {
                                     if (!selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).isActivated()) {
@@ -1151,7 +1180,7 @@ public class Graph {
             stageNo++;
 
             if(gameMode == 0) {
-                score.addToScore((long) timer.getTimeLeft()*1000);
+                score.addToScore((long) timer.getTimeLeft()*100);
                 if(stageNo > 10) {
                     //End game and tally score, allow user to enter name for score
 

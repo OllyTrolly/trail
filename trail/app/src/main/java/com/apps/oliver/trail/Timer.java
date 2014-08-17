@@ -17,8 +17,12 @@ public class Timer{
     public long startTime;
     public int timeLeft;
     private Paint paint;
+    private int panelWidth;
+    private int panelHeight;
 
-    public Timer(int timerSecs, Typeface robotoLight) {
+    public Timer(int timerSecs, Typeface robotoLight, int panelWidth, int panelHeight) {
+        this.panelWidth = panelWidth;
+        this.panelHeight = panelHeight;
         startTime = System.nanoTime();
         this.timerSecs = timerSecs;
         paint = new Paint();
@@ -41,11 +45,11 @@ public class Timer{
         int minsLeft = timeLeft / 60;
         int secsLeft = timeLeft % 60;
         if(timeLeft <= 0) {
-            canvas.drawText("Too slow!", 360, 850, paint);
+            canvas.drawText("Too slow!", panelWidth / 2, (panelHeight * 85) / 100, paint);
         }
         else if(secsLeft < 10) {
-            canvas.drawText(minsLeft + ":0" + secsLeft, 360, 850, paint);
+            canvas.drawText(minsLeft + ":0" + secsLeft, panelWidth / 2, (panelHeight * 85) / 100, paint);
         }
-        else canvas.drawText(minsLeft + ":" + secsLeft, 360, 850, paint);
+        else canvas.drawText(minsLeft + ":" + secsLeft, panelWidth / 2, (panelHeight * 85) / 100, paint);
     }
 }

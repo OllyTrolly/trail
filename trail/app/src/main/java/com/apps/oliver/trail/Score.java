@@ -1,5 +1,12 @@
 package com.apps.oliver.trail;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
+
 /**
  * Created by Oliver on 13/07/2014.
  */
@@ -7,8 +14,14 @@ public class Score {
 
     private long scoreValue;
     private String scoreName;
+    private Typeface robotoLight;
+    private int panelWidth;
+    private int panelHeight;
 
-    public Score() {
+    public Score(Typeface robotoLight, int panelWidth, int panelHeight) {
+        this.robotoLight = robotoLight;
+        this.panelWidth = panelWidth;
+        this.panelHeight = panelHeight;
         scoreValue = 0;
         scoreName = "Player";
     }
@@ -19,6 +32,17 @@ public class Score {
 
     public void nameScore(String inputName) {
         scoreName = inputName;
+    }
+
+    public void draw(Canvas canvas) {
+        Paint textPaint = new Paint();
+        textPaint.setAntiAlias(true);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setColor(Color.LTGRAY);
+        textPaint.setTypeface(robotoLight);
+        textPaint.setTextSize(36);
+        //Draw text
+        canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 20) / 100, textPaint);
     }
 
     public void addToBoard() {

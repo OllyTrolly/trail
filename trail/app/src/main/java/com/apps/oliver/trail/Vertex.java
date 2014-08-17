@@ -17,6 +17,8 @@ public class Vertex {
     private int y; // The Y coordinate
     private int r; // The radius
     private int h; // The hitbox
+    private int panelWidth;
+    private int panelHeight;
     private boolean touched; // If vertex is touched
     Paint paint = new Paint(); // Instantiate paint
     Paint paintBorder = new Paint();
@@ -25,11 +27,13 @@ public class Vertex {
     ArrayList<Vertex> conVertices = new ArrayList<Vertex>();
     ArrayList<Edge> conEdges = new ArrayList<Edge>();
 
-    public Vertex(int x, int y) {
+    public Vertex(int x, int y, int panelWidth, int panelHeight) {
+        this.panelWidth = panelWidth;
+        this.panelHeight = panelHeight;
         this.x = x;
         this.y = y;
-        this.r = 25;
-        this.h = 10;
+        this.r = (panelWidth * 9) / 200;
+        this.h = (panelWidth * 2) / 100;
         isActivated = false;
         paint.setColor(Color.rgb(237, 145, 33)); //Take color as input later on (can change colour scheme this way)
         paint.setAntiAlias(true);
@@ -80,7 +84,7 @@ public class Vertex {
             //Draw circle border in background
             canvas.drawCircle((float) x, (float) y, (float) r, paintBorder);
             //Draw diminished circle over top
-            canvas.drawCircle((float) x, (float) y, (float) r-7, paint);
+            canvas.drawCircle((float) x, (float) y, (float) r - ((panelWidth * 1) / 100), paint);
         }
         else {
             canvas.drawCircle((float) x, (float) y, (float) r, paint); // Because coordinates need to be CENTRE of circle rather than top left corner
