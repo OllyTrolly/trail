@@ -45,6 +45,19 @@ public class Score {
         canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 20) / 100, textPaint);
     }
 
+    public void drawFinal(Canvas canvas) {
+        Paint textPaint = new Paint();
+        textPaint.setAntiAlias(true);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setColor(Color.LTGRAY);
+        textPaint.setTypeface(robotoLight);
+        textPaint.setTextSize(60);
+        //Draw text
+        canvas.drawText("Final score: ", panelWidth / 2, (panelHeight * 45) / 100, textPaint);
+        canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 55) / 100, textPaint);
+
+    }
+
     public void addToBoard() {
         //Write the score with its name to SQLite
         //Learn to use SQLite of course

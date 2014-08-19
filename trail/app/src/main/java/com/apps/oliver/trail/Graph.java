@@ -23,7 +23,7 @@ public class Graph {
     private ArrayList<Edge> edgeArrayList = new ArrayList<Edge>();
     private Vertex[] vertexArray;
     private int edgeCount;
-    private Score score;
+    public Score score;
     private Timer timer;
     public int stageNo;
     public int gameMode;
@@ -1135,7 +1135,7 @@ public class Graph {
 
     public boolean modeFinished() {
         if(gameMode == 0)
-            if(stageNo > 10)
+            if(stageNo > 1)
                 return true;
 
         return false;
