@@ -108,10 +108,10 @@ public class GamePanel extends SurfaceView implements
             graph.handleActionMove((int) event.getX(), (int) event.getY());
         }
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            if(graph.stageFinished((int) event.getX(), (int) event.getY())) {
+            if(graph.stageFinished()) {
 
                 if(graph.modeFinished()) {
-                    //Exit to menu or call up scoring
+                    //Exit to menu and/or call up scoring
                 }
 
                 graph.constructStage();

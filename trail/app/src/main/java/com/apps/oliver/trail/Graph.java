@@ -6,6 +6,7 @@ import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.RatingBar;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Random;
 import java.util.Stack;
 
@@ -27,7 +28,6 @@ public class Graph {
     public int stageNo;
     public int gameMode;
     private Typeface robotoLight;
-    private int spacing;
     private int randNum;
     private int origin;
     private int limit;
@@ -45,6 +45,7 @@ public class Graph {
     private int activated = 0;
     public int timerSecs;
     public boolean constructComplete;
+    private int penalty; //Number of penalties incurred, for use in endless mode's scoring
 
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
@@ -55,34 +56,32 @@ public class Graph {
         this.stageNo = stageNo;
         this.gameMode = gameMode;
 
+
         centreHoriz = panelWidth / 2;
         centreVert = panelHeight / 2;
         vertexSpacing = (panelWidth * 18) / 100;
 
         score = new Score(robotoLight, panelWidth, panelHeight);
-
-        /*
-        switch (gameMode){ //Switch statement
-            case 0: timedMode();
-                break;
-            case 1: endlessMode();
-                break;
-        }
-        */
     }
 
     public void constructStage() {
 
         constructComplete = false;
+        int tries = 0;
 
         while(!constructComplete) {
             if (gameMode == 0) {
+                Log.d(TAG, "Creating new timed stage");
                 timedMode();
+                tries++;
             }
             if (gameMode == 1) {
+                Log.d(TAG, "Creating new endless stage");
                 endlessMode();
+                tries++;
             }
         }
+        Log.d(TAG, "Created new stage after " + tries + " tries");
 
     }
 
@@ -93,6 +92,7 @@ public class Graph {
 
         edgeArrayList.clear();
         activated = 0;
+        penalty = 0;
 
         switch (stageNo) { //difficultyLevel switch should make it easy to modify difficulty curve later on and add or take away number of stages
             case 1:
@@ -179,7 +179,9 @@ public class Graph {
             return;
         }
 
-        constructInnerEdges();
+        if(!constructInnerEdges()) {
+            return;
+        }
 
         edgeCount = edgeArrayList.size();
 
@@ -202,6 +204,7 @@ public class Graph {
 
         edgeArrayList.clear();
         activated = 0;
+        penalty = 0;
 
         if(stageNo <= 10)
             difficultyLevel = 1;
@@ -256,18 +259,25 @@ public class Graph {
                 break;
         }
 
+        //Log.d(TAG, "Constructing vertices");
         constructVertices();
 
+        //Log.d(TAG, "Constructing corner edges");
         constructCornerEdges();
 
+        //Log.d(TAG, "Constructing side edges");
         if(!constructSideEdges()) {
             return;
         }
 
-        constructInnerEdges();
+        //Log.d(TAG, "Constructing inner edges");
+        if(!constructInnerEdges()) {
+            return;
+        }
 
         edgeCount = edgeArrayList.size();
 
+        //Log.d(TAG, "Checking connectedness");
         if(!checkConnectedness()) {
             return;
         }
@@ -277,21 +287,23 @@ public class Graph {
         constructComplete = true;
     }
 
-    public Vertex[] getVertices() {
-        return vertexArray;
-    }
-
     public void draw(Canvas canvas) {
 
         //Draw edges
         if(!generatingGraph) {
-            for (Edge edge : edgeArrayList) {
-                edge.draw(canvas);
+            try {
+                for (Edge edge : edgeArrayList) {
+                    edge.draw(canvas);
+                }
+
+                //Draw vertices
+                for (Vertex vertex : vertexArray) {
+                    vertex.draw(canvas);
+                }
             }
 
-            //Draw vertices
-            for (Vertex vertex : vertexArray) {
-                vertex.draw(canvas);
+            catch(ConcurrentModificationException e) {
+                Log.d(TAG, "CONCURRENCY EXCEPTION CAUGHT");
             }
 
             if(gameMode == 0) {
@@ -317,6 +329,7 @@ public class Graph {
     }
 
     private void constructVertices() {
+
         if(vColumns % 2 != 0) initHoriz = centreHoriz - (vertexSpacing * (vColumns / 2));
         else initHoriz = centreHoriz + (vertexSpacing / 2) - (vertexSpacing * (vColumns / 2));
         if(vRows % 2 != 0) initVert = centreVert - (vertexSpacing * (vRows / 2));
@@ -645,11 +658,11 @@ public class Graph {
         return true;
     }
 
-    private void constructInnerEdges() {
+    private boolean constructInnerEdges() {
         int origin;
         int locked;
         if (vRows == 3 && vColumns == 3)
-            return;
+            return true;
         for (int i = 1; i < vRows-1; i++) {
             for (int j = 1; j < vColumns-1; j++) {
                 origin = (i*vColumns) + j;
@@ -673,16 +686,22 @@ public class Graph {
                         }
                     }
                 }
+
+                Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
+                if(vertexArray[origin].numConnected() == 0 &&  locked > 6) {
+                    return false;
+                }
+
                 while(true) {
                     randNum = (randInt(1,4)) * 2;
                     if((8-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
                         break;
                 }
-                //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
+
                 limit = randNum - vertexArray[origin].numConnected();
-                //Log.d(TAG, "Limit is " + limit);
+                Log.d(TAG, "Limit is " + limit);
                 for (int k = 0; k < limit; k++) {
-                    //Log.d(TAG, "On iteration " + k);
+                    Log.d(TAG, "On iteration " + k);
                     while (true) {
                         //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
                         int randNum2 = randInt(0, 7);
@@ -694,18 +713,20 @@ public class Graph {
                             }
 
                             else {
-                                //Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
+                                Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
                             }
                         }
                         else {
-                            //Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
+                            Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
                         }
                     }
                 }
-                //Log.d(TAG, "Locking vertex "+ origin);
+                Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
             }
         }
+
+        return true;
     }
 
     private boolean checkConnectedness() {
@@ -1109,6 +1130,7 @@ public class Graph {
         vertexSelected = false;
         selectedEdges.clear();
         edgeCount = edgeArrayList.size();
+        penalty += 5;
     }
 
     public boolean modeFinished() {
@@ -1191,6 +1213,7 @@ public class Graph {
                                         selectedVertex.toggleActivation(true);
                                         vertexSelected = true;
                                         edgeCount++;
+                                        penalty++;
                                     }
                                 }
                             }
@@ -1201,17 +1224,21 @@ public class Graph {
         }
     }
 
-    public boolean stageFinished(int eventX, int eventY) {
+    public boolean stageFinished() {
         vertexSelected = false;
         if(edgeCount == 0) {
             stageNo++;
 
             if(gameMode == 0) {
-                score.addToScore((long) timer.getTimeLeft()*100);
+                if(timer.getTimeLeft() > 0) {
+                    score.addToScore((long) timer.getTimeLeft() * 100);
+                }
             }
 
             else if(gameMode == 1) {
-                //Add score tally
+                if((vRows*vColumns) - penalty > 0) {
+                    score.addToScore((long) ((vRows*vColumns) - penalty)*100);
+                }
             }
 
             return true;

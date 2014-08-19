@@ -22,15 +22,6 @@ public class MenuPanel extends SurfaceView implements
     private Typeface robotoLight;
     private SurfaceHolder surfaceHolder;
 
-    //Set common co-ordinates
-    /*
-    int horizCentre = 360;
-    int circle1Vert = 350;
-    int circle2Vert = circle1Vert + 250;
-    int circle3Vert = circle2Vert + 250;
-    int rectRadius = 20;
-    int circleRadius = 90;
-    */
     int horizCentre;
     int circle1Vert;
     int circle2Vert;
@@ -45,9 +36,6 @@ public class MenuPanel extends SurfaceView implements
 
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
-
-        Log.d(TAG, "Panel width is: " + panelWidth);
-        Log.d(TAG, "Panel height is: " + panelHeight);
 
         horizCentre = panelWidth/2;
         circle1Vert = (panelHeight * 30) / 100;
