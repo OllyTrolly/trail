@@ -44,7 +44,8 @@ public class Graph {
     private boolean vertexSelected;
     private int activated = 0;
     public int timerSecs;
-    private boolean alreadyDrawn = false;
+    public boolean constructComplete;
+
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
     public Graph(int gameMode, int stageNo, int panelWidth, int panelHeight, Typeface robotoLight) {
@@ -58,14 +59,31 @@ public class Graph {
         centreVert = panelHeight / 2;
         vertexSpacing = (panelWidth * 18) / 100;
 
-
         score = new Score(robotoLight, panelWidth, panelHeight);
+
+        /*
         switch (gameMode){ //Switch statement
             case 0: timedMode();
                 break;
             case 1: endlessMode();
                 break;
         }
+        */
+    }
+
+    public void constructStage() {
+
+        constructComplete = false;
+
+        while(!constructComplete) {
+            if (gameMode == 0) {
+                timedMode();
+            }
+            if (gameMode == 1) {
+                endlessMode();
+            }
+        }
+
     }
 
     public void timedMode() {
@@ -73,7 +91,6 @@ public class Graph {
         //Need to find a way to pause gameloop while drawing graph
         generatingGraph = true;
 
-        alreadyDrawn = false;
         edgeArrayList.clear();
         activated = 0;
 
@@ -158,30 +175,31 @@ public class Graph {
 
         constructCornerEdges();
 
-        constructSideEdges();
-
-        if(!alreadyDrawn) {
-            constructInnerEdges();
-
-            edgeCount = edgeArrayList.size();
-
-            timerSecs = vRows * vColumns * 3;
-
-            timer = new Timer(timerSecs, robotoLight, panelWidth, panelHeight);
-
-
-            if(!checkConnectedness())
-                timedMode();
-
-            generatingGraph = false;
+        if(!constructSideEdges()) {
+            return;
         }
+
+        constructInnerEdges();
+
+        edgeCount = edgeArrayList.size();
+
+        timerSecs = vRows * vColumns * 3;
+
+        timer = new Timer(timerSecs, robotoLight, panelWidth, panelHeight);
+
+        if(!checkConnectedness()) {
+            return;
+        }
+
+        generatingGraph = false;
+
+        constructComplete = true;
     }
 
-    private void endlessMode() {
+    public void endlessMode() {
 
         generatingGraph = true;
 
-        alreadyDrawn = false;
         edgeArrayList.clear();
         activated = 0;
 
@@ -242,18 +260,21 @@ public class Graph {
 
         constructCornerEdges();
 
-        constructSideEdges();
-
-        if(!alreadyDrawn) {
-            constructInnerEdges();
-
-            edgeCount = edgeArrayList.size();
-
-            if(!checkConnectedness())
-                endlessMode();
-
-            generatingGraph = false;
+        if(!constructSideEdges()) {
+            return;
         }
+
+        constructInnerEdges();
+
+        edgeCount = edgeArrayList.size();
+
+        if(!checkConnectedness()) {
+            return;
+        }
+
+        generatingGraph = false;
+
+        constructComplete = true;
     }
 
     public Vertex[] getVertices() {
@@ -432,7 +453,7 @@ public class Graph {
         }
     }
 
-    private void constructSideEdges() {
+    private boolean constructSideEdges() {
         int origin;
 
         //Top sides
@@ -585,51 +606,49 @@ public class Graph {
             }
             if (vertexArray[origin].numConnected() == 0) {
                 Log.d(TAG, "Regenerating graph due to no connections to bottom vertex");
-                if (gameMode == 0) timedMode();
-                else if (gameMode == 1) endlessMode();
-                alreadyDrawn = true;
+                return false;
             }
-            if (!alreadyDrawn) {
-                //Log.d(TAG, "Origin is " + origin);
+            //Log.d(TAG, "Origin is " + origin);
+            while (true) {
+                randNum = (randInt(1, 2)) * 2;
+                //Log.d(TAG, "Attempted randNum is " + randNum);
+                if ((5 - locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                    break;
+            }
+            //Log.d(TAG, "Final randNum is " + randNum);
+            //Want 2 or 4 edges minus the number of existing edges to be generated
+            //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
+            limit = randNum - vertexArray[origin].numConnected();
+            //Log.d(TAG, "Limit is " + limit);
+            for (int j = 0; j < limit; j++) {
+                //Log.d(TAG, "On iteration " + j);
                 while (true) {
-                    randNum = (randInt(1, 2)) * 2;
-                    //Log.d(TAG, "Attempted randNum is " + randNum);
-                    if ((5 - locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
-                        break;
-                }
-                //Log.d(TAG, "Final randNum is " + randNum);
-                //Want 2 or 4 edges minus the number of existing edges to be generated
-                //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
-                limit = randNum - vertexArray[origin].numConnected();
-                //Log.d(TAG, "Limit is " + limit);
-                for (int j = 0; j < limit; j++) {
-                    //Log.d(TAG, "On iteration " + j);
-                    while (true) {
-                        //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
-                        int randNum2 = randInt(0, 4);
-                        if (!(adjVertices[randNum2].isLocked())) {
-                            if (!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
-                                //Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
-                                edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
-                                break;
-                            } else {
-                                //Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
-                            }
+                    //Choose random element from adjacent vertices array and check if an edge to that vertex already exists
+                    int randNum2 = randInt(0, 4);
+                    if (!(adjVertices[randNum2].isLocked())) {
+                        if (!adjVertices[randNum2].isConnectedTo(vertexArray[origin])) {
+                            //Log.d(TAG, "Drawing edge from " + origin + " to " + randNum2);
+                            edgeArrayList.add(new Edge(vertexArray[origin], adjVertices[randNum2]));
+                            break;
                         } else {
-                            //Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
+                            //Log.d(TAG, "Adjacent vertex " + randNum2 + " was connected already");
                         }
+                    } else {
+                        //Log.d(TAG, "Adjacent vertex " + randNum2 + " was locked already");
                     }
                 }
-                //Log.d(TAG, "Locking vertex " + origin);
-                vertexArray[origin].setLocked();
             }
+            //Log.d(TAG, "Locking vertex " + origin);
+            vertexArray[origin].setLocked();
         }
+
+        return true;
     }
 
     private void constructInnerEdges() {
         int origin;
         int locked;
-        if (vRows == 3 || vColumns == 3)
+        if (vRows == 3 && vColumns == 3)
             return;
         for (int i = 1; i < vRows-1; i++) {
             for (int j = 1; j < vColumns-1; j++) {
@@ -1092,6 +1111,14 @@ public class Graph {
         edgeCount = edgeArrayList.size();
     }
 
+    public boolean modeFinished() {
+        if(gameMode == 0)
+            if(stageNo > 10)
+                return true;
+
+        return false;
+    }
+
     public void handleActionDown(int eventX, int eventY) {
         //Check if touch is in the bounds of the graph
         if(activated == 0) {
@@ -1174,24 +1201,29 @@ public class Graph {
         }
     }
 
-    public void handleActionUp(int eventX, int eventY) {
+    public boolean stageFinished(int eventX, int eventY) {
         vertexSelected = false;
         if(edgeCount == 0) {
             stageNo++;
 
             if(gameMode == 0) {
                 score.addToScore((long) timer.getTimeLeft()*100);
-                if(stageNo > 10) {
-                    //End game and tally score, allow user to enter name for score
-
-                }
-                timedMode();
             }
 
             else if(gameMode == 1) {
-                endlessMode();
+                //Add score tally
             }
+
+            return true;
         }
+
+        if(selectedEdges.empty()) {
+            selectedVertex.lastSelected(false);
+            selectedVertex.toggleActivation(false);
+            activated = 0;
+        }
+
+        return false;
     }
 }
 
