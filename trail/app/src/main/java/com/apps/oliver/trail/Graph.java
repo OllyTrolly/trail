@@ -66,10 +66,15 @@ public class Graph {
 
     public void constructStage() {
 
-        constructComplete = false;
         int tries = 0;
+        constructComplete = false;
+        vertexSelected = false;
+        generatingGraph = true;
+        activated = 0;
+        penalty = 0;
 
         while(!constructComplete) {
+            edgeArrayList.clear();
             if (gameMode == 0) {
                 Log.d(TAG, "Creating new timed stage");
                 timedMode();
@@ -81,18 +86,11 @@ public class Graph {
                 tries++;
             }
         }
+        generatingGraph = false;
         Log.d(TAG, "Created new stage after " + tries + " tries");
-
     }
 
     public void timedMode() {
-
-        //Need to find a way to pause gameloop while drawing graph
-        generatingGraph = true;
-
-        edgeArrayList.clear();
-        activated = 0;
-        penalty = 0;
 
         switch (stageNo) { //difficultyLevel switch should make it easy to modify difficulty curve later on and add or take away number of stages
             case 1:
@@ -193,18 +191,10 @@ public class Graph {
             return;
         }
 
-        generatingGraph = false;
-
         constructComplete = true;
     }
 
     public void endlessMode() {
-
-        generatingGraph = true;
-
-        edgeArrayList.clear();
-        activated = 0;
-        penalty = 0;
 
         if(stageNo <= 10)
             difficultyLevel = 1;
@@ -282,8 +272,6 @@ public class Graph {
             return;
         }
 
-        generatingGraph = false;
-
         constructComplete = true;
     }
 
@@ -293,6 +281,7 @@ public class Graph {
         if(!generatingGraph) {
             try {
                 for (Edge edge : edgeArrayList) {
+                    //Log.d(TAG, "Drawing an edge");
                     edge.draw(canvas);
                 }
 
@@ -332,8 +321,8 @@ public class Graph {
 
         if(vColumns % 2 != 0) initHoriz = centreHoriz - (vertexSpacing * (vColumns / 2));
         else initHoriz = centreHoriz + (vertexSpacing / 2) - (vertexSpacing * (vColumns / 2));
-        if(vRows % 2 != 0) initVert = centreVert - (vertexSpacing * (vRows / 2));
-        else initVert = centreVert + (vertexSpacing / 2) - (vertexSpacing * (vRows / 2));
+        if(vRows % 2 != 0) initVert = centreVert + ((panelHeight * 5) / 100) - (vertexSpacing * (vRows / 2));
+        else initVert = centreVert + (vertexSpacing / 2) + ((panelHeight * 5) / 100) - (vertexSpacing * (vRows / 2));
 
         vertexArray = new Vertex[vRows*vColumns];
         for (int i = 0; i < vRows; i++) {
@@ -1135,7 +1124,7 @@ public class Graph {
 
     public boolean modeFinished() {
         if(gameMode == 0)
-            if(stageNo > 1)
+            if(stageNo > 10)
                 return true;
 
         return false;
@@ -1225,7 +1214,16 @@ public class Graph {
     }
 
     public boolean stageFinished() {
+        if(selectedEdges.empty()) {
+            if(vertexSelected) {
+                selectedVertex.lastSelected(false);
+                selectedVertex.toggleActivation(false);
+                activated = 0;
+            }
+        }
+
         vertexSelected = false;
+
         if(edgeCount == 0) {
             stageNo++;
 
@@ -1244,11 +1242,7 @@ public class Graph {
             return true;
         }
 
-        if(selectedEdges.empty()) {
-            selectedVertex.lastSelected(false);
-            selectedVertex.toggleActivation(false);
-            activated = 0;
-        }
+
 
         return false;
     }

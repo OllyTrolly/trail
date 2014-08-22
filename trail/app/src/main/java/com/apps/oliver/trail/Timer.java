@@ -45,11 +45,13 @@ public class Timer{
         int minsLeft = timeLeft / 60;
         int secsLeft = timeLeft % 60;
         if(timeLeft <= 0) {
-            canvas.drawText("Too slow!", panelWidth / 2, (panelHeight * 85) / 100, paint);
+            paint.setColor(Color.RED);
+            canvas.drawText("Too slow!", panelWidth / 2, (panelHeight * 23) / 100, paint);
+            paint.setColor(Color.LTGRAY);
         }
         else if(secsLeft < 10) {
-            canvas.drawText(minsLeft + ":0" + secsLeft, panelWidth / 2, (panelHeight * 85) / 100, paint);
+            canvas.drawText(minsLeft + ":0" + secsLeft, panelWidth / 2, (panelHeight * 23) / 100, paint);
         }
-        else canvas.drawText(minsLeft + ":" + secsLeft, panelWidth / 2, (panelHeight * 85) / 100, paint);
+        else canvas.drawText(minsLeft + ":" + secsLeft, panelWidth / 2, (panelHeight * 23) / 100, paint);
     }
 }

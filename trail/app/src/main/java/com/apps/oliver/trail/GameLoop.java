@@ -111,7 +111,7 @@ public class GameLoop extends Thread {
                     }
 
                     if (framesSkipped > 0) {
-                        Log.d(TAG, "Skipped: " + framesSkipped);
+                        //Log.d(TAG, "Skipped: " + framesSkipped);
                     }
                     //For statistics
                     framesSkippedPerStatCycle += framesSkipped;

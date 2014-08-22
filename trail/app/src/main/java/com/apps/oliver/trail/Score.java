@@ -40,9 +40,9 @@ public class Score {
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setColor(Color.LTGRAY);
         textPaint.setTypeface(robotoLight);
-        textPaint.setTextSize(36);
+        textPaint.setTextSize(45);
         //Draw text
-        canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 20) / 100, textPaint);
+        canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 90) / 100, textPaint);
     }
 
     public void drawFinal(Canvas canvas) {

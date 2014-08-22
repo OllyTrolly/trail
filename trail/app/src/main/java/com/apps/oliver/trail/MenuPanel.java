@@ -66,23 +66,21 @@ public class MenuPanel extends SurfaceView implements
         Paint rectPaint = new Paint();
         rectPaint.setAntiAlias(true);
         rectPaint.setColor(Color.LTGRAY);
+        //rectPaint.setAlpha(150);
         //First line
-        /*
-        canvas.save();
-        canvas.rotate(-45);
-        canvas.drawRect(horizCentre, circle1Vert - rectRadius, panelWidth, circle1Vert + rectRadius, rectPaint);
+        canvas.save(Canvas.MATRIX_SAVE_FLAG);
+        canvas.rotate(40, horizCentre, circle1Vert);
+        canvas.drawRect(horizCentre, circle1Vert - rectRadius, (float) (panelWidth + (0.75*horizCentre)), circle1Vert + rectRadius, rectPaint);
         canvas.restore();
-        */
         //Second line
         canvas.drawRect(horizCentre - rectRadius, circle2Vert, horizCentre + rectRadius, circle3Vert, rectPaint);
         //Third line
-        /*
         rectPaint.setColor(Color.GRAY);
-        canvas.save();
-        canvas.rotate(45);
-        canvas.drawRect(0, circle2Vert - rectRadius, horizCentre, circle2Vert + rectRadius, rectPaint);
+        rectPaint.setAlpha(150);
+        canvas.save(Canvas.MATRIX_SAVE_FLAG);
+        canvas.rotate(320, horizCentre, circle2Vert);
+        canvas.drawRect((float) (0 - (0.75*horizCentre)), circle2Vert - rectRadius, horizCentre, circle2Vert + rectRadius, rectPaint);
         canvas.restore();
-        */
         //Fourth line
         canvas.drawRect(0, circle1Vert - rectRadius, horizCentre, circle1Vert + rectRadius, rectPaint);
         //Set paint for drawing dots

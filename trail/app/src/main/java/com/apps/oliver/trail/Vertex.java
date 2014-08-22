@@ -17,8 +17,8 @@ public class Vertex {
     private int y; // The Y coordinate
     private int r; // The radius
     private int h; // The hitbox
-    private int panelWidth;
-    private int panelHeight;
+    public int panelWidth;
+    public int panelHeight;
     private boolean touched; // If vertex is touched
     Paint paint = new Paint(); // Instantiate paint
     Paint paintBorder = new Paint();

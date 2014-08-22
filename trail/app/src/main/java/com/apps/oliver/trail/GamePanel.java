@@ -153,7 +153,7 @@ public class GamePanel extends SurfaceView implements
         else {
             graph.draw(canvas);
             //Display FPS
-            //displayFps(canvas, avgFps);
+            displayFps(canvas, avgFps);
             canvas.drawBitmap(reset, resetPos, vertSpace, null);
             textPaint.setTextSize(50);
             canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 10) / 100, textPaint);
@@ -169,7 +169,7 @@ public class GamePanel extends SurfaceView implements
             Paint paint = new Paint();
             paint.setARGB(255,255,255,255);
             paint.setTextSize(20);
-            canvas.drawText(fps,this.getWidth() - 100, 20, paint);
+            canvas.drawText(fps,panelWidth - 100, panelHeight - 20, paint);
         }
     }
 }
