@@ -7,10 +7,12 @@ package com.apps.oliver.trail;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 import java.util.ArrayList;
 
-public class Vertex {
+public class Vertex implements Parcelable {
 
     private static final String TAG = Vertex.class.getSimpleName(); //Define the tag for logging
     private int x; // The X coordinate
@@ -19,13 +21,13 @@ public class Vertex {
     private int h; // The hitbox
     public int panelWidth;
     public int panelHeight;
-    private boolean touched; // If vertex is touched
-    Paint paint = new Paint(); // Instantiate paint
-    Paint paintBorder = new Paint();
+    private Paint paint = new Paint(); // Instantiate paint
+    private Paint paintBorder = new Paint();
     private boolean isActivated;
     private boolean isLocked;
-    ArrayList<Vertex> conVertices = new ArrayList<Vertex>();
-    ArrayList<Edge> conEdges = new ArrayList<Edge>();
+    private ArrayList<Vertex> conVertices = new ArrayList<Vertex>();
+    private ArrayList<Edge> conEdges = new ArrayList<Edge>();
+    private boolean[] bArray = new boolean[2];
 
     public Vertex(int x, int y, int panelWidth, int panelHeight) {
         this.panelWidth = panelWidth;
@@ -40,15 +42,17 @@ public class Vertex {
         paintBorder.setColor(Color.WHITE);
         paintBorder.setAntiAlias(true);
     }
-/*
-    public Bitmap getBitmap() {
-        return bitmap;
+
+    public Vertex(Parcel in) {
+        readFromParcel(in);
+        this.r = (panelWidth * 9) / 200;
+        this.h = (panelWidth * 2) / 100;
+        paint.setColor(Color.rgb(237, 145, 33)); //Take color as input later on (can change colour scheme this way)
+        paint.setAntiAlias(true);
+        paintBorder.setColor(Color.WHITE);
+        paintBorder.setAntiAlias(true);
     }
 
-    public void setBitmap(Bitmap bitmap) {
-        this.bitmap = bitmap;
-    }
-*/
     public int getX() {
         return x;
     }
@@ -133,4 +137,43 @@ public class Vertex {
     public boolean isLocked() {
         return isLocked;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(x);
+        dest.writeInt(y);
+        dest.writeInt(panelWidth);
+        dest.writeInt(panelHeight);
+        bArray[0] = isActivated;
+        bArray[1] = isLocked;
+        dest.writeBooleanArray(bArray);
+        dest.writeList(conVertices);
+        dest.writeList(conEdges);
+    }
+
+    private void readFromParcel(Parcel in) {
+        x = in.readInt();
+        y = in.readInt();
+        panelWidth = in.readInt();
+        panelHeight = in.readInt();
+        in.readBooleanArray(bArray);
+        isActivated = bArray[0];
+        isLocked = bArray[1];
+        in.readList(conVertices, Vertex.class.getClassLoader());
+        in.readList(conEdges, Edge.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Vertex createFromParcel(Parcel in) {
+            return new Vertex(in);
+        }
+        public Vertex[] newArray(int size) {
+            return new Vertex[size];
+        }
+    };
 }

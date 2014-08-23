@@ -21,7 +21,6 @@ public class GameActivity extends Activity {
     private GamePanel panel;
     private View view;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +51,8 @@ public class GameActivity extends Activity {
     protected void onPause() {
         Log.d(TAG, "Pausing...");
         super.onPause();
+
+
     }
 
     protected void onResume() {
@@ -75,7 +76,7 @@ public class GameActivity extends Activity {
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "Saving instance state...");
         super.onSaveInstanceState(savedInstanceState); // the UI component values are saved here.
-        //outState.putDouble("VALUE", liter);
+        //savedInstanceState.putParcelable();
         //Toast.makeText(this, "Activity state saved", Toast.LENGTH_LONG).show();
     }
     

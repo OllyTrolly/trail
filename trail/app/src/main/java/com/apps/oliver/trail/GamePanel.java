@@ -13,6 +13,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -64,6 +67,26 @@ public class GamePanel extends SurfaceView implements
         graph.constructStage();
         loop = new GameLoop(getHolder(), this); //Passes the SurfaceHolder and GamePanel class (this) to the loop instance of GameLoop
         setFocusable(true); // Make the GamePanel focusable so it can handle events
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("instanceState", super.onSaveInstanceState());
+        bundle.putBoolean("scoreScreen", scoreScreen);
+        bundle.putParcelable("graph", graph);
+        return bundle;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if(state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            this.scoreScreen = bundle.getBoolean("scoreScreen");
+            this.graph = bundle.getParcelable("graph");
+            state = bundle.getParcelable("instanceState");
+        }
+        super.onRestoreInstanceState(state);
     }
 
     @Override
@@ -142,7 +165,6 @@ public class GamePanel extends SurfaceView implements
         this.avgFps = avgFps;
     }
 
-
     public void render(Canvas canvas) {
 
         canvas.drawColor(Color.DKGRAY);
@@ -172,4 +194,5 @@ public class GamePanel extends SurfaceView implements
             canvas.drawText(fps,panelWidth - 100, panelHeight - 20, paint);
         }
     }
+
 }

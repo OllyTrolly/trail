@@ -3,9 +3,12 @@ package com.apps.oliver.trail;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.os.CountDownTimer;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 import android.widget.RatingBar;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.Random;
 import java.util.Stack;
@@ -13,13 +16,13 @@ import java.util.Stack;
 /**
  * Created by Oliver on 13/07/2014.
  */
-public class Graph {
+public class Graph implements Parcelable {
 
     public boolean generatingGraph;
     private int difficultyLevel; //Minimum value 1, maximum value 5
-    private int vRows; //Minimum value 3, maximum value provisionally 6
-    private int vColumns; //Minimum value 3, maximum value provisionally 6
-    private boolean eulCircuit; //True if Euler circuit, false if non-circuit Euler trail
+    private int vRows = 0; //Minimum value 3, maximum value provisionally 6
+    private int vColumns = 0; //Minimum value 3, maximum value provisionally 6
+    private boolean eulCircuit = true; //True if Euler circuit, false if non-circuit Euler trail
     private ArrayList<Edge> edgeArrayList = new ArrayList<Edge>();
     private Vertex[] vertexArray;
     private int edgeCount;
@@ -27,7 +30,7 @@ public class Graph {
     private Timer timer;
     public int stageNo;
     public int gameMode;
-    private Typeface robotoLight;
+    private Typeface tf;
     private int randNum;
     private int origin;
     private int limit;
@@ -41,27 +44,45 @@ public class Graph {
     private int initVert;
     private Vertex selectedVertex;
     private Stack<Edge> selectedEdges = new Stack<Edge>();
-    private boolean vertexSelected;
+    private ArrayList<Edge> selectedEdgesStore = new ArrayList<Edge>();
+    private boolean vertexSelected = false;
     private int activated = 0;
     public int timerSecs;
-    public boolean constructComplete;
-    private int penalty; //Number of penalties incurred, for use in endless mode's scoring
+    public boolean constructComplete = false;
+    private int penalty = 0; //Number of penalties incurred, for use in endless mode's scoring
+    private boolean[] bArray = new boolean[4];
 
     private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
-    public Graph(int gameMode, int stageNo, int panelWidth, int panelHeight, Typeface robotoLight) {
+    public Graph(int gameMode, int stageNo, int panelWidth, int panelHeight, Typeface tf) {
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
-        this.robotoLight = robotoLight;
+        this.tf = tf;
         this.stageNo = stageNo;
         this.gameMode = gameMode;
-
 
         centreHoriz = panelWidth / 2;
         centreVert = panelHeight / 2;
         vertexSpacing = (panelWidth * 18) / 100;
 
-        score = new Score(robotoLight, panelWidth, panelHeight);
+        score = new Score(tf, panelWidth, panelHeight);
+    }
+
+    public Graph(Parcel in) {
+        readFromParcel(in);
+
+        if(!constructComplete) {
+            centreHoriz = panelWidth / 2;
+            centreVert = panelHeight / 2;
+            vertexSpacing = (panelWidth * 18) / 100;
+
+            constructStage();
+        }
+
+    }
+
+    public void setTypeface(Typeface tf) {
+        this.tf = tf;
     }
 
     public void constructStage() {
@@ -170,7 +191,6 @@ public class Graph {
         Log.d(TAG, "Number of rows: " + vRows  + ", number of columns: " + vColumns + ", is an Euler circuit: " + eulCircuit);
 
         constructVertices();
-
         constructCornerEdges();
 
         if(!constructSideEdges()) {
@@ -182,15 +202,13 @@ public class Graph {
         }
 
         edgeCount = edgeArrayList.size();
-
         timerSecs = vRows * vColumns * 3;
-
-        timer = new Timer(timerSecs, robotoLight, panelWidth, panelHeight);
 
         if(!checkConnectedness()) {
             return;
         }
 
+        timer = new Timer(timerSecs, tf, panelWidth, panelHeight);
         constructComplete = true;
     }
 
@@ -249,25 +267,19 @@ public class Graph {
                 break;
         }
 
-        //Log.d(TAG, "Constructing vertices");
         constructVertices();
-
-        //Log.d(TAG, "Constructing corner edges");
         constructCornerEdges();
 
-        //Log.d(TAG, "Constructing side edges");
         if(!constructSideEdges()) {
             return;
         }
 
-        //Log.d(TAG, "Constructing inner edges");
         if(!constructInnerEdges()) {
             return;
         }
 
         edgeCount = edgeArrayList.size();
 
-        //Log.d(TAG, "Checking connectedness");
         if(!checkConnectedness()) {
             return;
         }
@@ -278,7 +290,7 @@ public class Graph {
     public void draw(Canvas canvas) {
 
         //Draw edges
-        if(!generatingGraph) {
+        if(!constructComplete) {
             try {
                 for (Edge edge : edgeArrayList) {
                     //Log.d(TAG, "Drawing an edge");
@@ -1239,13 +1251,105 @@ public class Graph {
                 }
             }
 
+            constructComplete = false;
             return true;
         }
 
-
-
         return false;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        if(constructComplete) {
+            bArray[0] = constructComplete;
+            bArray[1] = eulCircuit;
+            bArray[2] = vertexSelected;
+            dest.writeBooleanArray(bArray);
+            dest.writeInt(vRows);
+            dest.writeInt(vColumns);
+            dest.writeInt(stageNo);
+            dest.writeInt(gameMode);
+            dest.writeInt(panelWidth);
+            dest.writeInt(panelHeight);
+            dest.writeInt(edgeCount);
+            dest.writeInt(activated);
+            dest.writeInt(penalty);
+            dest.writeList(edgeArrayList);
+            ArrayList<Vertex> vertexArrayStore = new ArrayList<Vertex>(Arrays.asList(vertexArray));
+            dest.writeList(vertexArrayStore);
+            dest.writeParcelable(score, flags);
+            if (gameMode == 0) {
+                dest.writeParcelable(timer, flags);
+            }
+            dest.writeParcelable(selectedVertex, flags);
+            for (int i = 0; i < selectedEdges.capacity(); i++) {
+                selectedEdgesStore.add(selectedEdges.pop());
+            }
+            dest.writeList(selectedEdgesStore);
+        }
+        else{
+            bArray[0] = constructComplete;
+            dest.writeBooleanArray(bArray);
+            dest.writeInt(gameMode);
+            dest.writeInt(stageNo);
+            dest.writeInt(panelWidth);
+            dest.writeInt(panelHeight);
+        }
+    }
+
+    private void readFromParcel(Parcel in) {
+        in.readBooleanArray(bArray);
+        constructComplete = bArray[0];
+        if(constructComplete) {
+            eulCircuit = bArray[1];
+            vertexSelected = bArray[2];
+            vRows = in.readInt();
+            vColumns = in.readInt();
+            stageNo = in.readInt();
+            gameMode = in.readInt();
+            panelWidth = in.readInt();
+            panelHeight = in.readInt();
+            edgeCount = in.readInt();
+            activated = in.readInt();
+            penalty = in.readInt();
+            in.readList(edgeArrayList, Edge.class.getClassLoader());
+
+            ArrayList<Vertex> vertexArrayStore = new ArrayList<Vertex>();
+            in.readList(vertexArrayStore, Vertex.class.getClassLoader());
+            vertexArray = vertexArrayStore.toArray(new Vertex[vertexArrayStore.size()]);
+
+            score = in.readParcelable(Score.class.getClassLoader());
+            if(gameMode == 0) {
+                timer = in.readParcelable(Timer.class.getClassLoader());
+            }
+
+            selectedVertex = in.readParcelable(Vertex.class.getClassLoader());
+            in.readList(selectedEdgesStore, Edge.class.getClassLoader());
+            for(int i = selectedEdgesStore.size(); i > 0; i--) {
+                selectedEdges.push(selectedEdgesStore.get(i - 1));
+            }
+        }
+        else {
+            gameMode = in.readInt();
+            stageNo = in.readInt();
+            panelWidth = in.readInt();
+            panelHeight = in.readInt();
+        }
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Graph createFromParcel(Parcel in) {
+            return new Graph(in);
+        }
+        public Graph[] newArray(int size) {
+            return new Graph[size];
+        }
+    };
 }
 
 

@@ -4,19 +4,22 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
 /**
  * Created by Oliver on 13/07/2014.
  */
-public class Score {
+public class Score implements Parcelable {
 
     private long scoreValue;
     private String scoreName;
     private Typeface robotoLight;
     private int panelWidth;
     private int panelHeight;
+    private Paint textPaint;
 
     public Score(Typeface robotoLight, int panelWidth, int panelHeight) {
         this.robotoLight = robotoLight;
@@ -24,6 +27,17 @@ public class Score {
         this.panelHeight = panelHeight;
         scoreValue = 0;
         scoreName = "Player";
+        textPaint = new Paint();
+    }
+
+    public Score(Parcel in) {
+        readFromParcel(in);
+        scoreName = "Player";
+        textPaint = new Paint();
+    }
+
+    public void setTypeface(Typeface tf) {
+        textPaint.setTypeface(tf);
     }
 
     public void addToScore(long score) {
@@ -35,7 +49,7 @@ public class Score {
     }
 
     public void draw(Canvas canvas) {
-        Paint textPaint = new Paint();
+
         textPaint.setAntiAlias(true);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setColor(Color.LTGRAY);
@@ -46,7 +60,6 @@ public class Score {
     }
 
     public void drawFinal(Canvas canvas) {
-        Paint textPaint = new Paint();
         textPaint.setAntiAlias(true);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setColor(Color.LTGRAY);
@@ -62,4 +75,31 @@ public class Score {
         //Write the score with its name to SQLite
         //Learn to use SQLite of course
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(panelWidth);
+        dest.writeInt(panelHeight);
+        dest.writeLong(scoreValue);
+    }
+
+    private void readFromParcel(Parcel in) {
+        panelWidth = in.readInt();
+        panelHeight = in.readInt();
+        scoreValue = in.readLong();
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Score createFromParcel(Parcel in) {
+            return new Score(in);
+        }
+        public Score[] newArray(int size) {
+            return new Score[size];
+        }
+    };
 }
