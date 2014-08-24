@@ -36,6 +36,8 @@ public class GameActivity extends Activity {
         }
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
         final GamePanel panel = new GamePanel(this, robotoLight, gameMode);
+        int id = 0;
+        panel.setId(id);
         setContentView(panel);
 
         Log.d(TAG, "View added");
@@ -51,8 +53,6 @@ public class GameActivity extends Activity {
     protected void onPause() {
         Log.d(TAG, "Pausing...");
         super.onPause();
-
-
     }
 
     protected void onResume() {
@@ -76,8 +76,14 @@ public class GameActivity extends Activity {
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "Saving instance state...");
         super.onSaveInstanceState(savedInstanceState); // the UI component values are saved here.
-        //savedInstanceState.putParcelable();
-        //Toast.makeText(this, "Activity state saved", Toast.LENGTH_LONG).show();
+        //savedInstanceState.putParcelable("gamePanel", panel.onSaveInstanceState());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.d(TAG, "Restoring instance state...");
+        super.onRestoreInstanceState(savedInstanceState); // the UI component values are saved here.
+        //panel.onRestoreInstanceState(savedInstanceState.getParcelable("gamePanel"));
     }
     
     @Override

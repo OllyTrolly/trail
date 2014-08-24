@@ -13,14 +13,17 @@ import android.util.Log;
  * Created by Oliver on 13/07/2014.
  */
 
-public class Timer implements Parcelable {
+public class Timer {
 
+    private static final String TAG = Timer.class.getSimpleName(); //Define the tag for logging
     private int timerSecs;
     public long startTime;
+    private long pauseTime;
     public int timeLeft;
     private Paint paint;
     private int panelWidth;
     private int panelHeight;
+    private long offset = 0;
 
     public Timer(int timerSecs, Typeface robotoLight, int panelWidth, int panelHeight) {
         this.panelWidth = panelWidth;
@@ -35,29 +38,24 @@ public class Timer implements Parcelable {
         paint.setAntiAlias(true);
     }
 
-    public Timer(Parcel in) {
-        readFromParcel(in);
-        startTime = System.nanoTime();
-        this.timerSecs = timeLeft;
-        paint = new Paint();
-        paint.setColor(Color.LTGRAY);
-        paint.setTextSize(70);
-        paint.setTextAlign(Paint.Align.CENTER);
-        paint.setAntiAlias(true);
-    }
-
-    public void setTypeface(Typeface tf) {
-        paint.setTypeface(tf);
-    }
-
     public int getTimeLeft() {
         int timeElapsed = (int) ((System.nanoTime() - startTime)/1000000000);
         timeLeft = timerSecs - timeElapsed;
         return timeLeft;
     }
 
+    public void pauseTimer() {
+        Log.d(TAG, "Pausing timer");
+        pauseTime = System.nanoTime();
+    }
+
+    public void resumeTimer() {
+        Log.d(TAG, "Resuming timer");
+        offset = System.nanoTime() - pauseTime;
+    }
+
     public void draw(Canvas canvas) {
-        int timeElapsed = (int) ((System.nanoTime() - startTime)/1000000000);
+        int timeElapsed = (int) ((System.nanoTime() - startTime - offset)/1000000000);
         timeLeft = timerSecs - timeElapsed;
         int minsLeft = timeLeft / 60;
         int secsLeft = timeLeft % 60;
@@ -71,31 +69,4 @@ public class Timer implements Parcelable {
         }
         else canvas.drawText(minsLeft + ":" + secsLeft, panelWidth / 2, (panelHeight * 23) / 100, paint);
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(panelWidth);
-        dest.writeInt(panelHeight);
-        dest.writeInt(timeLeft);
-    }
-
-    private void readFromParcel(Parcel in) {
-        panelWidth = in.readInt();
-        panelHeight = in.readInt();
-        timeLeft = in.readInt();
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Timer createFromParcel(Parcel in) {
-            return new Timer(in);
-        }
-        public Timer[] newArray(int size) {
-            return new Timer[size];
-        }
-    };
 }

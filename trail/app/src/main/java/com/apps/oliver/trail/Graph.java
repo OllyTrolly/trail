@@ -9,15 +9,20 @@ import android.util.Log;
 import android.widget.RatingBar;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Stack;
 
 /**
  * Created by Oliver on 13/07/2014.
  */
-public class Graph implements Parcelable {
+public class Graph {
 
+    private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
     public boolean generatingGraph;
     private int difficultyLevel; //Minimum value 1, maximum value 5
     private int vRows = 0; //Minimum value 3, maximum value provisionally 6
@@ -44,15 +49,11 @@ public class Graph implements Parcelable {
     private int initVert;
     private Vertex selectedVertex;
     private Stack<Edge> selectedEdges = new Stack<Edge>();
-    private ArrayList<Edge> selectedEdgesStore = new ArrayList<Edge>();
     private boolean vertexSelected = false;
     private int activated = 0;
     public int timerSecs;
     public boolean constructComplete = false;
     private int penalty = 0; //Number of penalties incurred, for use in endless mode's scoring
-    private boolean[] bArray = new boolean[4];
-
-    private static final String TAG = Graph.class.getSimpleName(); //Define the tag for logging
 
     public Graph(int gameMode, int stageNo, int panelWidth, int panelHeight, Typeface tf) {
         this.panelWidth = panelWidth;
@@ -68,21 +69,16 @@ public class Graph implements Parcelable {
         score = new Score(tf, panelWidth, panelHeight);
     }
 
-    public Graph(Parcel in) {
-        readFromParcel(in);
-
-        if(!constructComplete) {
-            centreHoriz = panelWidth / 2;
-            centreVert = panelHeight / 2;
-            vertexSpacing = (panelWidth * 18) / 100;
-
-            constructStage();
+    public void pauseTimer() {
+        if (gameMode == 0) {
+            timer.pauseTimer();
         }
-
     }
 
-    public void setTypeface(Typeface tf) {
-        this.tf = tf;
+    public void resumeTimer() {
+        if (gameMode == 0) {
+            timer.resumeTimer();
+        }
     }
 
     public void constructStage() {
@@ -290,7 +286,7 @@ public class Graph implements Parcelable {
     public void draw(Canvas canvas) {
 
         //Draw edges
-        if(!constructComplete) {
+        if(constructComplete) {
             try {
                 for (Edge edge : edgeArrayList) {
                     //Log.d(TAG, "Drawing an edge");
@@ -662,8 +658,6 @@ public class Graph implements Parcelable {
     private boolean constructInnerEdges() {
         int origin;
         int locked;
-        if (vRows == 3 && vColumns == 3)
-            return true;
         for (int i = 1; i < vRows-1; i++) {
             for (int j = 1; j < vColumns-1; j++) {
                 origin = (i*vColumns) + j;
@@ -679,12 +673,8 @@ public class Graph implements Parcelable {
                     //Draw completely random line (just make sure it doesn't already exist)
                     //TO BE COMPLETED
                     while(true) {
-                        randNum = randInt(0,(vRows*vColumns)-1);
-                        if(vertexArray[randNum].numConnected() != 8) {
-                            while(true) {
-                                int randNum2;
-                            }
-                        }
+                        randNum = randInt(0, (vRows * vColumns) - 1);
+
                     }
                 }
 
@@ -730,358 +720,59 @@ public class Graph implements Parcelable {
         return true;
     }
 
+    private boolean traverseGraph(int root, int dest) {
+        //ArrayList for all the visited vertices
+        ArrayList<Integer> visited = new ArrayList<Integer>();
+        visited.add(new Integer(root));
+        //Stack for parents to get children of
+        Stack<Integer> parents = new Stack<Integer>();
+        parents.add(new Integer(root));
+        //An array of the integer modifiers for adjacent vertices
+        int[] adjVertices = new int[] {
+                - vColumns - 1,
+                - vColumns,
+                - vColumns + 1,
+                - 1,
+                1,
+                vColumns - 1,
+                vColumns,
+                vColumns + 1
+        };
+
+        //While the parents stack still has children to check, carry on
+        while(!parents.empty()) {
+            //Pop parent off the stack(in int form)
+            origin = parents.pop().intValue();
+            //For all adjacent vertices (always size 8)
+            for(int i = 0; i < 8; i++) {
+                //If the parent is connected to the adjacent vertex, proceed
+                if(connectedTo(origin + adjVertices[i])) {
+                    //If the child is our destination, return true
+                    if(origin + adjVertices[i] == dest) {
+                        return true;
+                    }
+                    //Else if child has not yet been visited, add it to parents stack
+                    else if(!visited.contains(new Integer(origin + adjVertices[i]))) {
+                        parents.add(new Integer(origin + adjVertices[i]));
+                        visited.add(new Integer(origin + adjVertices[i]));
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     private boolean checkConnectedness() {
-        int goal;
-
-        Log.d(TAG, "Checking connectedness of graph");
         //Top left to bottom right
-        origin = 0;
-        goal = (vColumns * vRows) - 1;
-        outerloop:
-        //Take 5 tries to reach goal
-        for(int i = 0; i < 10; i++) {
-            innerloop:
-            //Take number of moves proportional to graph size in each try
-            for(int j = 0; j < vRows*vColumns*2; j++) {
-                //If favourable path available, keep trying until a path is found
-                if(connectedTo(origin + vColumns + 1)
-                        || connectedTo(origin + 1)
-                        || connectedTo(origin + vColumns)) {
-
-                    while (true) {
-                        randNum = randInt(1, 20);
-                        //50% chance of down-right diagonal
-                        if(randNum <= 10) {
-                            if(connectedTo(origin + vColumns + 1)) {
-                                origin += vColumns + 1;
-                                //Log.d(TAG, "New origin is: " + origin);
-                                break;
-                            }
-                        }
-                        //25% chance of right
-                        else if(randNum <= 15) {
-                            if(connectedTo(origin + 1)) {
-                                origin++;
-                                //Log.d(TAG, "New origin is: " + origin);
-                                break;
-                            }
-                        }
-                        //25% chance of down
-                        else {
-                            if(connectedTo(origin + vColumns)) {
-                                origin += vColumns;
-                                //Log.d(TAG, "New origin is: " + origin);
-                                break;
-                            }
-                        }
-                    }
-                    //Check if at goal
-                    if (origin == goal) {
-                        Log.d(TAG, "Passed first connectedness test");
-                        break outerloop;
-                    }
-                }
-
-                //If unfavourable path available, keep trying until a path is found
-                else if(connectedTo(origin - vColumns)
-                        || connectedTo(origin - 1)) {
-
-                    while (true) {
-                        randNum = randInt(1, 2);
-                        //50% chance of up
-                        if (randNum == 1) {
-                            if (connectedTo(origin - vColumns)) {
-                                origin -= vColumns;
-                                //Log.d(TAG, "New origin is: " + origin);
-                                break;
-                            }
-                        }
-                        //50% chance of left
-                        else if (randNum == 2) {
-                            if (connectedTo(origin - 1)) {
-                                origin--;
-                                //Log.d(TAG, "New origin is: " + origin);
-                                break;
-                            }
-                        }
-                    }
-                    //Check if at goal
-                    if(origin == goal) {
-                        Log.d(TAG, "Passed first connectedness test");
-                        break outerloop;
-                    }
-                }
-
-                //If no helpful paths are available, try again
-                else {
-                    break innerloop;
-                }
-            }
-            //If finished last try without reaching goal, surmise it is not connected
-            if(i == 9) {
-                Log.d(TAG, "Failed first connectedness test");
-                return false;
-            }
-        }
-
+        if(!traverseGraph(0, (vColumns * vRows) - 1)) return false;
         //Top right to bottom left
-        origin = vColumns - 1;
-        goal = vColumns * (vRows - 1);
-        outerloop:
-        //Take 5 tries to reach goal
-        for(int i = 0; i < 10; i++) {
-            innerloop:
-            //Take number of moves proportional to graph size in each try
-            for(int j = 0; j < vRows*vColumns*2; j++) {
-                //If favourable path available, keep trying until a path is found
-                if(connectedTo(origin + vColumns - 1)
-                        || connectedTo(origin - 1)
-                        || connectedTo(origin + vColumns)) {
-
-                    while (true) {
-                        randNum = randInt(1, 20);
-                        //50% chance of down-left diagonal
-                        if(randNum <= 10) {
-                            if(connectedTo(origin + vColumns - 1)) {
-                                origin += vColumns - 1;
-                                break;
-                            }
-                        }
-                        //25% chance of left
-                        else if(randNum <= 15) {
-                            if(connectedTo(origin - 1)) {
-                                origin--;
-                                break;
-                            }
-                        }
-                        //25% chance of down
-                        else {
-                            if(connectedTo(origin + vColumns)) {
-                                origin += vColumns;
-                                break;
-                            }
-                        }
-                    }
-                    //Check if at goal
-                    if (origin == goal) {
-                        Log.d(TAG, "Passed second connectedness test");
-                        break outerloop;
-                    }
-                }
-
-                //If unfavourable path available, keep trying until a path is found
-                else if(connectedTo(origin - vColumns)
-                        || connectedTo(origin + 1)) {
-
-                    while (true) {
-                        randNum = randInt(1, 2);
-
-                        //50% chance of up
-                        if(randNum == 1) {
-                            if (connectedTo(origin - vColumns)) {
-                                origin -= vColumns;
-                                break;
-                            }
-                        }
-                        //50% chance of right
-                        else if(randNum == 2) {
-                            if (connectedTo(origin + 1)) {
-                                origin++;
-                                break;
-                            }
-                        }
-                    }
-                    //Check if at goal
-                    if(origin == goal) {
-                        Log.d(TAG, "Passed second connectedness test");
-                        break outerloop;
-                    }
-                }
-
-
-                //If no helpful paths are available, try again
-                else {
-                    break innerloop;
-                }
-            }
-            //If finished last try without reaching goal, surmise it is not connected
-            if(i == 9) {
-                Log.d(TAG, "Failed second connectedness test");
-                return false;
-            }
-        }
-
+        if(!traverseGraph(vColumns - 1, vColumns * (vRows - 1))) return false;
         //Top to bottom
-        origin = vColumns - 2;
-        goal = (vColumns * vRows) - 2;
-        outerloop:
-        //Take 5 tries to reach goal
-        for(int i = 0; i < 10; i++) {
-            innerloop:
-            //Take number of moves proportional to graph size in each try
-            for(int j = 0; j < vRows*vColumns*2; j++) {
-                //If favourable path available, keep trying until a path is found
-                if(connectedTo(origin + vColumns - 1)
-                        || connectedTo(origin + vColumns)
-                        || connectedTo(origin + vColumns + 1)) {
-
-                    while (true) {
-                        randNum = randInt(1, 20);
-                        //50% chance of down
-                        if(randNum <= 10) {
-                            if(connectedTo(origin + vColumns)) {
-                                origin += vColumns;
-                                break;
-                            }
-                        }
-                        //25% chance of down-left diagonal
-                        else if(randNum <= 15) {
-                            if(connectedTo(origin + vColumns - 1)) {
-                                origin += vColumns - 1;
-                                break;
-                            }
-                        }
-                        //25% chance of down-right diagonal
-                        else {
-                            if(connectedTo(origin + vColumns + 1)) {
-                                origin += vColumns + 1;
-                                break;
-                            }
-                        }
-                    }
-                    //Check if at goal
-                    if (origin == goal) {
-                        Log.d(TAG, "Passed third connectedness test");
-                        break outerloop;
-                    }
-                }
-
-                //If unfavourable path available, keep trying until a path is found
-                else if(connectedTo(origin - vColumns - 1)
-                        || connectedTo(origin - vColumns + 1)) {
-
-                    while (true) {
-                        randNum = randInt(1, 2);
-                        //50% chance of up-left diagonal
-                        if (randNum == 1) {
-                            if (connectedTo(origin - vColumns - 1)) {
-                                origin = origin - vColumns - 1;
-                                break;
-                            }
-                        }
-                        //50% chance of up-right diagonal
-                        else if (randNum == 2) {
-                            if (connectedTo(origin - vColumns + 1)) {
-                                origin = origin - vColumns + 1;
-                                break;
-                            }
-                        }
-                    }
-                    //Check if at goal
-                    if(origin == goal) {
-                        Log.d(TAG, "Passed third connectedness test");
-                        break outerloop;
-                    }
-                }
-
-                //If no helpful paths are available, try again
-                else {
-                    break innerloop;
-                }
-            }
-            //If finished last try without reaching goal, surmise it is not connected
-            if(i == 9) {
-                Log.d(TAG, "Failed third connectedness test");
-                return false;
-            }
-        }
-
+        if(!traverseGraph(vColumns - 2, (vColumns * vRows) - 2)) return false;
         //Left to right
-        origin = vColumns;
-        goal = (vColumns * 2) - 1;
-        outerloop:
-        //Take 5 tries to reach goal
-        for(int i = 0; i < 10; i++) {
-            innerloop:
-            //Take number of moves proportional to graph size in each try
-            for(int j = 0; j < vRows*vColumns*2; j++) {
-                //If favourable path available, keep trying until a path is found
-                if(connectedTo(origin + 1)
-                        || connectedTo(origin - vColumns + 1)
-                        || connectedTo(origin + vColumns + 1)) {
+        if(!traverseGraph(vColumns, (vColumns * 2) - 1)) return false;
 
-                    while (true) {
-                        randNum = randInt(1, 20);
-                        //50% chance of right
-                        if(randNum <= 10) {
-                            if(connectedTo(origin + 1)) {
-                                origin += 1;
-                                break;
-                            }
-                        }
-                        //25% chance of up-right diagonal
-                        else if(randNum <= 15) {
-                            if(connectedTo(origin - vColumns + 1)) {
-                                origin += - vColumns + 1;
-                                break;
-                            }
-                        }
-                        //25% chance of down-right diagonal
-                        else {
-                            if(connectedTo(origin + vColumns + 1)) {
-                                origin += vColumns + 1;
-                                break;
-                            }
-                        }
-                    }
-                    //Check if at goal
-                    if (origin == goal) {
-                        Log.d(TAG, "Passed fourth connectedness test");
-                        break outerloop;
-                    }
-                }
-
-                //If unfavourable path available, keep trying until a path is found
-                else if(connectedTo(origin - vColumns - 1)
-                        || connectedTo(origin + vColumns - 1)) {
-
-                    while (true) {
-                        randNum = randInt(1, 2);
-
-                        //50% chance of up-left diagonal
-                        if(randNum == 1) {
-                            if (connectedTo(origin - vColumns - 1)) {
-                                origin = origin - vColumns - 1;
-                                break;
-                            }
-                        }
-                        //50% chance of down-left diagonal
-                        else if(randNum == 2) {
-                            if (connectedTo(origin + vColumns - 1)) {
-                                origin = origin + vColumns - 1;
-                                break;
-                            }
-                        }
-                    }
-                    //Check if at goal
-                    if(origin == goal) {
-                        Log.d(TAG, "Passed fourth connectedness test");
-                        break outerloop;
-                    }
-                }
-
-                //If no helpful paths are available, try again
-                else {
-                    break innerloop;
-                }
-            }
-            //If finished last try without reaching goal, surmise it is not connected
-            if(i == 9) {
-                Log.d(TAG, "Failed fourth connectedness test");
-                return false;
-            }
-        }
-        //If passed all tries, graph is hereby connected!
         return true;
     }
 
@@ -1258,98 +949,6 @@ public class Graph implements Parcelable {
         return false;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        if(constructComplete) {
-            bArray[0] = constructComplete;
-            bArray[1] = eulCircuit;
-            bArray[2] = vertexSelected;
-            dest.writeBooleanArray(bArray);
-            dest.writeInt(vRows);
-            dest.writeInt(vColumns);
-            dest.writeInt(stageNo);
-            dest.writeInt(gameMode);
-            dest.writeInt(panelWidth);
-            dest.writeInt(panelHeight);
-            dest.writeInt(edgeCount);
-            dest.writeInt(activated);
-            dest.writeInt(penalty);
-            dest.writeList(edgeArrayList);
-            ArrayList<Vertex> vertexArrayStore = new ArrayList<Vertex>(Arrays.asList(vertexArray));
-            dest.writeList(vertexArrayStore);
-            dest.writeParcelable(score, flags);
-            if (gameMode == 0) {
-                dest.writeParcelable(timer, flags);
-            }
-            dest.writeParcelable(selectedVertex, flags);
-            for (int i = 0; i < selectedEdges.capacity(); i++) {
-                selectedEdgesStore.add(selectedEdges.pop());
-            }
-            dest.writeList(selectedEdgesStore);
-        }
-        else{
-            bArray[0] = constructComplete;
-            dest.writeBooleanArray(bArray);
-            dest.writeInt(gameMode);
-            dest.writeInt(stageNo);
-            dest.writeInt(panelWidth);
-            dest.writeInt(panelHeight);
-        }
-    }
-
-    private void readFromParcel(Parcel in) {
-        in.readBooleanArray(bArray);
-        constructComplete = bArray[0];
-        if(constructComplete) {
-            eulCircuit = bArray[1];
-            vertexSelected = bArray[2];
-            vRows = in.readInt();
-            vColumns = in.readInt();
-            stageNo = in.readInt();
-            gameMode = in.readInt();
-            panelWidth = in.readInt();
-            panelHeight = in.readInt();
-            edgeCount = in.readInt();
-            activated = in.readInt();
-            penalty = in.readInt();
-            in.readList(edgeArrayList, Edge.class.getClassLoader());
-
-            ArrayList<Vertex> vertexArrayStore = new ArrayList<Vertex>();
-            in.readList(vertexArrayStore, Vertex.class.getClassLoader());
-            vertexArray = vertexArrayStore.toArray(new Vertex[vertexArrayStore.size()]);
-
-            score = in.readParcelable(Score.class.getClassLoader());
-            if(gameMode == 0) {
-                timer = in.readParcelable(Timer.class.getClassLoader());
-            }
-
-            selectedVertex = in.readParcelable(Vertex.class.getClassLoader());
-            in.readList(selectedEdgesStore, Edge.class.getClassLoader());
-            for(int i = selectedEdgesStore.size(); i > 0; i--) {
-                selectedEdges.push(selectedEdgesStore.get(i - 1));
-            }
-        }
-        else {
-            gameMode = in.readInt();
-            stageNo = in.readInt();
-            panelWidth = in.readInt();
-            panelHeight = in.readInt();
-        }
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Graph createFromParcel(Parcel in) {
-            return new Graph(in);
-        }
-        public Graph[] newArray(int size) {
-            return new Graph[size];
-        }
-    };
 }
 
 

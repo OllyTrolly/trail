@@ -11,7 +11,7 @@ import android.util.Log;
 /**
  * Created by Oliver on 13/07/2014.
  */
-public class Edge implements Parcelable {
+public class Edge {
 
     private static final String TAG = Edge.class.getSimpleName(); //Define the tag for logging
     private Vertex vertexA;
@@ -30,7 +30,6 @@ public class Edge implements Parcelable {
     private boolean isActivated;
     private boolean lastSelected;
     private float diagEdgeLength;
-    private boolean[] bArray;
 
     public Edge(Vertex vertexA, Vertex vertexB) {
         this.vertexA = vertexA;
@@ -64,35 +63,6 @@ public class Edge implements Parcelable {
         }
     }
 
-    public Edge(Parcel in) {
-        readFromParcel(in);
-        updatePaint();
-        paint.setAntiAlias(true);
-
-        rectRadius = (vertexA.panelWidth * 2) / 100;
-        diagEdgeLength = (vertexA.panelWidth * 51) / 200;
-
-        aX = vertexA.getX();
-        aY = vertexA.getY();
-        bX = vertexB.getX();
-        bY = vertexB.getY();
-
-        if (aX < bX) {smallX = aX; bigX = bX;}
-        else {smallX = bX; bigX = aX;}
-        if (aY < bY) {smallY = aY; bigY = bY;}
-        else {smallY = bY; bigY = aY;}
-
-        if(aY < bY) {
-            if(aX < bX) rotation = 45;
-            else rotation = 135;
-        }
-        else {
-            if (bX < aX) rotation = 360 - 135;
-            else rotation = 360 - 45;
-        }
-
-    }
-
     public void toggleActivation(boolean isActivated) {
         this.isActivated = isActivated;
         updatePaint();
@@ -118,10 +88,6 @@ public class Edge implements Parcelable {
         }
     }
 
-    public boolean isLastSelected() {
-        return lastSelected;
-    }
-
     public boolean isActivated() {
         return isActivated;
     }
@@ -145,36 +111,4 @@ public class Edge implements Parcelable {
             canvas.restore();
         }
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(vertexA, flags);
-        dest.writeParcelable(vertexB, flags);
-        bArray[0] = isActivated;
-        bArray[1] = lastSelected;
-        dest.writeBooleanArray(bArray);
-
-    }
-
-    private void readFromParcel(Parcel in) {
-        vertexA = in.readParcelable(Vertex.class.getClassLoader());
-        vertexB = in.readParcelable(Vertex.class.getClassLoader());
-        in.readBooleanArray(bArray);
-        isActivated = bArray[0];
-        lastSelected = bArray[1];
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Edge createFromParcel(Parcel in) {
-            return new Edge(in);
-        }
-        public Edge[] newArray(int size) {
-            return new Edge[size];
-        }
-    };
 }

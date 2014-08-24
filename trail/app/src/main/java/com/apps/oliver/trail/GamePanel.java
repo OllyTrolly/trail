@@ -39,9 +39,11 @@ public class GamePanel extends SurfaceView implements
     private int panelWidth;
     private int panelHeight;
     private boolean scoreScreen = false;
+    private Typeface tf;
 
-    public GamePanel(Context context, Typeface robotoLight, int gameMode) {
+    public GamePanel(Context context, Typeface tf, int gameMode) {
         super(context);
+        this.tf = tf;
 
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
@@ -57,36 +59,17 @@ public class GamePanel extends SurfaceView implements
 
         textPaint.setAntiAlias(true);
         textPaint.setColor(Color.LTGRAY);
-        textPaint.setTypeface(robotoLight);
+        textPaint.setTypeface(tf);
         textPaint.setTextAlign(Paint.Align.CENTER);
         // adding the callback (this) to the surface holder to intercept events
         getHolder().addCallback(this);
         reset = BitmapFactory.decodeResource(getResources(), R.drawable.reset);
         back = BitmapFactory.decodeResource(getResources(), R.drawable.back);
-        graph = new Graph(gameMode, stageNo, panelWidth, panelHeight, robotoLight);
+        graph = new Graph(gameMode, stageNo, panelWidth, panelHeight, tf);
         graph.constructStage();
         loop = new GameLoop(getHolder(), this); //Passes the SurfaceHolder and GamePanel class (this) to the loop instance of GameLoop
         setFocusable(true); // Make the GamePanel focusable so it can handle events
-    }
 
-    @Override
-    public Parcelable onSaveInstanceState() {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("instanceState", super.onSaveInstanceState());
-        bundle.putBoolean("scoreScreen", scoreScreen);
-        bundle.putParcelable("graph", graph);
-        return bundle;
-    }
-
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        if(state instanceof Bundle) {
-            Bundle bundle = (Bundle) state;
-            this.scoreScreen = bundle.getBoolean("scoreScreen");
-            this.graph = bundle.getParcelable("graph");
-            state = bundle.getParcelable("instanceState");
-        }
-        super.onRestoreInstanceState(state);
     }
 
     @Override
@@ -95,17 +78,27 @@ public class GamePanel extends SurfaceView implements
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        if(loop.getState() != GameLoop.State.NEW) {
+            loop = new GameLoop(getHolder(), this);
+            graph.resumeTimer();
+        }
+
         loop.setRunning(true);
         loop.start();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.d(TAG, "Stopping thread on surface destruction");
+        graph.pauseTimer();
+        loop.setRunning(false);
+
         boolean retry = true;
         while (retry) {
             try {
                 loop.join(); // "Blocks the current Thread (Thread.currentThread()) until the receiver finishes its execution and dies."
                 retry = false;
+                Log.d(TAG, "Successfully terminated thread");
             } catch (InterruptedException e) {
                 //try shutting down the GameLoop thread again
             }
