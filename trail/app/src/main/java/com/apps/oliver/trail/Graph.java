@@ -272,6 +272,8 @@ public class Graph {
                 break;
         }
 
+        //eulCircuit = false;
+
         constructVertices();
         constructCornerEdges();
 
