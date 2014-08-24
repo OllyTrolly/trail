@@ -197,6 +197,10 @@ public class Graph {
             return;
         }
 
+        if(!eulCircuit) {
+            addNonCircuitEdge();
+        }
+
         edgeCount = edgeArrayList.size();
         timerSecs = vRows * vColumns * 3;
 
@@ -237,12 +241,14 @@ public class Graph {
                     vRows = 4;
                     vColumns = 3;
                 }
-                eulCircuit = true;
+                if(randInt(1, 100) >= 5) eulCircuit = false;
+                else eulCircuit = true;
                 break;
             case 3:
                 vRows = 4;
                 vColumns = 4;
-                eulCircuit = true;
+                if(randInt(1, 100) >= 10) eulCircuit = false;
+                else eulCircuit = true;
                 break;
             case 4:
                 randNum = randInt(1,2);
@@ -254,12 +260,15 @@ public class Graph {
                     vRows = 4;
                     vColumns = 5;
                 }
-                eulCircuit = true;
+                if(randInt(1, 100) >= 15) eulCircuit = false;
+                else eulCircuit = true;
                 break;
             case 5:
                 vRows = 5;
                 vColumns = 5;
                 eulCircuit = true;
+                if(randInt(1, 100) >= 20) eulCircuit = false;
+                else eulCircuit = true;
                 break;
         }
 
@@ -272,6 +281,10 @@ public class Graph {
 
         if(!constructInnerEdges()) {
             return;
+        }
+
+        if(!eulCircuit) {
+            addNonCircuitEdge();
         }
 
         edgeCount = edgeArrayList.size();
@@ -313,10 +326,6 @@ public class Graph {
 
             score.draw(canvas);
         }
-    }
-
-    private boolean isEulCircuit(int weighting) {
-        return true;
     }
 
     public int randInt(int min, int max) {
@@ -669,14 +678,6 @@ public class Graph {
                         locked++;
                     }
                 }
-                if(locked == 8 && !eulCircuit) {
-                    //Draw completely random line (just make sure it doesn't already exist)
-                    //TO BE COMPLETED
-                    while(true) {
-                        randNum = randInt(0, (vRows * vColumns) - 1);
-
-                    }
-                }
 
                 Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
                 if(vertexArray[origin].numConnected() == 0 &&  locked > 6) {
@@ -712,12 +713,177 @@ public class Graph {
                         }
                     }
                 }
+
                 Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
             }
         }
 
         return true;
+    }
+
+    private void addNonCircuitEdge() {
+
+        Log.d(TAG, "Adding non-circuit edge");
+        outerloop:
+        while(true) {
+            //Find random vertex
+            randNum = randInt(0, (vRows * vColumns) - 1);
+            //If there aren't already 8 connections to that random vertex, proceed to attempt drawing an edge to random adjacent vertex
+            if(vertexArray[randNum].numConnected() != 8) {
+                while (true) {
+                    //Top left corner
+                    if(randNum == 0) {
+                        int[] adjVertices = new int[] {
+                                1,
+                                vColumns,
+                                vColumns + 1
+                        };
+                        //Find random adjacent vertex
+                        int randNum2 = randInt(0, 2);
+
+                        //If the 'adjacent' vertex is an existing vertex, proceed
+                        if (randNum + adjVertices[randNum2] > 0 && randNum + adjVertices[randNum2] < vRows * vColumns) {
+                            //If there isn't already a connection, create edge
+                            if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
+                                Log.d(TAG, "Drawing edge from vertex " + randNum + " to vertex " + (randNum + adjVertices[randNum2]));
+                                edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
+                                break outerloop;
+                            }
+                        }
+                    }
+                    //Top right corner
+                    else if(randNum == vColumns - 1) {
+                        int[] adjVertices = new int[] {
+                                - 1,
+                                vColumns - 1,
+                                vColumns
+                        };
+                        //Find random adjacent vertex
+                        int randNum2 = randInt(0, 2);
+
+                        //If the 'adjacent' vertex is an existing vertex, proceed
+                        if (randNum + adjVertices[randNum2] > 0 && randNum + adjVertices[randNum2] < vRows * vColumns) {
+                            //If there isn't already a connection, create edge
+                            if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
+                                Log.d(TAG, "Drawing edge from vertex " + randNum + " to vertex " + (randNum + adjVertices[randNum2]));
+                                edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
+                                break outerloop;
+                            }
+                        }
+                    }
+                    //Bottom left corner
+                    else if(randNum == vColumns * (vRows - 1)) {
+                        int[] adjVertices = new int[] {
+                                - vColumns,
+                                - vColumns + 1,
+                                1
+                        };
+                        //Find random adjacent vertex
+                        int randNum2 = randInt(0, 2);
+
+                        //If the 'adjacent' vertex is an existing vertex, proceed
+                        if (randNum + adjVertices[randNum2] > 0 && randNum + adjVertices[randNum2] < vRows * vColumns) {
+                            //If there isn't already a connection, create edge
+                            if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
+                                Log.d(TAG, "Drawing edge from vertex " + randNum + " to vertex " + (randNum + adjVertices[randNum2]));
+                                edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
+                                break outerloop;
+                            }
+                        }
+                    }
+                    //Bottom right corner
+                    else if(randNum == (vColumns * vRows) - 1) {
+                        int[] adjVertices = new int[] {
+                                - vColumns - 1,
+                                - vColumns,
+                                - 1
+                        };
+                        //Find random adjacent vertex
+                        int randNum2 = randInt(0, 2);
+
+                        //If the 'adjacent' vertex is an existing vertex, proceed
+                        if (randNum + adjVertices[randNum2] > 0 && randNum + adjVertices[randNum2] < vRows * vColumns) {
+                            //If there isn't already a connection, create edge
+                            if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
+                                Log.d(TAG, "Drawing edge from vertex " + randNum + " to vertex " + (randNum + adjVertices[randNum2]));
+                                edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
+                                break outerloop;
+                            }
+                        }
+                    }
+                    //Left side vertex
+                    else if(randNum % vColumns == 0) {
+                        int[] adjVertices = new int[] {
+                                - vColumns,
+                                - vColumns + 1,
+                                1,
+                                vColumns,
+                                vColumns + 1
+                        };
+                        //Find random adjacent vertex
+                        int randNum2 = randInt(0, 4);
+
+                        //If the 'adjacent' vertex is an existing vertex, proceed
+                        if (randNum + adjVertices[randNum2] > 0 && randNum + adjVertices[randNum2] < vRows * vColumns) {
+                            //If there isn't already a connection, create edge
+                            if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
+                                Log.d(TAG, "Drawing edge from vertex " + randNum + " to vertex " + (randNum + adjVertices[randNum2]));
+                                edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
+                                break outerloop;
+                            }
+                        }
+                    }
+                    //Right side vertex
+                    else if((randNum + 1) % vColumns == 0) {
+                        int[] adjVertices = new int[] {
+                                - vColumns - 1,
+                                - vColumns,
+                                - 1,
+                                vColumns - 1,
+                                vColumns
+                        };
+                        //Find random adjacent vertex
+                        int randNum2 = randInt(0, 4);
+
+                        //If the 'adjacent' vertex is an existing vertex, proceed
+                        if (randNum + adjVertices[randNum2] > 0 && randNum + adjVertices[randNum2] < vRows * vColumns) {
+                            //If there isn't already a connection, create edge
+                            if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
+                                Log.d(TAG, "Drawing edge from vertex " + randNum + " to vertex " + (randNum + adjVertices[randNum2]));
+                                edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
+                                break outerloop;
+                            }
+                        }
+                    }
+                    else {
+                        int[] adjVertices = new int[] {
+                                - vColumns - 1,
+                                - vColumns,
+                                - vColumns + 1,
+                                - 1,
+                                1,
+                                vColumns - 1,
+                                vColumns,
+                                vColumns + 1
+                        };
+                        //Find random adjacent vertex
+                        int randNum2 = randInt(0, 7);
+
+                        //If the 'adjacent' vertex is an existing vertex, proceed
+                        if (randNum + adjVertices[randNum2] > 0 && randNum + adjVertices[randNum2] < vRows * vColumns) {
+                            //If there isn't already a connection, create edge
+                            if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
+                                Log.d(TAG, "Drawing edge from vertex " + randNum + " to vertex " + (randNum + adjVertices[randNum2]));
+                                edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
+                                break outerloop;
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
     private boolean traverseGraph(int root, int dest) {
@@ -768,10 +934,14 @@ public class Graph {
         if(!traverseGraph(0, (vColumns * vRows) - 1)) return false;
         //Top right to bottom left
         if(!traverseGraph(vColumns - 1, vColumns * (vRows - 1))) return false;
-        //Top to bottom
+        //Top to bottom 1
         if(!traverseGraph(vColumns - 2, (vColumns * vRows) - 2)) return false;
-        //Left to right
+        //Top to bottom 2
+        if(!traverseGraph(1, (vColumns * (vRows - 1)) + 1)) return false;
+        //Left to right 1
         if(!traverseGraph(vColumns, (vColumns * 2) - 1)) return false;
+        //Left to right 2
+        if(!traverseGraph(vColumns * (vRows - 2), (vColumns * (vRows - 1) - 1))) return false;
 
         return true;
     }
@@ -844,7 +1014,7 @@ public class Graph {
                         for (int j = 0; j < vRows; j++) {
                             if (eventY >= (initVert + (j * vertexSpacing) - vertexArray[0].getR() - vertexArray[0].getH()) && eventY <= (initVert + (j * vertexSpacing) + vertexArray[0].getR() + vertexArray[0].getH())) {
                                 //Log.d(TAG, "Touched vertex in row " + (j + 1));
-                                Log.d(TAG, "Selecting vertex");
+                                //Log.d(TAG, "Selecting vertex");
                                 vertexArray[(j * vColumns) + i].toggleActivation(true);
                                 vertexArray[(j * vColumns) + i].lastSelected(true);
                                 selectedVertex = vertexArray[(j * vColumns) + i];
@@ -877,7 +1047,7 @@ public class Graph {
                                 if (selectedVertex.isConnectedTo(vertexArray[(j * vColumns) + i])) {
                                     if (!selectedVertex.getEdge(vertexArray[(j * vColumns) + i]).isActivated()) {
                                         //Log.d(TAG, "Touched vertex in row " + (j + 1));
-                                        Log.d(TAG, "Selecting vertex and previous edge");
+                                        //Log.d(TAG, "Selecting vertex and previous edge");
                                         selectedVertex.lastSelected(false);
                                         if(!selectedEdges.empty()) {selectedEdges.peek().lastSelected(false);}
                                         selectedEdges.push(selectedVertex.getEdge(vertexArray[(j * vColumns) + i]));
@@ -891,7 +1061,7 @@ public class Graph {
                                     }
 
                                     else if(selectedEdges.peek() == selectedVertex.getEdge(vertexArray[(j * vColumns) + i])) {
-                                        Log.d(TAG, "Deselecting vertex and previous edge");
+                                        //Log.d(TAG, "Deselecting vertex and previous edge");
                                         selectedEdges.peek().toggleActivation(false);
                                         selectedEdges.pop().lastSelected(false);
                                         if(!selectedEdges.empty()) {

@@ -168,7 +168,7 @@ public class GamePanel extends SurfaceView implements
         else {
             graph.draw(canvas);
             //Display FPS
-            displayFps(canvas, avgFps);
+            //displayFps(canvas, avgFps);
             canvas.drawBitmap(reset, resetPos, vertSpace, null);
             textPaint.setTextSize(50);
             canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 10) / 100, textPaint);
