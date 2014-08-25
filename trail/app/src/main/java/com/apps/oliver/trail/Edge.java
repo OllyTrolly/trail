@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 /**
@@ -14,61 +16,99 @@ public class Edge {
     private static final String TAG = Edge.class.getSimpleName(); //Define the tag for logging
     private Vertex vertexA;
     private Vertex vertexB;
+    private float aX;
+    private float aY;
+    private float bX;
+    private float bY;
     private float smallX;
     private float smallY;
     private float bigX;
     private float bigY;
-    private float r;
-    RectF rect;
+    private float rectRadius;
+    private int rotation;
     Paint paint = new Paint(); // Instantiate paint
-    boolean isActivated;
+    private boolean isActivated;
+    private boolean lastSelected;
+    private float diagEdgeLength;
 
     public Edge(Vertex vertexA, Vertex vertexB) {
         this.vertexA = vertexA;
-        vertexA.setConnected(vertexB);
+        vertexA.setConnected(vertexB, this);
         this.vertexB = vertexB;
-        vertexB.setConnected(vertexA);
+        vertexB.setConnected(vertexA, this);
         isActivated = false;
-        constructRectangle();
-        paint.setColor(Color.rgb(200, 200, 200)); //Take color as input later on (can change colour scheme this way)
+        rectRadius = (vertexA.panelWidth * 2) / 100;
+        paint.setColor(Color.GRAY); //Take color as input later on (can change colour scheme this way)
+        paint.setAlpha(100);
         paint.setAntiAlias(true);
-        r = 45;
-    }
+        diagEdgeLength = (vertexA.panelWidth * 51) / 200;
 
-    private void constructRectangle() {
-        if(vertexA.getX() <= vertexB.getX()) {
-            smallX = vertexA.getX();
-            bigX = vertexB.getX();
+        aX = vertexA.getX();
+        aY = vertexA.getY();
+        bX = vertexB.getX();
+        bY = vertexB.getY();
+
+        if (aX < bX) {smallX = aX; bigX = bX;}
+        else {smallX = bX; bigX = aX;}
+        if (aY < bY) {smallY = aY; bigY = bY;}
+        else {smallY = bY; bigY = aY;}
+
+        if(aY < bY) {
+            if(aX < bX) rotation = 45;
+            else rotation = 135;
         }
         else {
-            smallX = vertexB.getX();
-            bigX = vertexA.getX();
+            if (bX < aX) rotation = 360 - 135;
+            else rotation = 360 - 45;
         }
+    }
 
-        if(vertexA.getY() <= vertexB.getY()) {
-            smallY = vertexA.getY();
-            bigY = vertexB.getY();
+    public void toggleActivation(boolean isActivated) {
+        this.isActivated = isActivated;
+        updatePaint();
+    }
+
+    public void lastSelected(boolean lastSelected) {
+        this.lastSelected = lastSelected;
+        updatePaint();
+    }
+
+    public void updatePaint() {
+        if(lastSelected) {
+            paint.setColor(Color.YELLOW);
+            paint.setAlpha(150);
+        }
+        else if(isActivated) {
+            paint.setColor(Color.LTGRAY);
+            paint.setAlpha(255);
         }
         else {
-            smallY = vertexB.getY();
-            bigY = vertexA.getY();
+            paint.setColor(Color.GRAY);
+            paint.setAlpha(100);
         }
-        rect = new RectF(smallX, smallY, bigX, bigY);
     }
 
-    private void toggleActivation() {
-        if(isActivated)
-            isActivated = false;
-        else isActivated = true;
-    }
-
-    private boolean isActivated() {
+    public boolean isActivated() {
         return isActivated;
     }
 
     public void draw(Canvas canvas) {
-        //Log.d(TAG, "Drawing vertex at x = " + x + ", y = " + y + ", r = " + r);
-        //canvas.drawRoundRect(rect, r, r, paint);
-        canvas.drawLine(vertexA.getX(), vertexA.getY(), vertexB.getX(), vertexB.getY(), paint);
+        //Horizontal
+        if(vertexA.getY() == vertexB.getY()) {
+            canvas.drawRect(smallX, smallY - rectRadius, bigX, smallY + rectRadius, paint);
+        }
+
+        //Vertical
+        else if(vertexA.getX() == vertexB.getX()) {
+            canvas.drawRect(smallX - rectRadius, smallY, smallX + rectRadius, bigY, paint);
+        }
+
+        //Diagonal
+        else {
+            canvas.save(Canvas.MATRIX_SAVE_FLAG);
+            canvas.rotate(rotation, aX, aY);
+            canvas.drawRect(aX, aY - rectRadius, aX + diagEdgeLength, aY + rectRadius, paint);
+            canvas.restore();
+        }
     }
 }

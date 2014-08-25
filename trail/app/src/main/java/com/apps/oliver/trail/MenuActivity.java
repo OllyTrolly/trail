@@ -1,17 +1,33 @@
 package com.apps.oliver.trail;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Point;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 
 public class MenuActivity extends Activity {
 
+    private static final String TAG = MenuActivity.class.getSimpleName();
+    private MenuPanel panel;
+    private Point panelSize;
+    private int panelWidth;
+    private int panelHeight;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu);
+
+        Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
+        MenuPanel panel = new MenuPanel(this, robotoLight);
+        setContentView(panel);
     }
 
 
@@ -34,5 +50,9 @@ public class MenuActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-
+    public void launchGameActivity(int gameMode) {
+        Intent i = new Intent(this, GameActivity.class);
+        i.putExtra("GAME_MODE", gameMode);
+        startActivity(i);
+    }
 }
