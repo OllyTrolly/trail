@@ -204,7 +204,7 @@ public class Graph {
         edgeCount = edgeArrayList.size();
         timerSecs = vRows * vColumns * 3;
 
-        if(!checkConnectedness()) {
+        if(!traverseGraph()) {
             return;
         }
 
@@ -241,13 +241,13 @@ public class Graph {
                     vRows = 4;
                     vColumns = 3;
                 }
-                if(randInt(1, 100) >= 5) eulCircuit = false;
+                if(randInt(1, 100) <= 5) eulCircuit = false;
                 else eulCircuit = true;
                 break;
             case 3:
                 vRows = 4;
                 vColumns = 4;
-                if(randInt(1, 100) >= 10) eulCircuit = false;
+                if(randInt(1, 100) <= 10) eulCircuit = false;
                 else eulCircuit = true;
                 break;
             case 4:
@@ -260,19 +260,17 @@ public class Graph {
                     vRows = 4;
                     vColumns = 5;
                 }
-                if(randInt(1, 100) >= 15) eulCircuit = false;
+                if(randInt(1, 100) <= 15) eulCircuit = false;
                 else eulCircuit = true;
                 break;
             case 5:
                 vRows = 5;
                 vColumns = 5;
                 eulCircuit = true;
-                if(randInt(1, 100) >= 20) eulCircuit = false;
+                if(randInt(1, 100) <= 20) eulCircuit = false;
                 else eulCircuit = true;
                 break;
         }
-
-        //eulCircuit = false;
 
         constructVertices();
         constructCornerEdges();
@@ -291,7 +289,7 @@ public class Graph {
 
         edgeCount = edgeArrayList.size();
 
-        if(!checkConnectedness()) {
+        if(!traverseGraph()) {
             return;
         }
 
@@ -888,13 +886,14 @@ public class Graph {
         }
     }
 
-    private boolean traverseGraph(int root, int dest) {
+    private boolean traverseGraph() {
+        int noVertices = vRows * vColumns;
         //ArrayList for all the visited vertices
         ArrayList<Integer> visited = new ArrayList<Integer>();
-        visited.add(new Integer(root));
+        visited.add(new Integer(0));
         //Stack for parents to get children of
         Stack<Integer> parents = new Stack<Integer>();
-        parents.add(new Integer(root));
+        parents.add(new Integer(0));
         //An array of the integer modifiers for adjacent vertices
         int[] adjVertices = new int[] {
                 - vColumns - 1,
@@ -915,37 +914,19 @@ public class Graph {
             for(int i = 0; i < 8; i++) {
                 //If the parent is connected to the adjacent vertex, proceed
                 if(connectedTo(origin + adjVertices[i])) {
-                    //If the child is our destination, return true
-                    if(origin + adjVertices[i] == dest) {
-                        return true;
-                    }
                     //Else if child has not yet been visited, add it to parents stack
-                    else if(!visited.contains(new Integer(origin + adjVertices[i]))) {
+                    if(!visited.contains(new Integer(origin + adjVertices[i]))) {
                         parents.add(new Integer(origin + adjVertices[i]));
                         visited.add(new Integer(origin + adjVertices[i]));
+                        if(visited.size() == noVertices) {
+                            return true;
+                        }
                     }
                 }
             }
         }
 
         return false;
-    }
-
-    private boolean checkConnectedness() {
-        //Top left to bottom right
-        if(!traverseGraph(0, (vColumns * vRows) - 1)) return false;
-        //Top right to bottom left
-        if(!traverseGraph(vColumns - 1, vColumns * (vRows - 1))) return false;
-        //Top to bottom 1
-        if(!traverseGraph(vColumns - 2, (vColumns * vRows) - 2)) return false;
-        //Top to bottom 2
-        if(!traverseGraph(1, (vColumns * (vRows - 1)) + 1)) return false;
-        //Left to right 1
-        if(!traverseGraph(vColumns, (vColumns * 2) - 1)) return false;
-        //Left to right 2
-        if(!traverseGraph(vColumns * (vRows - 2), (vColumns * (vRows - 1) - 1))) return false;
-
-        return true;
     }
 
     private boolean connectedTo(int vertInt) {
