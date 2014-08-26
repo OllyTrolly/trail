@@ -107,7 +107,7 @@ public class Graph {
         Log.d(TAG, "Created new stage after " + tries + " tries");
     }
 
-    public void timedMode() {
+    private void timedMode() {
 
         switch (stageNo) { //difficultyLevel switch should make it easy to modify difficulty curve later on and add or take away number of stages
             case 1:
@@ -212,7 +212,7 @@ public class Graph {
         constructComplete = true;
     }
 
-    public void endlessMode() {
+    private void endlessMode() {
 
         if(stageNo <= 10)
             difficultyLevel = 1;
@@ -328,7 +328,7 @@ public class Graph {
         }
     }
 
-    public int randInt(int min, int max) {
+    private int randInt(int min, int max) {
         Random rand = new Random();
         int randomNum = rand.nextInt((max - min) + 1) + min;
         return randomNum;

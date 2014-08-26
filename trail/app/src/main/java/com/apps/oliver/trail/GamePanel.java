@@ -27,7 +27,6 @@ public class GamePanel extends SurfaceView implements
     private static final String TAG = GamePanel.class.getSimpleName();
     private GameLoop loop;
     private Graph graph;
-    //private int gameMode; //Placeholder value
     private int stageNo = 1;
     private int resetPos;
     private int backPos;

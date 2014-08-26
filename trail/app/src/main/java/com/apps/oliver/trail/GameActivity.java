@@ -16,10 +16,7 @@ public class GameActivity extends Activity {
 
     private static final String TAG = GameActivity.class.getSimpleName();
     private int gameMode;
-    private int stageNo;
-    private Score gameScore;
     private GamePanel panel;
-    private View view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
