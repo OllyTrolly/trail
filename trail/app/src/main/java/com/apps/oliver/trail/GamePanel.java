@@ -64,7 +64,7 @@ public class GamePanel extends SurfaceView implements
         getHolder().addCallback(this);
         reset = BitmapFactory.decodeResource(getResources(), R.drawable.reset);
         back = BitmapFactory.decodeResource(getResources(), R.drawable.back);
-        graph = new Graph(gameMode, stageNo, panelWidth, panelHeight, tf);
+        graph = new Graph(gameMode, stageNo, panelWidth, panelHeight, tf, context);
         graph.constructStage();
         loop = new GameLoop(getHolder(), this); //Passes the SurfaceHolder and GamePanel class (this) to the loop instance of GameLoop
         setFocusable(true); // Make the GamePanel focusable so it can handle events
@@ -136,6 +136,10 @@ public class GamePanel extends SurfaceView implements
 
                     if (graph.modeFinished()) {
                         //Exit to menu and/or call up scoring
+                        if(graph.score.isHighScore()) {
+                            graph.score.nameScore("testScore");
+                            graph.score.addToBoard();
+                        }
                         scoreScreen = true;
                     }
 

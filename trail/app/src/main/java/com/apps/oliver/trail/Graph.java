@@ -1,5 +1,6 @@
 package com.apps.oliver.trail;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.os.CountDownTimer;
@@ -54,8 +55,9 @@ public class Graph {
     public int timerSecs;
     public boolean constructComplete = false;
     private int penalty = 0; //Number of penalties incurred, for use in endless mode's scoring
+    private int numEdges;
 
-    public Graph(int gameMode, int stageNo, int panelWidth, int panelHeight, Typeface tf) {
+    public Graph(int gameMode, int stageNo, int panelWidth, int panelHeight, Typeface tf, Context context) {
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
         this.tf = tf;
@@ -66,7 +68,7 @@ public class Graph {
         centreVert = panelHeight / 2;
         vertexSpacing = (panelWidth * 18) / 100;
 
-        score = new Score(tf, panelWidth, panelHeight);
+        score = new Score(tf, panelWidth, panelHeight, context);
     }
 
     public void pauseTimer() {
@@ -487,14 +489,20 @@ public class Graph {
             }
             //Either 2 or 4 edges wanted for Euler path
             while(true) {
-                randNum = (randInt(1,2)) * 2;
-                if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                randNum = (randInt(1,10));
+                if(randNum <= 8) {
+                    numEdges = 2;
+                }
+                else if(randNum <= 10) {
+                    numEdges = 4;
+                }
+                if((5-locked) + vertexArray[origin].numConnected() >= numEdges && vertexArray[origin].numConnected() <= numEdges)
                     break;
             }
             //Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
-            limit = randNum - vertexArray[origin].numConnected();
+            limit = numEdges - vertexArray[origin].numConnected();
             //Log.d(TAG, "Limit is " + limit);
             for (int j = 0; j < limit; j++) {
                 //Log.d(TAG, "On iteration " + j);
@@ -533,14 +541,20 @@ public class Graph {
             }
             //Either 2 or 4 edges wanted for Euler path
             while(true) {
-                randNum = (randInt(1,2)) * 2;
-                if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                randNum = (randInt(1,10));
+                if(randNum <= 8) {
+                    numEdges = 2;
+                }
+                else if(randNum <= 10) {
+                    numEdges = 4;
+                }
+                if((5-locked) + vertexArray[origin].numConnected() >= numEdges && vertexArray[origin].numConnected() <= numEdges)
                     break;
             }
             //Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
-            limit = randNum - vertexArray[origin].numConnected();
+            limit = numEdges - vertexArray[origin].numConnected();
             //Log.d(TAG, "Limit is " + limit);
             for (int j = 0; j < limit; j++) {
                 //Log.d(TAG, "On iteration " + j);
@@ -579,14 +593,20 @@ public class Graph {
             }
             //Either 2 or 4 edges wanted for Euler path
             while(true) {
-                randNum = (randInt(1,2)) * 2;
-                if((5-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                randNum = (randInt(1,10));
+                if(randNum <= 8) {
+                    numEdges = 2;
+                }
+                else if(randNum <= 10) {
+                    numEdges = 4;
+                }
+                if((5-locked) + vertexArray[origin].numConnected() >= numEdges && vertexArray[origin].numConnected() <= numEdges)
                     break;
             }
             //Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
-            limit = randNum - vertexArray[origin].numConnected();
+            limit = numEdges - vertexArray[origin].numConnected();
             //Log.d(TAG, "Limit is " + limit);
             for (int j = 0; j < limit; j++) {
                 //Log.d(TAG, "On iteration " + j);
@@ -628,16 +648,21 @@ public class Graph {
                 return false;
             }
             //Log.d(TAG, "Origin is " + origin);
-            while (true) {
-                randNum = (randInt(1, 2)) * 2;
-                //Log.d(TAG, "Attempted randNum is " + randNum);
-                if ((5 - locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+            while(true) {
+                randNum = (randInt(1,10));
+                if(randNum <= 8) {
+                    numEdges = 2;
+                }
+                else if(randNum <= 10) {
+                    numEdges = 4;
+                }
+                if((5-locked) + vertexArray[origin].numConnected() >= numEdges && vertexArray[origin].numConnected() <= numEdges)
                     break;
             }
-            //Log.d(TAG, "Final randNum is " + randNum);
+            //Log.d(TAG, "randNum is " + randNum);
             //Want 2 or 4 edges minus the number of existing edges to be generated
             //Log.d(TAG, "Number of vertices connected to vertex " + origin + " is " + vertexArray[origin].numConnected());
-            limit = randNum - vertexArray[origin].numConnected();
+            limit = numEdges - vertexArray[origin].numConnected();
             //Log.d(TAG, "Limit is " + limit);
             for (int j = 0; j < limit; j++) {
                 //Log.d(TAG, "On iteration " + j);
@@ -685,12 +710,24 @@ public class Graph {
                 }
 
                 while(true) {
-                    randNum = (randInt(1,4)) * 2;
-                    if((8-locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
+                    randNum = (randInt(1,20));
+                    if(randNum <= 8) {
+                        numEdges = 2;
+                    }
+                    else if(randNum <= 16) {
+                        numEdges = 4;
+                    }
+                    else if(randNum <= 19) {
+                        numEdges = 6;
+                    }
+                    else if(randNum <= 20) {
+                        numEdges = 8;
+                    }
+                    if((8-locked) + vertexArray[origin].numConnected() >= numEdges && vertexArray[origin].numConnected() <= numEdges)
                         break;
                 }
 
-                limit = randNum - vertexArray[origin].numConnected();
+                limit = numEdges - vertexArray[origin].numConnected();
                 Log.d(TAG, "Limit is " + limit);
                 for (int k = 0; k < limit; k++) {
                     Log.d(TAG, "On iteration " + k);
@@ -980,7 +1017,7 @@ public class Graph {
 
     public boolean modeFinished() {
         if(gameMode == 0)
-            if(stageNo > 10)
+            if(stageNo > 1)
                 return true;
 
         return false;

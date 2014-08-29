@@ -1,5 +1,6 @@
 package com.apps.oliver.trail;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -7,7 +8,22 @@ import android.graphics.Typeface;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.DisplayMetrics;
+import android.util.Xml;
 import android.view.WindowManager;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Created by Oliver on 13/07/2014.
@@ -19,9 +35,13 @@ public class Score {
     private Typeface robotoLight;
     private int panelWidth;
     private int panelHeight;
+    private ArrayList<ScoreBoardXmlParser.Score> scores = new ArrayList<ScoreBoardXmlParser.Score>();
     private Paint textPaint;
+    private Context context;
+    private static final String ns = null;
 
-    public Score(Typeface robotoLight, int panelWidth, int panelHeight) {
+    public Score(Typeface robotoLight, int panelWidth, int panelHeight, Context context) {
+        this.context = context;
         this.robotoLight = robotoLight;
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
@@ -60,13 +80,126 @@ public class Score {
         textPaint.setTypeface(robotoLight);
         textPaint.setTextSize(60);
         //Draw text
-        canvas.drawText("Final score: ", panelWidth / 2, (panelHeight * 45) / 100, textPaint);
-        canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 55) / 100, textPaint);
+        //canvas.drawText("Final score: ", panelWidth / 2, (panelHeight * 45) / 100, textPaint);
+        //canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 55) / 100, textPaint);
+        canvas.drawText("Scoreboard", panelWidth / 2, (panelHeight * 10) / 100, textPaint);
 
+        textPaint.setTextSize(40);
+        for(int i = 0; i < scores.size(); i++) {
+            canvas.drawText(i + ". " + scores.get(i).scoreName + " - " + scores.get(i).scoreValue, panelWidth / 2, (panelHeight * (10 + (i * 7))) / 100, textPaint);
+        }
+    }
+
+    public boolean isHighScore() {
+        ScoreBoardXmlParser parser = new ScoreBoardXmlParser(context);
+        ArrayList<ScoreBoardXmlParser.Score> scores = new ArrayList<ScoreBoardXmlParser.Score>();
+        try {
+            scores = parser.parse();
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e) {
+            e.printStackTrace();
+        }
+        catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        if (scores.size() < 10) {
+            return true;
+        }
+
+        else {
+            ScoreBoardXmlParser.Score tempScore = scores.get(scores.size() - 1);
+
+            if (scoreValue <= tempScore.scoreValue) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public void addToBoard() {
-        //Write the score with its name to SQLite
-        //Learn to use SQLite of course
+
+        final String xmlFile = context.getFilesDir() + "/scoreBoard.xml";
+        ScoreBoardXmlParser parser = new ScoreBoardXmlParser(context);
+        ArrayList<ScoreBoardXmlParser.Score> scores = new ArrayList<ScoreBoardXmlParser.Score>();
+        try {
+            scores = parser.parse();
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e) {
+            e.printStackTrace();
+        }
+        catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        ScoreBoardXmlParser.Score tempScore;
+
+        //Keeping top 10 scores
+        boolean shift = false;
+        int boundary;
+        if (scores.size() < 10)
+            boundary = scores.size();
+        else boundary = 10;
+
+        for (int i = 0; i < boundary; i++) {
+            tempScore = scores.get(i);
+            if (shift) {
+                scores.set(i, tempScore);
+            }
+            else if (tempScore.scoreValue < scoreValue) {
+                scores.set(i, new ScoreBoardXmlParser.Score(scoreName, scoreValue));
+                shift = true;
+            }
+        }
+
+        try {
+            FileOutputStream fileos = context.openFileOutput("scoreBoard.xml", Context.MODE_PRIVATE);
+            XmlSerializer xmlSerializer = Xml.newSerializer();
+            StringWriter writer = new StringWriter();
+            xmlSerializer.setOutput(writer);
+            xmlSerializer.startDocument("UTF-8", true);
+            xmlSerializer.startTag(null, "scoreBoard");
+            for (int i = 0; i < scores.size(); i++) {
+                xmlSerializer.startTag(null, "score");
+                xmlSerializer.startTag(null, "scoreName");
+                xmlSerializer.text(scores.get(i).scoreName);
+                xmlSerializer.endTag(null, "scoreName");
+                xmlSerializer.startTag(null, "scoreValue");
+                xmlSerializer.text(String.valueOf(scores.get(i).scoreValue));
+                xmlSerializer.endTag(null, "scoreValue");
+                xmlSerializer.endTag(null, "score");
+            }
+            xmlSerializer.endTag(null, "scoreBoard");
+            xmlSerializer.endDocument();
+            xmlSerializer.flush();
+            String dataWrite = writer.toString();
+            fileos.write(dataWrite.getBytes());
+            fileos.close();
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

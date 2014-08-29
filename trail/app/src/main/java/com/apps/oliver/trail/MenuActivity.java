@@ -49,10 +49,4 @@ public class MenuActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-    public void launchGameActivity(int gameMode) {
-        Intent i = new Intent(this, GameActivity.class);
-        i.putExtra("GAME_MODE", gameMode);
-        startActivity(i);
-    }
 }
