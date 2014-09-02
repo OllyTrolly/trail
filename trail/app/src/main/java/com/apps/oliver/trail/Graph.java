@@ -1017,7 +1017,7 @@ public class Graph {
 
     public boolean modeFinished() {
         if(gameMode == 0)
-            if(stageNo > 1)
+            if(stageNo > 10)
                 return true;
 
         return false;

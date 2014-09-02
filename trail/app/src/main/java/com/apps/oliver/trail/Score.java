@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Xml;
 import android.view.WindowManager;
 
@@ -30,12 +31,14 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class Score {
 
+    private static final String TAG = Score.class.getSimpleName();
     private long scoreValue;
     private String scoreName;
     private Typeface robotoLight;
     private int panelWidth;
     private int panelHeight;
     private ArrayList<ScoreBoardXmlParser.Score> scores = new ArrayList<ScoreBoardXmlParser.Score>();
+    private ScoreBoardXmlParser.Score[] scoresArray = new ScoreBoardXmlParser.Score[10];
     private Paint textPaint;
     private Context context;
     private static final String ns = null;
@@ -85,14 +88,18 @@ public class Score {
         canvas.drawText("Scoreboard", panelWidth / 2, (panelHeight * 10) / 100, textPaint);
 
         textPaint.setTextSize(40);
-        for(int i = 0; i < scores.size(); i++) {
-            canvas.drawText(i + ". " + scores.get(i).scoreName + " - " + scores.get(i).scoreValue, panelWidth / 2, (panelHeight * (10 + (i * 7))) / 100, textPaint);
+        int i = 1;
+        for(ScoreBoardXmlParser.Score score : scores) {
+            canvas.drawText(i + ". " + score.scoreName + " - " + score.scoreValue, panelWidth / 2, (panelHeight * (10 + (i * 8))) / 100, textPaint);
+            i++;
+            if (i > 10) {
+                break;
+            }
         }
     }
 
     public boolean isHighScore() {
         ScoreBoardXmlParser parser = new ScoreBoardXmlParser(context);
-        ArrayList<ScoreBoardXmlParser.Score> scores = new ArrayList<ScoreBoardXmlParser.Score>();
         try {
             scores = parser.parse();
         }
@@ -128,7 +135,6 @@ public class Score {
 
         final String xmlFile = context.getFilesDir() + "/scoreBoard.xml";
         ScoreBoardXmlParser parser = new ScoreBoardXmlParser(context);
-        ArrayList<ScoreBoardXmlParser.Score> scores = new ArrayList<ScoreBoardXmlParser.Score>();
         try {
             scores = parser.parse();
         }
@@ -145,24 +151,35 @@ public class Score {
             e.printStackTrace();
         }
 
+        //Just sort arraylist (look up algorithm) and shorten to ten elements
+
+        for (ScoreBoardXmlParser.Score score : scores) {
+            Log.d(TAG, "Score name is: " + score.scoreName);
+            Log.d(TAG, "Score value is: " + score.scoreValue);
+        }
+
+        scores.add(scores.size(), new ScoreBoardXmlParser.Score(scoreName, scoreValue));
+
+        int swaps = 0;
         ScoreBoardXmlParser.Score tempScore;
-
-        //Keeping top 10 scores
-        boolean shift = false;
-        int boundary;
-        if (scores.size() < 10)
-            boundary = scores.size();
-        else boundary = 10;
-
-        for (int i = 0; i < boundary; i++) {
-            tempScore = scores.get(i);
-            if (shift) {
-                scores.set(i, tempScore);
+        while(true) {
+            for (int i = 0; i < scores.size() - 1; i++) {
+                if (scores.get(i).scoreValue < scores.get(i + 1).scoreValue) {
+                    // Swap scores
+                    tempScore = scores.get(i);
+                    scores.set(i, scores.get(i + 1));
+                    scores.set(i + 1, tempScore);
+                    swaps++;
+                }
             }
-            else if (tempScore.scoreValue < scoreValue) {
-                scores.set(i, new ScoreBoardXmlParser.Score(scoreName, scoreValue));
-                shift = true;
+            if (swaps == 0) {
+                break;
             }
+            swaps = 0;
+        }
+
+        if(scores.size() == 11) {
+            scores.remove(10);
         }
 
         try {
@@ -172,13 +189,15 @@ public class Score {
             xmlSerializer.setOutput(writer);
             xmlSerializer.startDocument("UTF-8", true);
             xmlSerializer.startTag(null, "scoreBoard");
-            for (int i = 0; i < scores.size(); i++) {
+            for (ScoreBoardXmlParser.Score score : scores) {
                 xmlSerializer.startTag(null, "score");
                 xmlSerializer.startTag(null, "scoreName");
-                xmlSerializer.text(scores.get(i).scoreName);
+                Log.d(TAG, "Score is called:" + score.scoreName);
+                xmlSerializer.text(score.scoreName);
                 xmlSerializer.endTag(null, "scoreName");
                 xmlSerializer.startTag(null, "scoreValue");
-                xmlSerializer.text(String.valueOf(scores.get(i).scoreValue));
+                Log.d(TAG, "Score has value: " + score.scoreValue);
+                xmlSerializer.text(String.valueOf(score.scoreValue));
                 xmlSerializer.endTag(null, "scoreValue");
                 xmlSerializer.endTag(null, "score");
             }
