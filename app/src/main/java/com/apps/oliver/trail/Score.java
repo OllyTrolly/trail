@@ -76,28 +76,6 @@ public class Score {
         canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 90) / 100, textPaint);
     }
 
-    public void drawFinal(Canvas canvas) {
-        textPaint.setAntiAlias(true);
-        textPaint.setTextAlign(Paint.Align.CENTER);
-        textPaint.setColor(Color.LTGRAY);
-        textPaint.setTypeface(robotoLight);
-        textPaint.setTextSize(60);
-        //Draw text
-        //canvas.drawText("Final score: ", panelWidth / 2, (panelHeight * 45) / 100, textPaint);
-        //canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 55) / 100, textPaint);
-        canvas.drawText("Scoreboard", panelWidth / 2, (panelHeight * 10) / 100, textPaint);
-
-        textPaint.setTextSize(40);
-        int i = 1;
-        for(ScoreBoardXmlParser.Score score : scores) {
-            canvas.drawText(i + ". " + score.scoreName + " - " + score.scoreValue, panelWidth / 2, (panelHeight * (10 + (i * 8))) / 100, textPaint);
-            i++;
-            if (i > 10) {
-                break;
-            }
-        }
-    }
-
     public boolean isHighScore() {
         ScoreBoardXmlParser parser = new ScoreBoardXmlParser(context);
         try {

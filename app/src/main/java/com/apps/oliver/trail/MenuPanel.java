@@ -37,11 +37,11 @@ public class MenuPanel extends SurfaceView implements
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
 
-        horizCentre = panelWidth/2;
+        horizCentre = panelWidth / 2;
         circle1Vert = (panelHeight * 30) / 100;
         circle2Vert = (panelHeight * 50) / 100;
         circle3Vert = (panelHeight * 70) / 100;
-        rectRadius = panelWidth/36;
+        rectRadius = panelWidth / 36;
         circleRadius = (panelHeight * 8) / 100;
 
 
@@ -137,7 +137,9 @@ public class MenuPanel extends SurfaceView implements
                 getContext().startActivity(i);
             }
             else if(dotSelection(circle3Vert, x, y)) {
-
+                Intent i = new Intent();
+                i.setClass(this.getContext(), ScoreActivity.class);
+                getContext().startActivity(i);
             }
         }
         if (event.getAction() == MotionEvent.ACTION_MOVE) {

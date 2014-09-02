@@ -106,46 +106,37 @@ public class GamePanel extends SurfaceView implements
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
-        if (event.getX() < backPos + (back.getWidth() / 2) + h && event.getX() > backPos - (back.getWidth() / 2) - h &&
-                event.getY() < vertSpace + (back.getHeight() / 2) + h && event.getY() > vertSpace - (back.getHeight() / 2) - h) {
-            Intent i = new Intent();
-            i.setClass(this.getContext(), MenuActivity.class);
-            getContext().startActivity(i);
-        }
-
-        if(scoreScreen) {
-
-        }
-
-        else {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                // Delegating event handling to the graph
-                if (event.getX() < resetPos + (reset.getWidth() / 2) + h && event.getX() > resetPos - (reset.getWidth() / 2) - h &&
-                        event.getY() < vertSpace + (reset.getHeight() / 2) + h && event.getY() > vertSpace - (reset.getHeight() / 2) - h) {
-                    graph.reset();
-                }
-
-                else graph.handleActionDown((int) event.getX(), (int) event.getY());
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            // Delegating event handling to the graph
+            if (event.getX() < resetPos + (reset.getWidth() / 2) + h && event.getX() > resetPos - (reset.getWidth() / 2) - h &&
+                    event.getY() < vertSpace + (reset.getHeight() / 2) + h && event.getY() > vertSpace - (reset.getHeight() / 2) - h) {
+                graph.reset();
             }
-            if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                graph.handleActionMove((int) event.getX(), (int) event.getY());
+            else if (event.getX() < backPos + (back.getWidth() / 2) + h && event.getX() > backPos - (back.getWidth() / 2) - h &&
+                    event.getY() < vertSpace + (back.getHeight() / 2) + h && event.getY() > vertSpace - (back.getHeight() / 2) - h) {
+                Intent i = new Intent();
+                i.setClass(this.getContext(), MenuActivity.class);
+                getContext().startActivity(i);
             }
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (graph.stageFinished()) {
-
-                    if (graph.modeFinished()) {
-                        //Exit to menu and/or call up scoring
-                        if(graph.score.isHighScore()) {
-                            graph.score.nameScore("testScore");
-                            graph.score.addToBoard();
-                        }
-                        scoreScreen = true;
-                    }
-
-                    graph.constructStage();
+            else graph.handleActionDown((int) event.getX(), (int) event.getY());
+        }
+        if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            graph.handleActionMove((int) event.getX(), (int) event.getY());
+        }
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (graph.stageFinished() && graph.modeFinished()) {
+                //Exit to menu and/or call up scoring
+                Intent i = new Intent();
+                i.setClass(this.getContext(), ScoreActivity.class);
+                if (graph.score.isHighScore()) {
+                    graph.score.nameScore("testScore");
+                    graph.score.addToBoard();
+                    //Add high score to intent as extra so it can be highlighted
                 }
-
+                getContext().startActivity(i);
+            }
+            else if (graph.stageFinished()) {
+                graph.constructStage();
             }
         }
         return true;
@@ -162,21 +153,13 @@ public class GamePanel extends SurfaceView implements
     }
 
     public void render(Canvas canvas) {
-
         canvas.drawColor(Color.DKGRAY);
-        if(scoreScreen) {
-            graph.score.drawFinal(canvas);
-        }
-
-        else {
-            graph.draw(canvas);
-            //Display FPS
-            //displayFps(canvas, avgFps);
-            canvas.drawBitmap(reset, resetPos, vertSpace, null);
-            textPaint.setTextSize(50);
-            canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 10) / 100, textPaint);
-        }
-
+        graph.draw(canvas);
+        //Display FPS
+        //displayFps(canvas, avgFps);
+        canvas.drawBitmap(reset, resetPos, vertSpace, null);
+        textPaint.setTextSize(50);
+        canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 10) / 100, textPaint);
         canvas.drawBitmap(back, backPos, vertSpace, null);
         textPaint.setTextSize(36);
         canvas.drawText("trail", panelWidth / 2, (panelHeight * 97) / 100, textPaint);
