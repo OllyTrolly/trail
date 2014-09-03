@@ -124,19 +124,22 @@ public class GamePanel extends SurfaceView implements
             graph.handleActionMove((int) event.getX(), (int) event.getY());
         }
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            if (graph.stageFinished() && graph.modeFinished()) {
-                //Exit to menu and/or call up scoring
-                Intent i = new Intent();
-                i.setClass(this.getContext(), ScoreActivity.class);
-                if (graph.score.isHighScore()) {
-                    graph.score.nameScore("testScore");
-                    graph.score.addToBoard();
-                    //Add high score to intent as extra so it can be highlighted
+            if (graph.stageFinished()) {
+                if (graph.modeFinished()) {
+                    //Exit to menu and/or call up scoring
+                    Intent i = new Intent();
+                    i.setClass(this.getContext(), ScoreActivity.class);
+                    if (graph.score.isHighScore()) {
+                        graph.score.nameScore("testScore");
+                        graph.score.addToBoard();
+                        //Add high score to intent as extra so it can be highlighted
+                    }
+                    int highScoreNumber = graph.score.getHighScoreNumber();
+                    i.putExtra("HIGH_SCORE", highScoreNumber);
+                    getContext().startActivity(i);
+                } else {
+                    graph.constructStage();
                 }
-                getContext().startActivity(i);
-            }
-            else if (graph.stageFinished()) {
-                graph.constructStage();
             }
         }
         return true;

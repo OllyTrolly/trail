@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -15,13 +16,23 @@ public class ScoreActivity extends Activity {
     private Point panelSize;
     private int panelWidth;
     private int panelHeight;
+    private int highScoreNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            highScoreNumber = extras.getInt("HIGH_SCORE");
+            Log.d(TAG, "High score is " + highScoreNumber);
+        }
+        else {
+            highScoreNumber = 10;
+        }
+
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
-        ScorePanel panel = new ScorePanel(this, robotoLight);
+        ScorePanel panel = new ScorePanel(this, robotoLight, highScoreNumber);
         setContentView(panel);
     }
 

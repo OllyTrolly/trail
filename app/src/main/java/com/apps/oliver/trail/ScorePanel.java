@@ -35,11 +35,14 @@ public class ScorePanel extends SurfaceView implements
     private int backPos;
     private int vertSpace;
     private int h;
+    private int highScoreNumber;
     private Bitmap back;
 
-    public ScorePanel(Context context, Typeface robotoLight) {
+    public ScorePanel(Context context, Typeface robotoLight, int highScoreNumber) {
         super(context);
         this.context = context;
+        this.highScoreNumber = highScoreNumber;
+        this.robotoLight = robotoLight;
 
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
@@ -51,7 +54,6 @@ public class ScorePanel extends SurfaceView implements
 
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this); // Adding the callback (this) to the surface holder to intercept events
-        this.robotoLight = robotoLight;
         setFocusable(true); // Make the MenuPanel focusable so it can handle events
     }
 
@@ -96,7 +98,14 @@ public class ScorePanel extends SurfaceView implements
         textPaint.setTextSize(40);
         int i = 1;
         for(ScoreBoardXmlParser.Score score : scores) {
-            canvas.drawText(i + ". " + score.scoreName + " - " + score.scoreValue, panelWidth / 2, (panelHeight * (10 + (i * 8))) / 100, textPaint);
+            if(i - 1 == highScoreNumber) {
+                textPaint.setColor(Color.GREEN);
+                canvas.drawText(i + ". " + score.scoreName + " - " + score.scoreValue, panelWidth / 2, (panelHeight * (12 + (i * 7))) / 100, textPaint);
+                textPaint.setColor(Color.LTGRAY);
+            }
+            else {
+                canvas.drawText(i + ". " + score.scoreName + " - " + score.scoreValue, panelWidth / 2, (panelHeight * (12 + (i * 7))) / 100, textPaint);
+            }
             i++;
             if (i > 10) {
                 break;

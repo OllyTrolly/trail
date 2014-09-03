@@ -139,6 +139,7 @@ public class MenuPanel extends SurfaceView implements
             else if(dotSelection(circle3Vert, x, y)) {
                 Intent i = new Intent();
                 i.setClass(this.getContext(), ScoreActivity.class);
+                i.putExtra("HIGH_SCORE", 10);
                 getContext().startActivity(i);
             }
         }
