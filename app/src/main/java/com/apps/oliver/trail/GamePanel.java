@@ -28,6 +28,7 @@ public class GamePanel extends SurfaceView implements
     private GameLoop loop;
     private Graph graph;
     private int stageNo = 1;
+    private int gameMode;
     private int resetPos;
     private int backPos;
     private int vertSpace;
@@ -43,6 +44,7 @@ public class GamePanel extends SurfaceView implements
     public GamePanel(Context context, Typeface tf, int gameMode) {
         super(context);
         this.tf = tf;
+        this.gameMode = gameMode;
 
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
@@ -64,11 +66,10 @@ public class GamePanel extends SurfaceView implements
         getHolder().addCallback(this);
         reset = BitmapFactory.decodeResource(getResources(), R.drawable.reset);
         back = BitmapFactory.decodeResource(getResources(), R.drawable.back);
-        graph = new Graph(gameMode, stageNo, panelWidth, panelHeight, tf, context);
-        graph.constructStage();
+        graph = new Graph(gameMode, panelWidth, panelHeight, tf, context);
+        graph.constructStage(stageNo);
         loop = new GameLoop(getHolder(), this); //Passes the SurfaceHolder and GamePanel class (this) to the loop instance of GameLoop
         setFocusable(true); // Make the GamePanel focusable so it can handle events
-
     }
 
     @Override
@@ -106,6 +107,7 @@ public class GamePanel extends SurfaceView implements
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Finger touches down
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             // Delegating event handling to the graph
             if (event.getX() < resetPos + (reset.getWidth() / 2) + h && event.getX() > resetPos - (reset.getWidth() / 2) - h &&
@@ -120,12 +122,17 @@ public class GamePanel extends SurfaceView implements
             }
             else graph.handleActionDown((int) event.getX(), (int) event.getY());
         }
+        // Finger moves
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
             graph.handleActionMove((int) event.getX(), (int) event.getY());
         }
+        // Finger up
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            if (graph.stageFinished()) {
-                if (graph.modeFinished()) {
+            graph.handleActionUp();
+            if(graph.stageFinished()) {
+                graph.finishStage();
+                stageNo++;
+                if (stageNo > 10 && gameMode == 0) {
                     //Exit to menu and/or call up scoring
                     Intent i = new Intent();
                     i.setClass(this.getContext(), ScoreActivity.class);
@@ -137,9 +144,8 @@ public class GamePanel extends SurfaceView implements
                     int highScoreNumber = graph.score.getHighScoreNumber();
                     i.putExtra("HIGH_SCORE", highScoreNumber);
                     getContext().startActivity(i);
-                } else {
-                    graph.constructStage();
                 }
+                else graph.constructStage(stageNo);
             }
         }
         return true;

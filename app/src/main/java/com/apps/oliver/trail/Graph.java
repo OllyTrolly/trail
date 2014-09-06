@@ -57,11 +57,10 @@ public class Graph {
     private int penalty = 0; //Number of penalties incurred, for use in endless mode's scoring
     private int numEdges;
 
-    public Graph(int gameMode, int stageNo, int panelWidth, int panelHeight, Typeface tf, Context context) {
+    public Graph(int gameMode, int panelWidth, int panelHeight, Typeface tf, Context context) {
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
         this.tf = tf;
-        this.stageNo = stageNo;
         this.gameMode = gameMode;
 
         centreHoriz = panelWidth / 2;
@@ -83,9 +82,10 @@ public class Graph {
         }
     }
 
-    public void constructStage() {
-
+    public void constructStage(int stageNo) {
+        this.stageNo = stageNo;
         int tries = 0;
+        selectedEdges.clear();
         constructComplete = false;
         vertexSelected = false;
         generatingGraph = true;
@@ -1015,6 +1015,12 @@ public class Graph {
         penalty += 5;
     }
 
+    public boolean stageFinished() {
+        if(edgeCount == 0)
+            return true;
+        else return false;
+    }
+
     public boolean modeFinished() {
         if(gameMode == 0)
             if(stageNo > 10)
@@ -1106,7 +1112,7 @@ public class Graph {
         }
     }
 
-    public boolean stageFinished() {
+    public void handleActionUp() {
         if(selectedEdges.empty()) {
             if(vertexSelected) {
                 selectedVertex.lastSelected(false);
@@ -1116,29 +1122,23 @@ public class Graph {
         }
 
         vertexSelected = false;
-
-        if(edgeCount == 0) {
-            stageNo++;
-
-            if(gameMode == 0) {
-                if(timer.getTimeLeft() > 0) {
-                    score.addToScore((long) timer.getTimeLeft() * 100);
-                }
-            }
-
-            else if(gameMode == 1) {
-                if((vRows*vColumns) - penalty > 0) {
-                    score.addToScore((long) ((vRows*vColumns) - penalty)*100);
-                }
-            }
-
-            constructComplete = false;
-            return true;
-        }
-
-        return false;
     }
 
+    public void finishStage() {
+        if(gameMode == 0) {
+            if(timer.getTimeLeft() > 0) {
+                score.addToScore((long) timer.getTimeLeft() * 100);
+            }
+        }
+
+        else if(gameMode == 1) {
+            if((vRows*vColumns) - penalty > 0) {
+                score.addToScore((long) ((vRows*vColumns) - penalty)*100);
+            }
+        }
+
+        constructComplete = false;
+    }
 }
 
 
