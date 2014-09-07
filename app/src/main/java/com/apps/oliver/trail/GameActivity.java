@@ -265,10 +265,12 @@ public class GameActivity extends BaseGameActivity {
                     mOutbox.mEndlessStages);
             Games.Achievements.increment(getApiClient(), getString(R.string.achievement_forever),
                     mOutbox.mEndlessStages);
+            mOutbox.mEndlessStages = 0;
         }
         if (mOutbox.mEdgesDrawn > 0) {
             Games.Achievements.increment(getApiClient(), getString(R.string.achievement_2000_lines),
                     mOutbox.mEdgesDrawn);
+            mOutbox.mEdgesDrawn = 0;
         }
         if (mOutbox.mEndlessModeScore >= 0) {
             Games.Leaderboards.submitScore(getApiClient(), getString(R.string.leaderboard_endless),
