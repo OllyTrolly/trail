@@ -56,6 +56,14 @@ public class Score {
         scoreValue += score;
     }
 
+    public void resetScore() {
+        scoreValue = 0;
+    }
+
+    public long getValue() {
+        return scoreValue;
+    }
+
     public void nameScore(String inputName) {
         scoreName = inputName;
     }

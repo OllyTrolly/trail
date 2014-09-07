@@ -90,7 +90,6 @@ public class MenuActivity extends BaseGameActivity {
     @Override
     public void onSignInFailed() {
         // Sign-in failed, so show sign-in button on main menu
-
     }
 
     @Override

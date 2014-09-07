@@ -33,6 +33,7 @@ public class Graph {
     private Vertex[] vertexArray;
     private int edgeCount;
     public Score score;
+    public Score stageScore;
     private Timer timer;
     public int stageNo;
     public int gameMode;
@@ -55,7 +56,7 @@ public class Graph {
     public int timerSecs;
     public boolean constructComplete = false;
     private int penalty = 0; //Number of penalties incurred, for use in endless mode's scoring
-    private int numEdges;
+    public int numEdges;
 
     public Graph(int gameMode, int panelWidth, int panelHeight, Typeface tf, Context context) {
         this.panelWidth = panelWidth;
@@ -68,6 +69,7 @@ public class Graph {
         vertexSpacing = (panelWidth * 18) / 100;
 
         score = new Score(tf, panelWidth, panelHeight, context);
+        stageScore = new Score(tf, panelWidth, panelHeight, context);
     }
 
     public void pauseTimer() {
@@ -1125,14 +1127,17 @@ public class Graph {
     }
 
     public void finishStage() {
+        stageScore.resetScore();
         if(gameMode == 0) {
             if(timer.getTimeLeft() > 0) {
+                stageScore.addToScore((long) timer.getTimeLeft() * 100);
                 score.addToScore((long) timer.getTimeLeft() * 100);
             }
         }
 
         else if(gameMode == 1) {
             if((vRows*vColumns) - penalty > 0) {
+                stageScore.addToScore((long) ((vRows*vColumns) - penalty)*100);
                 score.addToScore((long) ((vRows*vColumns) - penalty)*100);
             }
         }

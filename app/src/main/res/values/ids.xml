@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="someID" type="id" />
+    <item name="app_id" type="id" />
+    <item name="achievement_CgkI7OrPk6gfEAIQAg" type="id" />
+    <item name="achievement_CgkI7OrPk6gfEAIQAw" type="id" />
+    <item name="achievement_CgkI7OrPk6gfEAIQBA" type="id" />
+    <item name="achievement_CgkI7OrPk6gfEAIQBQ" type="id" />
+    <item name="achievement_CgkI7OrPk6gfEAIQBg" type="id" />
+    <item name="leaderboard_CgkI7OrPk6gfEAIQAQ" type="id" />
+    <item name="leaderboard_CgkI7OrPk6gfEAIQBw" type="id" />
 </resources>

@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">trail</string>
+    <string name="app_id">1075930461548</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="achievements_not_available">Achievements not available!</string>
     <string name="leaderboards_not_available">Leaderboards not available!</string>
+    <string name="achievement">Achieved</string>
+    <string name="your_progress_will_be_uploaded">Updated Google Play Services</string>
+    <string name="achievement_timed">CgkI7OrPk6gfEAIQAg</string>
+    <string name="achievement_timewarp">CgkI7OrPk6gfEAIQBg</string>
+    <string name="achievement_forever">CgkI7OrPk6gfEAIQAw</string>
+    <string name="achievement_forever_ever">CgkI7OrPk6gfEAIQBA</string>
+    <string name="achievement_2000_lines">CgkI7OrPk6gfEAIQBQ</string>
+    <string name="leaderboard_endless">CgkI7OrPk6gfEAIQBw</string>
+    <string name="leaderboard_timed">CgkI7OrPk6gfEAIQAQ</string>
+    <string name="achievement_timed_toast_text">Complete Timed Mode</string>
+    <string name="achievement_time_warp_toast_text">Time Warp</string>
 
 </resources>

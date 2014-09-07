@@ -100,11 +100,11 @@ public class ScorePanel extends SurfaceView implements
         for(ScoreBoardXmlParser.Score score : scores) {
             if(i - 1 == highScoreNumber) {
                 textPaint.setColor(Color.GREEN);
-                canvas.drawText(i + ". " + score.scoreName + " - " + score.scoreValue, panelWidth / 2, (panelHeight * (12 + (i * 7))) / 100, textPaint);
+                canvas.drawText(i + ". " + score.scoreValue, panelWidth / 2, (panelHeight * (12 + (i * 7))) / 100, textPaint);
                 textPaint.setColor(Color.LTGRAY);
             }
             else {
-                canvas.drawText(i + ". " + score.scoreName + " - " + score.scoreValue, panelWidth / 2, (panelHeight * (12 + (i * 7))) / 100, textPaint);
+                canvas.drawText(i + ". " + score.scoreValue, panelWidth / 2, (panelHeight * (12 + (i * 7))) / 100, textPaint);
             }
             i++;
             if (i > 10) {

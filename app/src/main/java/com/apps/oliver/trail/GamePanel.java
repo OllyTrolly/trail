@@ -40,11 +40,13 @@ public class GamePanel extends SurfaceView implements
     private int panelHeight;
     private boolean scoreScreen = false;
     private Typeface tf;
+    private GameActivity activity;
 
-    public GamePanel(Context context, Typeface tf, int gameMode) {
+    public GamePanel(Context context, Typeface tf, int gameMode, GameActivity activity) {
         super(context);
         this.tf = tf;
         this.gameMode = gameMode;
+        this.activity = activity;
 
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
@@ -132,7 +134,10 @@ public class GamePanel extends SurfaceView implements
             if(graph.stageFinished()) {
                 graph.finishStage();
                 stageNo++;
+                activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
                 if (stageNo > 10 && gameMode == 0) {
+                    activity.updateLeaderboards((int) graph.score.getValue());
+                    activity.pushAccomplishments();
                     //Exit to menu and/or call up scoring
                     Intent i = new Intent();
                     i.setClass(this.getContext(), ScoreActivity.class);
@@ -145,7 +150,15 @@ public class GamePanel extends SurfaceView implements
                     i.putExtra("HIGH_SCORE", highScoreNumber);
                     getContext().startActivity(i);
                 }
-                else graph.constructStage(stageNo);
+                else if (gameMode == 1) {
+                    activity.updateLeaderboards((int) graph.score.getValue());
+                    activity.pushAccomplishments();
+                    graph.constructStage(stageNo);
+                }
+                else {
+                    activity.pushAccomplishments();
+                    graph.constructStage(stageNo);
+                }
             }
         }
         return true;
