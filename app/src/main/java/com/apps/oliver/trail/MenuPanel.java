@@ -21,6 +21,7 @@ public class MenuPanel extends SurfaceView implements
     private static final String TAG = MenuPanel.class.getSimpleName();
     private Typeface robotoLight;
     private SurfaceHolder surfaceHolder;
+    private MenuActivity activity;
 
     int horizCentre;
     int circle1Vert;
@@ -31,8 +32,9 @@ public class MenuPanel extends SurfaceView implements
     int panelWidth;
     int panelHeight;
 
-    public MenuPanel(Context context, Typeface robotoLight) {
+    public MenuPanel(Context context, Typeface robotoLight, MenuActivity activity) {
         super(context);
+        this.activity = activity;
 
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
@@ -137,10 +139,14 @@ public class MenuPanel extends SurfaceView implements
                 getContext().startActivity(i);
             }
             else if(dotSelection(circle3Vert, x, y)) {
+                activity.onSignInButtonClicked();
+                activity.onShowLeaderboardsRequested();
+                /*
                 Intent i = new Intent();
                 i.setClass(this.getContext(), ScoreActivity.class);
                 i.putExtra("HIGH_SCORE", 10);
                 getContext().startActivity(i);
+                */
             }
         }
         if (event.getAction() == MotionEvent.ACTION_MOVE) {

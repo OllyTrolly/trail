@@ -4,5 +4,7 @@
     <string name="app_name">trail</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="achievements_not_available">Achievements not available!</string>
+    <string name="leaderboards_not_available">Leaderboards not available!</string>
 
 </resources>

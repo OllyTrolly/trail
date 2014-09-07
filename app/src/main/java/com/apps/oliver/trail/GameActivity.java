@@ -12,6 +12,10 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
+import com.google.android.gms.games.Games;
+import com.google.android.gms.games.Player;
+import com.google.example.games.basegameutils.BaseGameActivity;
+
 public class GameActivity extends Activity {
 
     private static final String TAG = GameActivity.class.getSimpleName();
