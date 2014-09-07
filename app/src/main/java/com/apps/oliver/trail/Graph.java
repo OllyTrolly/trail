@@ -2,6 +2,8 @@ package com.apps.oliver.trail;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.CountDownTimer;
 import android.os.Parcel;
@@ -53,10 +55,15 @@ public class Graph {
     private Stack<Edge> selectedEdges = new Stack<Edge>();
     private boolean vertexSelected = false;
     private int activated = 0;
-    public int timerSecs;
+    public int timerSecs = 0;
     public boolean constructComplete = false;
     private int penalty = 0; //Number of penalties incurred, for use in endless mode's scoring
     public int numEdges;
+    private boolean tutorial = false;
+    private String tutorialMessage;
+    private String tutorialMessage2;
+    private Paint textPaint = new Paint();
+
 
     public Graph(int gameMode, int panelWidth, int panelHeight, Typeface tf, Context context) {
         this.panelWidth = panelWidth;
@@ -67,6 +74,12 @@ public class Graph {
         centreHoriz = panelWidth / 2;
         centreVert = panelHeight / 2;
         vertexSpacing = (panelWidth * 18) / 100;
+
+        textPaint.setAntiAlias(true);
+        textPaint.setColor(Color.LTGRAY);
+        textPaint.setTypeface(tf);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setTextSize((panelHeight * 4) / 100);
 
         score = new Score(tf, panelWidth, panelHeight, context);
         stageScore = new Score(tf, panelWidth, panelHeight, context);
@@ -101,9 +114,14 @@ public class Graph {
                 timedMode();
                 tries++;
             }
-            if (gameMode == 1) {
+            else if (gameMode == 1) {
                 Log.d(TAG, "Creating new endless stage");
                 endlessMode();
+                tries++;
+            }
+            else if (gameMode == 2) {
+                Log.d(TAG, "Creating new tutorial stage");
+                tutorialMode();
                 tries++;
             }
         }
@@ -300,6 +318,164 @@ public class Graph {
         constructComplete = true;
     }
 
+    private void tutorialMode() {
+        tutorial = true;
+        switch(stageNo) {
+            case 1:
+                vRows = 1;
+                vColumns = 2;
+                tutorialMessage = "Tap on a dot and draw along";
+                tutorialMessage2 = "the line";
+                eulCircuit = true;
+                constructVertices();
+                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
+                break;
+            case 2:
+                vRows = 2;
+                vColumns = 2;
+                tutorialMessage = "Draw along all the dark lines";
+                tutorialMessage2 = "to complete the level";
+                eulCircuit = true;
+                constructVertices();
+                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
+                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[3]));
+                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[2]));
+                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[0]));
+                break;
+            case 3:
+                vRows = 2;
+                vColumns = 2;
+                tutorialMessage = "The yellow line is the last";
+                tutorialMessage2 = "line you drew along";
+                eulCircuit = true;
+                constructVertices();
+                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
+                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[3]));
+                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[2]));
+                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[0]));
+                break;
+            case 4:
+                vRows = 3;
+                vColumns = 2;
+                tutorialMessage = "You can select a dot more";
+                tutorialMessage2 = "than once, but not a line";
+                eulCircuit = true;
+                constructVertices();
+                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
+                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[3]));
+                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[5]));
+                edgeArrayList.add(new Edge(vertexArray[5], vertexArray[4]));
+                edgeArrayList.add(new Edge(vertexArray[4], vertexArray[2]));
+                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[0]));
+                break;
+            case 5:
+                vRows = 2;
+                vColumns = 3;
+                tutorialMessage = "Lines can cross";
+                tutorialMessage2 = "";
+                eulCircuit = true;
+                constructVertices();
+                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
+                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[5]));
+                edgeArrayList.add(new Edge(vertexArray[5], vertexArray[2]));
+                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[4]));
+                edgeArrayList.add(new Edge(vertexArray[4], vertexArray[3]));
+                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[0]));
+                break;
+            case 6:
+                vRows = 3;
+                vColumns = 3;
+                tutorialMessage = "If you get stuck trace back or";
+                tutorialMessage2 = "hit the button on the top right";
+                eulCircuit = true;
+                constructVertices();
+                constructCornerEdges();
+                if(!constructSideEdges()) {
+                    return;
+                }
+                if(!constructInnerEdges()) {
+                    return;
+                }
+                break;
+            case 7:
+                vRows = 2;
+                vColumns = 2;
+                tutorialMessage = "In Endless mode, sometimes you";
+                tutorialMessage2 = "have to start on certain dots";
+                eulCircuit = true;
+                constructVertices();
+                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
+                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[3]));
+                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[2]));
+                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[0]));
+                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[2]));
+                break;
+            case 8:
+                vRows = 2;
+                vColumns = 3;
+                tutorialMessage = "Can you figure out why?";
+                tutorialMessage2 = "The number of lines is important";
+                eulCircuit = true;
+                constructVertices();
+                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
+                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[2]));
+                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[5]));
+                edgeArrayList.add(new Edge(vertexArray[5], vertexArray[4]));
+                edgeArrayList.add(new Edge(vertexArray[4], vertexArray[3]));
+                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[0]));
+                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[4]));
+                break;
+            case 9:
+                vRows = 3;
+                vColumns = 3;
+                tutorialMessage = "In Timed mode you must finish";
+                tutorialMessage2 = "the stage as quickly as you can";
+                eulCircuit = true;
+                constructVertices();
+                constructCornerEdges();
+                if(!constructSideEdges()) {
+                    return;
+                }
+                if(!constructInnerEdges()) {
+                    return;
+                }
+                timerSecs = vRows * vColumns * 3;
+                break;
+            case 10:
+                vRows = 3;
+                vColumns = 3;
+                tutorialMessage = "That's all you need to know";
+                tutorialMessage2 = "for now. Enjoy the game!";
+                eulCircuit = true;
+                constructVertices();
+                constructCornerEdges();
+                if(!constructSideEdges()) {
+                    return;
+                }
+                if(!constructInnerEdges()) {
+                    return;
+                }
+                break;
+        }
+
+        if(!eulCircuit) {
+            addNonCircuitEdge();
+        }
+
+        edgeCount = edgeArrayList.size();
+
+        if(!traverseGraph()) {
+            return;
+        }
+
+        timer = new Timer(timerSecs, tf, panelWidth, panelHeight);
+        constructComplete = true;
+    }
+
+    private void setTutorialMessage() {
+
+    }
+
     public void draw(Canvas canvas) {
 
         //Draw edges
@@ -322,13 +498,28 @@ public class Graph {
 
             if(gameMode == 0) {
                 timer.draw(canvas);
+                score.draw(canvas);
 
                 if (timer.timeLeft <= 0) {
                     //QUIT TO MENU
                 }
             }
 
-            score.draw(canvas);
+            else if (gameMode == 1) {
+                score.draw(canvas);
+            }
+
+            else if (gameMode == 2) {
+                if (stageNo == 9) {
+                    timer.draw(canvas);
+                    canvas.drawText(tutorialMessage, panelWidth / 2, (panelHeight * 30) / 100, textPaint);
+                    canvas.drawText(tutorialMessage2, panelWidth / 2, (panelHeight * 35) / 100, textPaint);
+                }
+                else {
+                    canvas.drawText(tutorialMessage, panelWidth / 2, (panelHeight * 20) / 100, textPaint);
+                    canvas.drawText(tutorialMessage2, panelWidth / 2, (panelHeight * 25) / 100, textPaint);
+                }
+            }
         }
     }
 
@@ -1021,14 +1212,6 @@ public class Graph {
         if(edgeCount == 0)
             return true;
         else return false;
-    }
-
-    public boolean modeFinished() {
-        if(gameMode == 0)
-            if(stageNo > 10)
-                return true;
-
-        return false;
     }
 
     public void handleActionDown(int eventX, int eventY) {

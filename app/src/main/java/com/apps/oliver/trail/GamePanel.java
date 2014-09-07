@@ -149,7 +149,7 @@ public class GamePanel extends SurfaceView implements
                     i.putExtra("HIGH_SCORE", highScoreNumber);
                     getContext().startActivity(i);
                 }
-                else if (stageNo > 10 && gameMode == 0) {
+                else if (stageNo > 10 && (gameMode == 0 || gameMode == 2)) {
                     Intent i = new Intent();
                     i.setClass(this.getContext(), MenuActivity.class);
                     getContext().startActivity(i);
@@ -193,7 +193,12 @@ public class GamePanel extends SurfaceView implements
         paint.setDither(true);
         canvas.drawBitmap(reset, resetPos, vertSpace, paint);
         textPaint.setTextSize((panelHeight * 4) / 100);
-        canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 10) / 100, textPaint);
+        if (gameMode == 2) {
+            canvas.drawText("Tutorial", panelWidth / 2, (panelHeight * 10) / 100, textPaint);
+        }
+        else {
+            canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 10) / 100, textPaint);
+        }
         canvas.drawBitmap(back, backPos, vertSpace, paint);
         textPaint.setTextSize((panelWidth * 5) / 100);
         canvas.drawText("trail", panelWidth / 2, (panelHeight * 97) / 100, textPaint);

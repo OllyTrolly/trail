@@ -135,7 +135,7 @@ public class MenuPanel extends SurfaceView implements
             if(dotSelection(circle1Vert, x, y)) {
                 Intent i = new Intent();
                 i.setClass(this.getContext(), GameActivity.class);
-                i.putExtra("GAME_MODE", 0);
+                i.putExtra("GAME_MODE", 2);
                 getContext().startActivity(i);
             }
             else if(dotSelection(circle2Vert, x, y)) {
