@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -103,14 +104,19 @@ public class MenuPanel extends SurfaceView implements
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setColor(Color.DKGRAY);
         textPaint.setTypeface(robotoLight);
-        textPaint.setTextSize(36);
+        /*
+        int MY_DIP_VALUE = 28; //5dp
+        int pixel = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                MY_DIP_VALUE, getResources().getDisplayMetrics());
+                */
+        textPaint.setTextSize((panelWidth * 5) / 100);
         //Draw text
         canvas.drawText("Timed", horizCentre, circle1Vert + (panelHeight * 1) / 100, textPaint);
         canvas.drawText("Endless", horizCentre, circle2Vert + (panelHeight * 1) / 100, textPaint);
         canvas.drawText("Scores", horizCentre, circle3Vert + (panelHeight * 1) / 100, textPaint);
         textPaint.setColor(Color.LTGRAY);
         canvas.drawText("trail", horizCentre, (panelHeight * 97) / 100, textPaint);
-        textPaint.setTextSize(50);
+        textPaint.setTextSize((panelHeight * 4) / 100);
         canvas.drawText("Menu", horizCentre, (panelHeight * 10) / 100, textPaint);
         //Unlock user interaction with the canvas
         surfaceHolder.unlockCanvasAndPost(canvas);

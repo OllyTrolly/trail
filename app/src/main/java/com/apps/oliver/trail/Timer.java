@@ -33,7 +33,7 @@ public class Timer {
         paint = new Paint();
         paint.setTypeface(robotoLight);
         paint.setColor(Color.LTGRAY);
-        paint.setTextSize(70);
+        paint.setTextSize((panelHeight * 11) / 200);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setAntiAlias(true);
     }

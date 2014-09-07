@@ -58,7 +58,7 @@ public class GamePanel extends SurfaceView implements
         backPos = (panelWidth * 5) / 100;
         //vertSpace is the vertical co-ord for reset and back
         vertSpace = (panelHeight * 3) / 100;
-        h = (panelWidth * 2) / 100;
+        h = (panelWidth * 3) / 100;
 
         textPaint.setAntiAlias(true);
         textPaint.setColor(Color.LTGRAY);
@@ -133,16 +133,15 @@ public class GamePanel extends SurfaceView implements
             graph.handleActionUp();
             if(graph.stageFinished()) {
                 graph.finishStage();
-                stageNo++;
-                activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
-                if (stageNo > 10 && gameMode == 0) {
+                if (stageNo == 10 && gameMode == 0) {
+                    activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
                     activity.updateLeaderboards((int) graph.score.getValue());
                     activity.pushAccomplishments();
+                    stageNo++;
                     //Exit to menu and/or call up scoring
                     Intent i = new Intent();
                     i.setClass(this.getContext(), ScoreActivity.class);
                     if (graph.score.isHighScore()) {
-                        graph.score.nameScore("testScore");
                         graph.score.addToBoard();
                         //Add high score to intent as extra so it can be highlighted
                     }
@@ -150,13 +149,22 @@ public class GamePanel extends SurfaceView implements
                     i.putExtra("HIGH_SCORE", highScoreNumber);
                     getContext().startActivity(i);
                 }
+                else if (stageNo > 10 && gameMode == 0) {
+                    Intent i = new Intent();
+                    i.setClass(this.getContext(), MenuActivity.class);
+                    getContext().startActivity(i);
+                }
                 else if (gameMode == 1) {
+                    activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
                     activity.updateLeaderboards((int) graph.score.getValue());
                     activity.pushAccomplishments();
+                    stageNo++;
                     graph.constructStage(stageNo);
                 }
                 else {
+                    activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
                     activity.pushAccomplishments();
+                    stageNo++;
                     graph.constructStage(stageNo);
                 }
             }
@@ -179,11 +187,15 @@ public class GamePanel extends SurfaceView implements
         graph.draw(canvas);
         //Display FPS
         //displayFps(canvas, avgFps);
-        canvas.drawBitmap(reset, resetPos, vertSpace, null);
-        textPaint.setTextSize(50);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+        paint.setDither(true);
+        canvas.drawBitmap(reset, resetPos, vertSpace, paint);
+        textPaint.setTextSize((panelHeight * 4) / 100);
         canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 10) / 100, textPaint);
-        canvas.drawBitmap(back, backPos, vertSpace, null);
-        textPaint.setTextSize(36);
+        canvas.drawBitmap(back, backPos, vertSpace, paint);
+        textPaint.setTextSize((panelWidth * 5) / 100);
         canvas.drawText("trail", panelWidth / 2, (panelHeight * 97) / 100, textPaint);
     }
 

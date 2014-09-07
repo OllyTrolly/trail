@@ -74,7 +74,7 @@ public class Score {
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setColor(Color.LTGRAY);
         textPaint.setTypeface(robotoLight);
-        textPaint.setTextSize(45);
+        textPaint.setTextSize((panelHeight * 7) / 200);
         //Draw text
         canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 90) / 100, textPaint);
     }
