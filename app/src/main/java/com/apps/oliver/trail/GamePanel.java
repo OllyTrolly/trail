@@ -54,11 +54,11 @@ public class GamePanel extends SurfaceView implements
         Log.d(TAG, "Panel width is: " + panelWidth);
         Log.d(TAG, "Panel height is: " + panelHeight);
 
-        resetPos = (panelWidth * 90) / 100;
+        resetPos = (panelWidth * 85) / 100;
         backPos = (panelWidth * 5) / 100;
         //vertSpace is the vertical co-ord for reset and back
         vertSpace = (panelHeight * 3) / 100;
-        h = (panelWidth * 3) / 100;
+        h = (panelWidth * 4) / 100;
 
         textPaint.setAntiAlias(true);
         textPaint.setColor(Color.LTGRAY);
@@ -149,7 +149,7 @@ public class GamePanel extends SurfaceView implements
                     i.putExtra("HIGH_SCORE", highScoreNumber);
                     getContext().startActivity(i);
                 }
-                else if (stageNo > 10 && (gameMode == 0 || gameMode == 2)) {
+                else if (stageNo > 10 && gameMode == 0) {
                     Intent i = new Intent();
                     i.setClass(this.getContext(), MenuActivity.class);
                     getContext().startActivity(i);

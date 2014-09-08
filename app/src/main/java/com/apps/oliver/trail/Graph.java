@@ -444,8 +444,8 @@ public class Graph {
             case 10:
                 vRows = 3;
                 vColumns = 3;
-                tutorialMessage = "That's all you need to know";
-                tutorialMessage2 = "for now. Enjoy the game!";
+                tutorialMessage = "Practice more if you want";
+                tutorialMessage2 = "Press the arrow for the menu!";
                 eulCircuit = true;
                 constructVertices();
                 constructCornerEdges();
@@ -455,6 +455,20 @@ public class Graph {
                 if(!constructInnerEdges()) {
                     return;
                 }
+                break;
+            default:
+                vRows = 3;
+                vColumns = 3;
+                constructVertices();
+                constructCornerEdges();
+                if(!constructSideEdges()) {
+                    return;
+                }
+                if(!constructInnerEdges()) {
+                    return;
+                }
+                if(randInt(1, 100) <= 10) eulCircuit = false;
+                else eulCircuit = true;
                 break;
         }
 

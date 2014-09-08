@@ -17,5 +17,10 @@
     <string name="leaderboard_timed">CgkI7OrPk6gfEAIQAQ</string>
     <string name="achievement_timed_toast_text">Complete Timed Mode</string>
     <string name="achievement_time_warp_toast_text">Time Warp</string>
+    <string name="achievement_500_lines">CgkI7OrPk6gfEAIQCw</string>
+    <string name="achievement_5000_lines">CgkI7OrPk6gfEAIQCg</string>
+    <string name="achievement_untutorable">CgkI7OrPk6gfEAIQCA</string>
+    <string name="achievement_euler">CgkI7OrPk6gfEAIQCQ</string>
+    <string name="achievement_tutorial_toast_text">Euler Would Be Proud</string>
 
 </resources>

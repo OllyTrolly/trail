@@ -221,6 +221,13 @@ public class GameActivity extends BaseGameActivity {
             mOutbox.mTimeWarpAchievement = true;
             achievementToast(getString(R.string.achievement_time_warp_toast_text));
         }
+        if (gameMode == 2 && stages == 10) {
+            mOutbox.mTutorialAchievement = true;
+            achievementToast(getString(R.string.achievement_tutorial_toast_text));
+        }
+        if (gameMode == 2 && stages > 10) {
+            mOutbox.mExtraTutorialStages++;
+        }
         if (gameMode == 1) {
             mOutbox.mEndlessStages++;
         }
@@ -260,6 +267,15 @@ public class GameActivity extends BaseGameActivity {
             Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_timewarp));
             mOutbox.mTimeWarpAchievement = false;
         }
+        if (mOutbox.mTutorialAchievement) {
+            Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_euler));
+            mOutbox.mTutorialAchievement = false;
+        }
+        if (mOutbox.mExtraTutorialStages > 0) {
+            Games.Achievements.increment(getApiClient(), getString(R.string.achievement_untutorable),
+                    mOutbox.mExtraTutorialStages);
+            mOutbox.mExtraTutorialStages = 0;
+        }
         if (mOutbox.mEndlessStages > 0) {
             Games.Achievements.increment(getApiClient(), getString(R.string.achievement_forever_ever),
                     mOutbox.mEndlessStages);
@@ -268,7 +284,11 @@ public class GameActivity extends BaseGameActivity {
             mOutbox.mEndlessStages = 0;
         }
         if (mOutbox.mEdgesDrawn > 0) {
+            Games.Achievements.increment(getApiClient(), getString(R.string.achievement_500_lines),
+                    mOutbox.mEdgesDrawn);
             Games.Achievements.increment(getApiClient(), getString(R.string.achievement_2000_lines),
+                    mOutbox.mEdgesDrawn);
+            Games.Achievements.increment(getApiClient(), getString(R.string.achievement_5000_lines),
                     mOutbox.mEdgesDrawn);
             mOutbox.mEdgesDrawn = 0;
         }
@@ -301,14 +321,16 @@ public class GameActivity extends BaseGameActivity {
     class AccomplishmentsOutbox {
         boolean mTimedAchievement = false;
         boolean mTimeWarpAchievement = false;
+        boolean mTutorialAchievement = false;
         int mEndlessStages = 0;
+        int mExtraTutorialStages = 0;
         int mEdgesDrawn = 0;
         int mEndlessModeScore = -1;
         int mTimedModeScore = -1;
 
         boolean isEmpty() {
-            return !mTimedAchievement && !mTimeWarpAchievement && mEndlessStages == 0 && mEdgesDrawn == 0 &&
-                    mEndlessModeScore < 0 && mTimedModeScore < 0;
+            return !mTimedAchievement && !mTimeWarpAchievement && mEndlessStages == 0 && !mTutorialAchievement &&
+                    mExtraTutorialStages == 0&& mEdgesDrawn == 0 && mEndlessModeScore < 0 && mTimedModeScore < 0;
         }
 
         public void saveLocal(Context ctx) {
