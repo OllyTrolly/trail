@@ -25,6 +25,8 @@ public class MenuPanel extends SurfaceView implements
     private MenuActivity activity;
 
     int horizCentre;
+    int firstColumn;
+    int secondColumn;
     int circle1Vert;
     int circle2Vert;
     int circle3Vert;
@@ -41,6 +43,8 @@ public class MenuPanel extends SurfaceView implements
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
 
         horizCentre = panelWidth / 2;
+        firstColumn = (panelWidth * 30) / 100;
+        secondColumn = (panelWidth * 70) / 100;
         circle1Vert = (panelHeight * 30) / 100;
         circle2Vert = (panelHeight * 50) / 100;
         circle3Vert = (panelHeight * 70) / 100;
@@ -69,51 +73,54 @@ public class MenuPanel extends SurfaceView implements
         Paint rectPaint = new Paint();
         rectPaint.setAntiAlias(true);
         rectPaint.setColor(Color.LTGRAY);
-        //rectPaint.setAlpha(150);
         //First line
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
-        canvas.rotate(40, horizCentre, circle1Vert);
-        canvas.drawRect(horizCentre, circle1Vert - rectRadius, (float) (panelWidth + (0.75*horizCentre)), circle1Vert + rectRadius, rectPaint);
+        canvas.rotate(60, horizCentre, circle1Vert);
+        canvas.drawRect(horizCentre, circle1Vert - rectRadius, horizCentre + ((panelHeight * 22) / 100), circle1Vert + rectRadius, rectPaint);
         canvas.restore();
         //Second line
-        canvas.drawRect(horizCentre - rectRadius, circle2Vert, horizCentre + rectRadius, circle3Vert, rectPaint);
+        canvas.drawRect(firstColumn - rectRadius, circle2Vert, firstColumn + rectRadius, circle3Vert, rectPaint);
+        canvas.drawRect(horizCentre, circle1Vert - rectRadius, panelWidth, circle1Vert + rectRadius, rectPaint);
         //Third line
         rectPaint.setColor(Color.GRAY);
         rectPaint.setAlpha(150);
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
-        canvas.rotate(320, horizCentre, circle2Vert);
-        canvas.drawRect((float) (0 - (0.75*horizCentre)), circle2Vert - rectRadius, horizCentre, circle2Vert + rectRadius, rectPaint);
+        canvas.rotate(320, secondColumn, circle2Vert);
+        canvas.drawRect((float) (0 - (0.75*horizCentre)), circle2Vert - rectRadius, secondColumn, circle2Vert + rectRadius, rectPaint);
         canvas.restore();
         //Fourth line
-        canvas.drawRect(0, circle1Vert - rectRadius, horizCentre, circle1Vert + rectRadius, rectPaint);
+        canvas.drawRect(firstColumn, circle3Vert - rectRadius, secondColumn, circle3Vert + rectRadius, rectPaint);
         //Set paint for drawing dots
         Paint dotPaint = new Paint();
         dotPaint.setAntiAlias(true);
+        //"Tutorial" - yellow dot
+        dotPaint.setColor(Color.rgb(246, 240, 67));
+        canvas.drawCircle(horizCentre, circle1Vert, circleRadius, dotPaint);
         //"Timed" - orange dot
         dotPaint.setColor(Color.rgb(237, 145, 33));
-        canvas.drawCircle(horizCentre, circle1Vert, circleRadius, dotPaint);
+        canvas.drawCircle(firstColumn, circle2Vert, circleRadius, dotPaint);
         //"Endless" - green dot
         dotPaint.setColor(Color.rgb(115, 220, 90));
-        canvas.drawCircle(horizCentre, circle2Vert, circleRadius, dotPaint);
+        canvas.drawCircle(secondColumn, circle2Vert, circleRadius, dotPaint);
         //"Scores" - purple dot
         dotPaint.setColor(Color.rgb(240, 120, 240));
-        canvas.drawCircle(horizCentre, circle3Vert, circleRadius, dotPaint);
+        canvas.drawCircle(firstColumn, circle3Vert, circleRadius, dotPaint);
+        //"Trophies" - turquoise dot
+        dotPaint.setColor(Color.rgb(66, 228, 222));
+        canvas.drawCircle(secondColumn, circle3Vert, circleRadius, dotPaint);
         //Set paint for text
         Paint textPaint = new Paint();
         textPaint.setAntiAlias(true);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setColor(Color.DKGRAY);
         textPaint.setTypeface(robotoLight);
-        /*
-        int MY_DIP_VALUE = 28; //5dp
-        int pixel = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                MY_DIP_VALUE, getResources().getDisplayMetrics());
-                */
         textPaint.setTextSize((panelWidth * 5) / 100);
         //Draw text
-        canvas.drawText("Timed", horizCentre, circle1Vert + (panelHeight * 1) / 100, textPaint);
-        canvas.drawText("Endless", horizCentre, circle2Vert + (panelHeight * 1) / 100, textPaint);
-        canvas.drawText("Scores", horizCentre, circle3Vert + (panelHeight * 1) / 100, textPaint);
+        canvas.drawText("Tutorial", horizCentre, circle1Vert + (panelHeight * 1) / 100, textPaint);
+        canvas.drawText("Timed", firstColumn, circle2Vert + (panelHeight * 1) / 100, textPaint);
+        canvas.drawText("Endless", secondColumn, circle2Vert + (panelHeight * 1) / 100, textPaint);
+        canvas.drawText("Scores", firstColumn, circle3Vert + (panelHeight * 1) / 100, textPaint);
+        canvas.drawText("Trophies", secondColumn, circle3Vert + (panelHeight * 1) / 100, textPaint);
         textPaint.setColor(Color.LTGRAY);
         canvas.drawText("trail", horizCentre, (panelHeight * 97) / 100, textPaint);
         textPaint.setTextSize((panelHeight * 4) / 100);
@@ -132,19 +139,29 @@ public class MenuPanel extends SurfaceView implements
         if(event.getAction() == MotionEvent.ACTION_DOWN) {
             int x = (int) event.getX();
             int y = (int) event.getY();
-            if(dotSelection(circle1Vert, x, y)) {
+            //Tutorial
+            if(dotSelection(horizCentre, circle1Vert, x, y)) {
                 Intent i = new Intent();
                 i.setClass(this.getContext(), GameActivity.class);
                 i.putExtra("GAME_MODE", 2);
                 getContext().startActivity(i);
             }
-            else if(dotSelection(circle2Vert, x, y)) {
+            //Timed
+            else if(dotSelection(firstColumn, circle2Vert, x, y)) {
+                Intent i = new Intent();
+                i.setClass(this.getContext(), GameActivity.class);
+                i.putExtra("GAME_MODE", 0);
+                getContext().startActivity(i);
+            }
+            //Endless
+            else if(dotSelection(secondColumn, circle2Vert, x, y)) {
                 Intent i = new Intent();
                 i.setClass(this.getContext(), GameActivity.class);
                 i.putExtra("GAME_MODE", 1);
                 getContext().startActivity(i);
             }
-            else if(dotSelection(circle3Vert, x, y)) {
+            //Scores
+            else if(dotSelection(firstColumn, circle3Vert, x, y)) {
                 activity.onSignInButtonClicked();
                 activity.onShowLeaderboardsRequested();
                 /*
@@ -153,6 +170,11 @@ public class MenuPanel extends SurfaceView implements
                 i.putExtra("HIGH_SCORE", 10);
                 getContext().startActivity(i);
                 */
+            }
+            //Trophies
+            else if(dotSelection(secondColumn, circle3Vert, x, y)) {
+                activity.onSignInButtonClicked();
+                activity.onShowAchievementsRequested();
             }
         }
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
@@ -164,9 +186,9 @@ public class MenuPanel extends SurfaceView implements
         return true;
     }
 
-    private boolean dotSelection(int vert, int eventX, int eventY) {
-        if((eventX >= (horizCentre - circleRadius) &&
-                (eventX <= (horizCentre + circleRadius)))
+    private boolean dotSelection(int horiz, int vert, int eventX, int eventY) {
+        if((eventX >= (horiz - circleRadius) &&
+                (eventX <= (horiz + circleRadius)))
                 && (eventY >= (vert - circleRadius) &&
                 (eventY <= vert + circleRadius))) {
             return true;

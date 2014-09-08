@@ -39,6 +39,8 @@ public class MenuActivity extends BaseGameActivity {
         MenuActivity activity = this;
         MenuPanel panel = new MenuPanel(this, robotoLight, activity);
         setContentView(panel);
+
+
     }
 
 
