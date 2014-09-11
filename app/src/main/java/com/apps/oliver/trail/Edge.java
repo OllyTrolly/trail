@@ -3,17 +3,13 @@ package com.apps.oliver.trail;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 
 /**
  * Created by Oliver on 13/07/2014.
  */
 public class Edge {
 
-    private static final String TAG = Edge.class.getSimpleName(); //Define the tag for logging
+    // Connected vertices
     private Vertex vertexA;
     private Vertex vertexB;
     private float aX;

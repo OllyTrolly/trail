@@ -1,89 +1,73 @@
 package com.apps.oliver.trail;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 
 public class GameActivity extends Activity {
 
-    private static final String TAG = GameActivity.class.getSimpleName();
     private int gameMode;
-    private int stageNo;
-    private Score gameScore;
-    private GamePanel panel;
-    private View view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Gets intent from bundle (if it exists) that denotes the game mode that should be started
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             gameMode = extras.getInt("GAME_MODE");
-            Log.d(TAG, "gameMode is " + gameMode);
         }
         else {
-            Log.d(TAG, "Can't find gameMode");
             gameMode = 1;
         }
+
+        // Created new typeface from font file (Roboto Light) in assets folder
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
+
+        // Instantiates a custom SurfaceView object called GamePanel, gives it an id so it can
+        // save and restore state, then sets it as the view that can be interacted with
         final GamePanel panel = new GamePanel(this, robotoLight, gameMode);
         int id = 0;
         panel.setId(id);
         setContentView(panel);
-
-        Log.d(TAG, "View added");
     }
 
     @Override
     protected void onRestart() {
-        Log.d(TAG, "Restarting...");
         super.onRestart();
     }
 
     @Override
     protected void onPause() {
-        Log.d(TAG, "Pausing...");
         super.onPause();
     }
 
     protected void onResume() {
-        Log.d(TAG, "Resuming...");
         super.onResume();
     }
 
-    @Override //Just adds Log dialogue to overridden method
+    @Override
     protected void onDestroy() {
-        Log.d(TAG, "Destroying...");
         super.onDestroy();
     }
 
-    @Override //Just adds Log dialogue to overridden method
+    @Override
     protected void onStop() {
-        Log.d(TAG, "Stopping...");
         super.onStop();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        Log.d(TAG, "Saving instance state...");
-        super.onSaveInstanceState(savedInstanceState); // the UI component values are saved here.
-        //savedInstanceState.putParcelable("gamePanel", panel.onSaveInstanceState());
+        // The UI component values are saved here.
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.d(TAG, "Restoring instance state...");
-        super.onRestoreInstanceState(savedInstanceState); // the UI component values are saved here.
-        //panel.onRestoreInstanceState(savedInstanceState.getParcelable("gamePanel"));
+        // The UI component values are restored here.
+        super.onRestoreInstanceState(savedInstanceState);
     }
     
     @Override

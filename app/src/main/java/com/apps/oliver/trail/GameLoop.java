@@ -3,12 +3,10 @@ package com.apps.oliver.trail;
 import android.graphics.Canvas;
 import android.util.Log;
 import android.view.SurfaceHolder;
-
 import java.text.DecimalFormat;
 
 /**
  * Created by Oliver on 13/07/2014.
- * Credit goes to javacodegeeks for template code http://www.javacodegeeks.com/2011/07/android-game-development-basic-game_05.html
  */
 public class GameLoop extends Thread {
 
