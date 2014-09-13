@@ -2,9 +2,7 @@ package com.apps.oliver.trail;
 
 /**
  * Created by Oliver on 13/07/2014.
- * Credit goes to javacodegeeks for template code http://www.javacodegeeks.com/2011/07/android-game-development-basic-game_05.html
  */
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,10 +11,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,7 +18,6 @@ import android.view.SurfaceView;
 public class GamePanel extends SurfaceView implements
         SurfaceHolder.Callback {
 
-    private static final String TAG = GamePanel.class.getSimpleName();
     private GameLoop loop;
     private Graph graph;
     private int stageNo = 1;
@@ -38,35 +31,31 @@ public class GamePanel extends SurfaceView implements
     private int panelWidth;
     private int panelHeight;
     private boolean scoreScreen = false;
-    private Typeface tf;
 
     public GamePanel(Context context, Typeface tf, int gameMode) {
         super(context);
-        this.tf = tf;
 
+        // Getting width and height of screen for scaling purposes
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
 
-        Log.d(TAG, "Panel width is: " + panelWidth);
-        Log.d(TAG, "Panel height is: " + panelHeight);
+        resetPos = (panelWidth * 90) / 100;  // Horizontal position of reset button
+        backPos = (panelWidth * 5) / 100; // Horizontal position of back button
+        vertSpace = (panelHeight * 3) / 100; // vertSpace is the vertical co-ord for reset and back
+        h = (panelWidth * 2) / 100; // The hitbox extension of an object's already existing dimensions
 
-        resetPos = (panelWidth * 90) / 100;
-        backPos = (panelWidth * 5) / 100;
-        //vertSpace is the vertical co-ord for reset and back
-        vertSpace = (panelHeight * 3) / 100;
-        h = (panelWidth * 2) / 100;
-
+        // Setting relevant properties for the text's paint
         textPaint.setAntiAlias(true);
         textPaint.setColor(Color.LTGRAY);
         textPaint.setTypeface(tf);
         textPaint.setTextAlign(Paint.Align.CENTER);
-        // adding the callback (this) to the surface holder to intercept events
-        getHolder().addCallback(this);
-        reset = BitmapFactory.decodeResource(getResources(), R.drawable.reset);
-        back = BitmapFactory.decodeResource(getResources(), R.drawable.back);
+
+        getHolder().addCallback(this);  // Adding the callback (this) to the surface holder to intercept events
+        reset = BitmapFactory.decodeResource(getResources(), R.drawable.reset); // Adding/assigning reset button's bitmap
+        back = BitmapFactory.decodeResource(getResources(), R.drawable.back); // Adding/assigning back button's bitmap
         graph = new Graph(gameMode, stageNo, panelWidth, panelHeight, tf);
         graph.constructStage();
-        loop = new GameLoop(getHolder(), this); //Passes the SurfaceHolder and GamePanel class (this) to the loop instance of GameLoop
+        loop = new GameLoop(getHolder(), this);
         setFocusable(true); // Make the GamePanel focusable so it can handle events
 
     }
@@ -75,6 +64,7 @@ public class GamePanel extends SurfaceView implements
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
 
+    // On surface creation, start loop, if resuming, 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         if(loop.getState() != GameLoop.State.NEW) {
@@ -88,7 +78,7 @@ public class GamePanel extends SurfaceView implements
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.d(TAG, "Stopping thread on surface destruction");
+
         graph.pauseTimer();
         loop.setRunning(false);
 
@@ -97,9 +87,8 @@ public class GamePanel extends SurfaceView implements
             try {
                 loop.join(); // "Blocks the current Thread (Thread.currentThread()) until the receiver finishes its execution and dies."
                 retry = false;
-                Log.d(TAG, "Successfully terminated thread");
             } catch (InterruptedException e) {
-                //try shutting down the GameLoop thread again
+                // Try shutting down the GameLoop thread again
             }
         }
     }
@@ -147,17 +136,7 @@ public class GamePanel extends SurfaceView implements
         return true;
     }
 
-    public void update() {
-
-    }
-
-    //The fps to be displayed
-    private String avgFps;
-    public void setAvgFps(String avgFps) {
-        this.avgFps = avgFps;
-    }
-
-    public void render(Canvas canvas) {
+    public void draw(Canvas canvas) {
 
         canvas.drawColor(Color.DKGRAY);
         if(scoreScreen) {
@@ -166,8 +145,6 @@ public class GamePanel extends SurfaceView implements
 
         else {
             graph.draw(canvas);
-            //Display FPS
-            //displayFps(canvas, avgFps);
             canvas.drawBitmap(reset, resetPos, vertSpace, null);
             textPaint.setTextSize(50);
             canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 10) / 100, textPaint);
@@ -176,15 +153,6 @@ public class GamePanel extends SurfaceView implements
         canvas.drawBitmap(back, backPos, vertSpace, null);
         textPaint.setTextSize(36);
         canvas.drawText("trail", panelWidth / 2, (panelHeight * 97) / 100, textPaint);
-    }
-
-    private void displayFps(Canvas canvas, String fps) {
-        if (canvas != null && fps != null) {
-            Paint paint = new Paint();
-            paint.setARGB(255,255,255,255);
-            paint.setTextSize(20);
-            canvas.drawText(fps,panelWidth - 100, panelHeight - 20, paint);
-        }
     }
 
 }

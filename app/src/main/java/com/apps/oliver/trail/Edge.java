@@ -22,33 +22,38 @@ public class Edge {
     private float bigY;
     private float rectRadius;
     private int rotation;
-    Paint paint = new Paint(); // Instantiate paint
+    private Paint paint = new Paint(); // Instantiate paint
     private boolean isActivated;
     private boolean lastSelected;
     private float diagEdgeLength;
 
     public Edge(Vertex vertexA, Vertex vertexB) {
+        // Setting up properties of deactivated vertices as connected to each other
         this.vertexA = vertexA;
         vertexA.setConnected(vertexB, this);
         this.vertexB = vertexB;
         vertexB.setConnected(vertexA, this);
         isActivated = false;
+
         rectRadius = (vertexA.panelWidth * 2) / 100;
-        paint.setColor(Color.GRAY); //Take color as input later on (can change colour scheme this way)
+        paint.setColor(Color.GRAY); // Take color as input later on (can change colour scheme this way)
         paint.setAlpha(100);
         paint.setAntiAlias(true);
-        diagEdgeLength = (vertexA.panelWidth * 51) / 200;
+        diagEdgeLength = (vertexA.panelWidth * 51) / 200;  // Pre-calculated length of a diagonal edge
 
+        // Shorthands for x and y co-ordinates of each vertex
         aX = vertexA.getX();
         aY = vertexA.getY();
         bX = vertexB.getX();
         bY = vertexB.getY();
 
+        // Finding shortest x and y co-ordinates for rectangle creation
         if (aX < bX) {smallX = aX; bigX = bX;}
         else {smallX = bX; bigX = aX;}
         if (aY < bY) {smallY = aY; bigY = bY;}
         else {smallY = bY; bigY = aY;}
 
+        // Finding needed canvas angle of rotation to draw rectangle
         if(aY < bY) {
             if(aX < bX) rotation = 45;
             else rotation = 135;
@@ -59,16 +64,19 @@ public class Edge {
         }
     }
 
+    // Toggle whether edge is activated or not
     public void toggleActivation(boolean isActivated) {
         this.isActivated = isActivated;
         updatePaint();
     }
 
+    // Toggle whether edge is last selected or not
     public void lastSelected(boolean lastSelected) {
         this.lastSelected = lastSelected;
         updatePaint();
     }
 
+    // Update paint color and alpha to reflect current edge state
     public void updatePaint() {
         if(lastSelected) {
             paint.setColor(Color.YELLOW);
@@ -84,10 +92,12 @@ public class Edge {
         }
     }
 
+    // Return state of activation
     public boolean isActivated() {
         return isActivated;
     }
 
+    // Draw edge, depends on angle between the two vertices
     public void draw(Canvas canvas) {
         //Horizontal
         if(vertexA.getY() == vertexB.getY()) {

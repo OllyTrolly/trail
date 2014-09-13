@@ -34,6 +34,8 @@ public class GameActivity extends Activity {
         setContentView(panel);
     }
 
+    // Methods below relate to actions on closing and opening of this activity in various ways
+
     @Override
     protected void onRestart() {
         super.onRestart();
