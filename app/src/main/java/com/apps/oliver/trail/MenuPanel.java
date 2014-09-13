@@ -6,8 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -18,14 +16,13 @@ import android.view.SurfaceView;
 public class MenuPanel extends SurfaceView implements
         SurfaceHolder.Callback {
 
-    private static final String TAG = MenuPanel.class.getSimpleName();
     private Typeface robotoLight;
     private SurfaceHolder surfaceHolder;
 
-    int horizCentre;
-    int circle1Vert;
-    int circle2Vert;
-    int circle3Vert;
+    int horizCentre; // Horizontal centre of panel
+    int circle1Vert; // Vertical co-ord of first dot
+    int circle2Vert; // Vertical co-ord of second dot
+    int circle3Vert; // Vertical co-ord of third dot
     int rectRadius;
     int circleRadius;
     int panelWidth;
@@ -33,10 +30,13 @@ public class MenuPanel extends SurfaceView implements
 
     public MenuPanel(Context context, Typeface robotoLight) {
         super(context);
+        this.robotoLight = robotoLight;
 
+        // Getting width and height of panel for scaling purposes
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
 
+        // Setting various co-ordinates based on panel size
         horizCentre = panelWidth/2;
         circle1Vert = (panelHeight * 30) / 100;
         circle2Vert = (panelHeight * 50) / 100;
@@ -47,7 +47,6 @@ public class MenuPanel extends SurfaceView implements
 
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this); // Adding the callback (this) to the surface holder to intercept events
-        this.robotoLight = robotoLight;
         setFocusable(true); // Make the MenuPanel focusable so it can handle events
     }
 
@@ -66,7 +65,6 @@ public class MenuPanel extends SurfaceView implements
         Paint rectPaint = new Paint();
         rectPaint.setAntiAlias(true);
         rectPaint.setColor(Color.LTGRAY);
-        //rectPaint.setAlpha(150);
         //First line
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
         canvas.rotate(40, horizCentre, circle1Vert);
@@ -114,41 +112,6 @@ public class MenuPanel extends SurfaceView implements
         surfaceHolder.unlockCanvasAndPost(canvas);
     }
 
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-            int x = (int) event.getX();
-            int y = (int) event.getY();
-            if(dotSelection(circle1Vert, x, y)) {
-                Intent i = new Intent();
-                i.setClass(this.getContext(), GameActivity.class);
-                i.putExtra("GAME_MODE", 0);
-                getContext().startActivity(i);
-            }
-            else if(dotSelection(circle2Vert, x, y)) {
-                Intent i = new Intent();
-                i.setClass(this.getContext(), GameActivity.class);
-                i.putExtra("GAME_MODE", 1);
-                getContext().startActivity(i);
-            }
-            else if(dotSelection(circle3Vert, x, y)) {
-
-            }
-        }
-        if (event.getAction() == MotionEvent.ACTION_MOVE) {
-
-        }
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-
-        }
-        return true;
-    }
-
     private boolean dotSelection(int vert, int eventX, int eventY) {
         if((eventX >= (horizCentre - circleRadius) &&
                 (eventX <= (horizCentre + circleRadius)))
@@ -159,4 +122,34 @@ public class MenuPanel extends SurfaceView implements
         return false;
     }
 
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+            int x = (int) event.getX();
+            int y = (int) event.getY();
+            // If first dot selected, start GameActivity in Timed mode
+            if(dotSelection(circle1Vert, x, y)) {
+                Intent i = new Intent();
+                i.setClass(this.getContext(), GameActivity.class);
+                i.putExtra("GAME_MODE", 0);
+                getContext().startActivity(i);
+            }
+            // If second dot selected, start GameActivity in Endless mode
+            else if(dotSelection(circle2Vert, x, y)) {
+                Intent i = new Intent();
+                i.setClass(this.getContext(), GameActivity.class);
+                i.putExtra("GAME_MODE", 1);
+                getContext().startActivity(i);
+            }
+            else if(dotSelection(circle3Vert, x, y)) {
+                // Doesn't do anything yet, will call up scoreboard
+            }
+        }
+        return true;
+    }
 }

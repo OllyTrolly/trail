@@ -27,7 +27,7 @@ public class GamePanel extends SurfaceView implements
     private int h;
     private Bitmap reset;
     private Bitmap back;
-    public Paint textPaint = new Paint();
+    private Paint textPaint = new Paint();
     private int panelWidth;
     private int panelHeight;
     private boolean scoreScreen = false;
@@ -35,7 +35,7 @@ public class GamePanel extends SurfaceView implements
     public GamePanel(Context context, Typeface tf, int gameMode) {
         super(context);
 
-        // Getting width and height of screen for scaling purposes
+        // Getting width and height of panel for scaling purposes
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
 
@@ -64,7 +64,7 @@ public class GamePanel extends SurfaceView implements
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
 
-    // On surface creation, start loop, if resuming, 
+    // On surface creation, start loop, if resuming create new loop and resume stage's timer
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         if(loop.getState() != GameLoop.State.NEW) {
@@ -76,6 +76,8 @@ public class GamePanel extends SurfaceView implements
         loop.start();
     }
 
+    // On surface destruction, pause the stage's timer, tell loop to stop running
+    // and wait for it to finish by itself.
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
 
@@ -96,38 +98,39 @@ public class GamePanel extends SurfaceView implements
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        if (event.getX() < backPos + (back.getWidth() / 2) + h && event.getX() > backPos - (back.getWidth() / 2) - h &&
-                event.getY() < vertSpace + (back.getHeight() / 2) + h && event.getY() > vertSpace - (back.getHeight() / 2) - h) {
-            Intent i = new Intent();
-            i.setClass(this.getContext(), MenuActivity.class);
-            getContext().startActivity(i);
+        // Check if touch event was at back button, if so start MenuActivity
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (event.getX() < backPos + (back.getWidth() / 2) + h && event.getX() > backPos - (back.getWidth() / 2) - h &&
+                    event.getY() < vertSpace + (back.getHeight() / 2) + h && event.getY() > vertSpace - (back.getHeight() / 2) - h) {
+                Intent i = new Intent();
+                i.setClass(this.getContext(), MenuActivity.class);
+                getContext().startActivity(i);
+            }
         }
 
-        if(scoreScreen) {
-
-        }
-
-        else {
+        // All other elements are not present on the final score screen
+        if(!scoreScreen) {
+            // Check if touch event was at reset button
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                // Delegating event handling to the graph
                 if (event.getX() < resetPos + (reset.getWidth() / 2) + h && event.getX() > resetPos - (reset.getWidth() / 2) - h &&
                         event.getY() < vertSpace + (reset.getHeight() / 2) + h && event.getY() > vertSpace - (reset.getHeight() / 2) - h) {
                     graph.reset();
                 }
-
+                // If not at back or reset, delegate event handling to the graph
                 else graph.handleActionDown((int) event.getX(), (int) event.getY());
             }
             if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                // Delegate event handling to the graph
                 graph.handleActionMove((int) event.getX(), (int) event.getY());
             }
+            // Check if graph stage and/or mode has finished on action up
+            // and take relevant action
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 if (graph.stageFinished()) {
-
                     if (graph.modeFinished()) {
                         //Exit to menu and/or call up scoring
                         scoreScreen = true;
                     }
-
                     graph.constructStage();
                 }
 
@@ -140,9 +143,11 @@ public class GamePanel extends SurfaceView implements
 
         canvas.drawColor(Color.DKGRAY);
         if(scoreScreen) {
+            // Draw final score screen after mode finish
             graph.score.drawFinal(canvas);
         }
 
+        // Draw graph, icons and text during stages
         else {
             graph.draw(canvas);
             canvas.drawBitmap(reset, resetPos, vertSpace, null);

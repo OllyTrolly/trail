@@ -14,7 +14,7 @@ public class GameActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Gets intent from bundle (if it exists) that denotes the game mode that should be started
+        // Get intent from bundle (if it exists) that denotes the game mode that should be started
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             gameMode = extras.getInt("GAME_MODE");
@@ -23,11 +23,11 @@ public class GameActivity extends Activity {
             gameMode = 1;
         }
 
-        // Created new typeface from font file (Roboto Light) in assets folder
+        // Create new typeface from font file (Roboto Light) in assets folder
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
 
-        // Instantiates a custom SurfaceView object called GamePanel, gives it an id so it can
-        // save and restore state, then sets it as the view that can be interacted with
+        // Instantiate a custom SurfaceView object called GamePanel, give it an id so it can
+        // save and restore state, then set it as the view that can be interacted with
         final GamePanel panel = new GamePanel(this, robotoLight, gameMode);
         int id = 0;
         panel.setId(id);

@@ -1,31 +1,21 @@
 package com.apps.oliver.trail;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.WindowManager;
 
 
 public class MenuActivity extends Activity {
 
-    private static final String TAG = MenuActivity.class.getSimpleName();
-    private MenuPanel panel;
-    private Point panelSize;
-    private int panelWidth;
-    private int panelHeight;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        // Create new typeface from font file (Roboto Light) in assets folder
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
+        // Instantiate a custom SurfaceView object called GamePanel, then set it as the view
+        // that can be interacted with
         MenuPanel panel = new MenuPanel(this, robotoLight);
         setContentView(panel);
     }
@@ -48,11 +38,5 @@ public class MenuActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void launchGameActivity(int gameMode) {
-        Intent i = new Intent(this, GameActivity.class);
-        i.putExtra("GAME_MODE", gameMode);
-        startActivity(i);
     }
 }

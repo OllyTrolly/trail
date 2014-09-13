@@ -1,13 +1,9 @@
 package com.apps.oliver.trail;
 
-import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 
 /**
  * Created by Oliver on 13/07/2014.
@@ -15,7 +11,6 @@ import android.util.Log;
 
 public class Timer {
 
-    private static final String TAG = Timer.class.getSimpleName(); //Define the tag for logging
     private int timerSecs;
     public long startTime;
     private long pauseTime;
@@ -38,27 +33,29 @@ public class Timer {
         paint.setAntiAlias(true);
     }
 
+    // Calculate the time left on the timer in seconds
     public int getTimeLeft() {
-        int timeElapsed = (int) ((System.nanoTime() - startTime)/1000000000);
+        int timeElapsed = (int) ((System.nanoTime() - startTime - offset)/1000000000);
         timeLeft = timerSecs - timeElapsed;
         return timeLeft;
     }
 
+    // Pause the timer by recording the time
     public void pauseTimer() {
-        Log.d(TAG, "Pausing timer");
         pauseTime = System.nanoTime();
     }
 
+    // Resume the timer by calculating time difference since pause and offsetting it
     public void resumeTimer() {
-        Log.d(TAG, "Resuming timer");
         offset = System.nanoTime() - pauseTime;
     }
 
     public void draw(Canvas canvas) {
-        int timeElapsed = (int) ((System.nanoTime() - startTime - offset)/1000000000);
-        timeLeft = timerSecs - timeElapsed;
+        // Get time left and changes into minutes and seconds to display
+        timeLeft = getTimeLeft();
         int minsLeft = timeLeft / 60;
         int secsLeft = timeLeft % 60;
+        // Change display to 'Too slow!' if all the time has elapsed
         if(timeLeft <= 0) {
             paint.setColor(Color.RED);
             canvas.drawText("Too slow!", panelWidth / 2, (panelHeight * 23) / 100, paint);
