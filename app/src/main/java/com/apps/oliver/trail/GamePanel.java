@@ -133,7 +133,7 @@ public class GamePanel extends SurfaceView implements
             graph.handleActionUp();
             if(graph.stageFinished()) {
                 graph.finishStage();
-                if (stageNo == 10 && gameMode == 0) {
+                if (stageNo == 50 && gameMode == 0) {
                     activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
                     activity.updateLeaderboards((int) graph.score.getValue());
                     activity.pushAccomplishments();
@@ -149,7 +149,7 @@ public class GamePanel extends SurfaceView implements
                     i.putExtra("HIGH_SCORE", highScoreNumber);
                     getContext().startActivity(i);
                 }
-                else if (stageNo > 10 && gameMode == 0) {
+                else if (stageNo > 50 && gameMode == 0) {
                     Intent i = new Intent();
                     i.setClass(this.getContext(), MenuActivity.class);
                     getContext().startActivity(i);

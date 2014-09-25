@@ -1,22 +1,14 @@
 package com.apps.oliver.trail;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.os.CountDownTimer;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
-import android.widget.RatingBar;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.ConcurrentModificationException;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Stack;
 
@@ -63,6 +55,7 @@ public class Graph {
     private String tutorialMessage;
     private String tutorialMessage2;
     private Paint textPaint = new Paint();
+    private Context context;
 
 
     public Graph(int gameMode, int panelWidth, int panelHeight, Typeface tf, Context context) {
@@ -70,6 +63,7 @@ public class Graph {
         this.panelHeight = panelHeight;
         this.tf = tf;
         this.gameMode = gameMode;
+        this.context = context;
 
         centreHoriz = panelWidth / 2;
         centreVert = panelHeight / 2;
@@ -111,7 +105,8 @@ public class Graph {
             edgeArrayList.clear();
             if (gameMode == 0) {
                 Log.d(TAG, "Creating new timed stage");
-                timedMode();
+                //timedMode();
+                hardcoreMode();
                 tries++;
             }
             else if (gameMode == 1) {
@@ -225,6 +220,85 @@ public class Graph {
 
         edgeCount = edgeArrayList.size();
         timerSecs = vRows * vColumns * 3;
+
+        if(!traverseGraph()) {
+            return;
+        }
+
+        timer = new Timer(timerSecs, tf, panelWidth, panelHeight);
+        constructComplete = true;
+    }
+
+    private void hardcoreMode() {
+
+        difficultyLevel = stageNo / 5;
+
+        switch (difficultyLevel) {
+            case 0:
+                vRows = 3;
+                vColumns = 3;
+                eulCircuit = true;
+                break;
+            case 1:
+                randNum = randInt(1,2);
+                if(randNum == 1) {
+                    vRows = 3;
+                    vColumns = 4;
+                }
+                else {
+                    vRows = 4;
+                    vColumns = 3;
+                }
+                eulCircuit = true;
+                break;
+            case 2:
+                vRows = 4;
+                vColumns = 4;
+                eulCircuit = true;
+                break;
+            case 3:
+                randNum = randInt(1,2);
+                if(randNum == 1) {
+                    vRows = 5;
+                    vColumns = 4;
+                }
+                else {
+                    vRows = 4;
+                    vColumns = 5;
+                }
+                eulCircuit = true;
+                break;
+            case 4:
+                vRows = 5;
+                vColumns = 5;
+                eulCircuit = true;
+                break;
+        }
+
+        Log.d(TAG, "Number of rows: " + vRows  + ", number of columns: " + vColumns + ", is an Euler circuit: " + eulCircuit);
+
+        constructVertices();
+        constructCornerEdges();
+
+        if(!constructSideEdges()) {
+            return;
+        }
+
+        if(!constructInnerEdges()) {
+            return;
+        }
+
+        if(!eulCircuit) {
+            addNonCircuitEdge();
+        }
+
+        edgeCount = edgeArrayList.size();
+        if(stageNo == 1) {
+            timerSecs = 60;
+        }
+        else {
+            timerSecs = (int) ((edgeCount * 0.6) - (stageNo * 0.2));
+        }
 
         if(!traverseGraph()) {
             return;
@@ -515,7 +589,9 @@ public class Graph {
                 score.draw(canvas);
 
                 if (timer.timeLeft <= 0) {
-                    //QUIT TO MENU
+                    Intent i = new Intent();
+                    i.setClass(context, MenuActivity.class);
+                    context.startActivity(i);
                 }
             }
 
