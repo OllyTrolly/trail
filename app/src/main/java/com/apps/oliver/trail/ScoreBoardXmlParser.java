@@ -2,10 +2,8 @@ package com.apps.oliver.trail;
 
 import android.content.Context;
 import android.util.Xml;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,23 +15,29 @@ import javax.xml.parsers.ParserConfigurationException;
  * Created by Oliver on 28/08/2014.
  */
 public class ScoreBoardXmlParser {
-    private static final String TAG = ScoreBoardXmlParser.class.getSimpleName();
-    //final String xmlFile = "/data/trail/scoreBoard";
+    private String xmlName;
     private Context context;
     private static final String ns = null;
+    private int gameMode;
 
     public ScoreBoardXmlParser(Context context) {
         this.context = context;
     }
 
-    public ArrayList<Score> parse() throws XmlPullParserException, IOException, ParserConfigurationException {
+    public ArrayList<Score> parse(int gameMode) throws XmlPullParserException, IOException, ParserConfigurationException {
+        this.gameMode = gameMode;
+        if (gameMode == 0)
+            xmlName = "timedBoard";
+        else if (gameMode == 1)
+            xmlName = "flawlessBoard";
+
         FileInputStream in = null;
-        File xmlFile = new File(context.getFilesDir(), "scoreBoard.xml");
+        File xmlFile = new File(context.getFilesDir(), xmlName + ".xml");
         if (!xmlFile.exists()) {
-            FileOutputStream fileos = context.openFileOutput("scoreBoard.xml", Context.MODE_PRIVATE);
+            FileOutputStream fileos = context.openFileOutput(xmlName + ".xml", Context.MODE_PRIVATE);
         }
         try {
-            in = context.openFileInput("scoreBoard.xml");
+            in = context.openFileInput(xmlName + ".xml");
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in, null);
@@ -48,7 +52,7 @@ public class ScoreBoardXmlParser {
     private ArrayList<Score> readScoreBoard(XmlPullParser parser) throws XmlPullParserException, IOException {
         ArrayList<Score> scores = new ArrayList<Score>();
 
-        parser.require(XmlPullParser.START_TAG, ns, "scoreBoard");
+        parser.require(XmlPullParser.START_TAG, ns, xmlName);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;

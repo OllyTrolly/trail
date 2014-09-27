@@ -25,7 +25,6 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class ScorePanel extends SurfaceView implements
             SurfaceHolder.Callback {
-    private static final String TAG = MenuPanel.class.getSimpleName();
     private Typeface robotoLight;
     private SurfaceHolder surfaceHolder;
     private Context context;
@@ -35,14 +34,16 @@ public class ScorePanel extends SurfaceView implements
     private int backPos;
     private int vertSpace;
     private int h;
-    private int highScoreNumber;
+    private int stageNumber;
     private Bitmap back;
+    private boolean highScore;
 
-    public ScorePanel(Context context, Typeface robotoLight, int highScoreNumber) {
+    public ScorePanel(Context context, Typeface robotoLight, int stageNumber, boolean highScore) {
         super(context);
         this.context = context;
-        this.highScoreNumber = highScoreNumber;
+        this.stageNumber = stageNumber;
         this.robotoLight = robotoLight;
+        this.highScore = highScore;
 
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
@@ -69,47 +70,19 @@ public class ScorePanel extends SurfaceView implements
         //Set background colour
         canvas.drawColor(Color.DKGRAY);
 
-        ScoreBoardXmlParser parser = new ScoreBoardXmlParser(context);
-        try {
-            scores = parser.parse();
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (XmlPullParserException e) {
-            e.printStackTrace();
-        }
-        catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
-
         Paint textPaint = new Paint();
         textPaint.setAntiAlias(true);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setColor(Color.LTGRAY);
         textPaint.setTypeface(robotoLight);
         textPaint.setTextSize(50);
-        //Draw text
-        canvas.drawText("Scoreboard", panelWidth / 2, (panelHeight * 10) / 100, textPaint);
-
+        canvas.drawText("Game Over", panelWidth / 2, (panelHeight * 45) / 100, textPaint);
         textPaint.setTextSize(40);
-        int i = 1;
-        for(ScoreBoardXmlParser.Score score : scores) {
-            if(i - 1 == highScoreNumber) {
-                textPaint.setColor(Color.GREEN);
-                canvas.drawText(i + ". " + score.scoreValue, panelWidth / 2, (panelHeight * (12 + (i * 7))) / 100, textPaint);
-                textPaint.setColor(Color.LTGRAY);
-            }
-            else {
-                canvas.drawText(i + ". " + score.scoreValue, panelWidth / 2, (panelHeight * (12 + (i * 7))) / 100, textPaint);
-            }
-            i++;
-            if (i > 10) {
-                break;
-            }
+        canvas.drawText("You completed " + stageNumber + " stages", panelWidth / 2, (panelHeight * 55) / 100, textPaint);
+
+        if(highScore) {
+            textPaint.setColor(Color.GREEN);
+            canvas.drawText("You set a high score!", panelWidth / 2, (panelHeight * 65) / 100, textPaint);
         }
 
         textPaint.setTextSize(36);

@@ -56,14 +56,17 @@ public class Graph {
     private String tutorialMessage2;
     private Paint textPaint = new Paint();
     private Context context;
+    private boolean launchingActivity;
+    private int mistakesLeft;
+    private GameActivity activity;
 
-
-    public Graph(int gameMode, int panelWidth, int panelHeight, Typeface tf, Context context) {
+    public Graph(int gameMode, int panelWidth, int panelHeight, Typeface tf, Context context, GameActivity activity) {
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
         this.tf = tf;
         this.gameMode = gameMode;
         this.context = context;
+        this.activity = activity;
 
         centreHoriz = panelWidth / 2;
         centreVert = panelHeight / 2;
@@ -75,8 +78,8 @@ public class Graph {
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setTextSize((panelHeight * 4) / 100);
 
-        score = new Score(tf, panelWidth, panelHeight, context);
-        stageScore = new Score(tf, panelWidth, panelHeight, context);
+        score = new Score(tf, panelWidth, panelHeight, context, gameMode);
+        stageScore = new Score(tf, panelWidth, panelHeight, context, gameMode);
     }
 
     public void pauseTimer() {
@@ -99,19 +102,18 @@ public class Graph {
         vertexSelected = false;
         generatingGraph = true;
         activated = 0;
-        penalty = 0;
+        launchingActivity = false;
 
         while(!constructComplete) {
             edgeArrayList.clear();
             if (gameMode == 0) {
                 Log.d(TAG, "Creating new timed stage");
-                //timedMode();
-                hardcoreMode();
+                timedMode();
                 tries++;
             }
             else if (gameMode == 1) {
                 Log.d(TAG, "Creating new endless stage");
-                endlessMode();
+                flawlessMode();
                 tries++;
             }
             else if (gameMode == 2) {
@@ -125,111 +127,6 @@ public class Graph {
     }
 
     private void timedMode() {
-
-        switch (stageNo) { //difficultyLevel switch should make it easy to modify difficulty curve later on and add or take away number of stages
-            case 1:
-                difficultyLevel = 1;
-                break;
-            case 2:
-                difficultyLevel = 1;
-                break;
-            case 3:
-                difficultyLevel = 2;
-                break;
-            case 4:
-                difficultyLevel = 2;
-                break;
-            case 5:
-                difficultyLevel = 3;
-                break;
-            case 6:
-                difficultyLevel = 3;
-                break;
-            case 7:
-                difficultyLevel = 4;
-                break;
-            case 8:
-                difficultyLevel = 4;
-                break;
-            case 9:
-                difficultyLevel = 5;
-                break;
-            case 10:
-                difficultyLevel = 5;
-                break;
-        }
-
-        switch (difficultyLevel) {
-            case 1:
-                vRows = 3;
-                vColumns = 3;
-                eulCircuit = true;
-                break;
-            case 2:
-                randNum = randInt(1,2);
-                if(randNum == 1) {
-                    vRows = 3;
-                    vColumns = 4;
-                }
-                else {
-                    vRows = 4;
-                    vColumns = 3;
-                }
-                eulCircuit = true;
-                break;
-            case 3:
-                vRows = 4;
-                vColumns = 4;
-                eulCircuit = true;
-                break;
-            case 4:
-                randNum = randInt(1,2);
-                if(randNum == 1) {
-                    vRows = 5;
-                    vColumns = 4;
-                }
-                else {
-                    vRows = 4;
-                    vColumns = 5;
-                }
-                eulCircuit = true;
-                break;
-            case 5:
-                vRows = 5;
-                vColumns = 5;
-                eulCircuit = true;
-                break;
-        }
-
-        Log.d(TAG, "Number of rows: " + vRows  + ", number of columns: " + vColumns + ", is an Euler circuit: " + eulCircuit);
-
-        constructVertices();
-        constructCornerEdges();
-
-        if(!constructSideEdges()) {
-            return;
-        }
-
-        if(!constructInnerEdges()) {
-            return;
-        }
-
-        if(!eulCircuit) {
-            addNonCircuitEdge();
-        }
-
-        edgeCount = edgeArrayList.size();
-        timerSecs = vRows * vColumns * 3;
-
-        if(!traverseGraph()) {
-            return;
-        }
-
-        timer = new Timer(timerSecs, tf, panelWidth, panelHeight);
-        constructComplete = true;
-    }
-
-    private void hardcoreMode() {
 
         difficultyLevel = stageNo / 5;
 
@@ -268,12 +165,14 @@ public class Graph {
                 }
                 eulCircuit = true;
                 break;
-            case 4:
+            default:
                 vRows = 5;
                 vColumns = 5;
                 eulCircuit = true;
                 break;
         }
+
+        double timePerEdge = 0.5 - (difficultyLevel * 0.05);
 
         Log.d(TAG, "Number of rows: " + vRows  + ", number of columns: " + vColumns + ", is an Euler circuit: " + eulCircuit);
 
@@ -293,12 +192,8 @@ public class Graph {
         }
 
         edgeCount = edgeArrayList.size();
-        if(stageNo == 1) {
-            timerSecs = 60;
-        }
-        else {
-            timerSecs = (int) ((edgeCount * 0.6) - (stageNo * 0.2));
-        }
+        timerSecs = (int) ((edgeCount * timePerEdge) - ((stageNo % 5) * 0.4));
+
 
         if(!traverseGraph()) {
             return;
@@ -308,26 +203,17 @@ public class Graph {
         constructComplete = true;
     }
 
-    private void endlessMode() {
+    private void flawlessMode() {
 
-        if(stageNo <= 10)
-            difficultyLevel = 1;
-        else if (stageNo <= 20)
-            difficultyLevel = 2;
-        else if (stageNo <= 30)
-            difficultyLevel = 3;
-        else if (stageNo <= 40)
-            difficultyLevel = 4;
-        else
-            difficultyLevel = 5;
+        difficultyLevel = stageNo / 5;
 
         switch (difficultyLevel) {
-            case 1:
+            case 0:
                 vRows = 3;
                 vColumns = 3;
                 eulCircuit = true;
                 break;
-            case 2:
+            case 1:
                 randNum = randInt(1,2);
                 if(randNum == 1) {
                     vRows = 3;
@@ -337,16 +223,13 @@ public class Graph {
                     vRows = 4;
                     vColumns = 3;
                 }
-                if(randInt(1, 100) <= 5) eulCircuit = false;
-                else eulCircuit = true;
+
                 break;
-            case 3:
+            case 2:
                 vRows = 4;
                 vColumns = 4;
-                if(randInt(1, 100) <= 10) eulCircuit = false;
-                else eulCircuit = true;
                 break;
-            case 4:
+            case 3:
                 randNum = randInt(1,2);
                 if(randNum == 1) {
                     vRows = 5;
@@ -356,17 +239,15 @@ public class Graph {
                     vRows = 4;
                     vColumns = 5;
                 }
-                if(randInt(1, 100) <= 15) eulCircuit = false;
-                else eulCircuit = true;
                 break;
-            case 5:
+            default:
                 vRows = 5;
                 vColumns = 5;
-                eulCircuit = true;
-                if(randInt(1, 100) <= 20) eulCircuit = false;
-                else eulCircuit = true;
                 break;
         }
+
+        if(randInt(1, 100) <= stageNo) eulCircuit = false;
+        else eulCircuit = true;
 
         constructVertices();
         constructCornerEdges();
@@ -560,17 +441,12 @@ public class Graph {
         constructComplete = true;
     }
 
-    private void setTutorialMessage() {
-
-    }
-
     public void draw(Canvas canvas) {
 
         //Draw edges
         if(constructComplete) {
             try {
                 for (Edge edge : edgeArrayList) {
-                    //Log.d(TAG, "Drawing an edge");
                     edge.draw(canvas);
                 }
 
@@ -586,17 +462,52 @@ public class Graph {
 
             if(gameMode == 0) {
                 timer.draw(canvas);
-                score.draw(canvas);
-
-                if (timer.timeLeft <= 0) {
-                    Intent i = new Intent();
-                    i.setClass(context, MenuActivity.class);
-                    context.startActivity(i);
+                if(!launchingActivity) {
+                    if (timer.timeLeft <= 0) {
+                        launchingActivity = true;
+                        activity.checkForAchievements((int) score.getValue(),(int) stageScore.getValue(), stageNo, numEdges);
+                        activity.updateLeaderboards(stageNo - 1);
+                        activity.pushAccomplishments();
+                        Intent i = new Intent();
+                        i.setClass(context, ScoreActivity.class);
+                        if (score.isHighScore()) {
+                            score.addToBoard();
+                            i.putExtra("HIGH_SCORE", true);
+                            //Add high score to intent as extra so it can be highlighted
+                        }
+                        else {
+                            i.putExtra("HIGH_SCORE", false);
+                        }
+                        i.putExtra("STAGE_NUMBER", stageNo - 1);
+                        context.startActivity(i);
+                    }
                 }
             }
 
             else if (gameMode == 1) {
-                score.draw(canvas);
+                if(!launchingActivity) {
+                    mistakesLeft = 10 - penalty;
+                    if (mistakesLeft <= 0) {
+                        launchingActivity = true;
+                        activity.checkForAchievements((int) score.getValue(),(int) stageScore.getValue(), stageNo, numEdges);
+                        activity.updateLeaderboards(stageNo - 1);
+                        activity.pushAccomplishments();
+                        mistakesLeft = 0;
+                        Intent i = new Intent();
+                        i.setClass(context, ScoreActivity.class);
+                        if (score.isHighScore()) {
+                            score.addToBoard();
+                            i.putExtra("HIGH_SCORE", true);
+                            //Add high score to intent as extra so it can be highlighted
+                        }
+                        else {
+                            i.putExtra("HIGH_SCORE", false);
+                        }
+                        i.putExtra("STAGE_NUMBER", stageNo - 1);
+                        context.startActivity(i);
+                    }
+                }
+                canvas.drawText("" + mistakesLeft, panelWidth / 2, (panelHeight * 90) / 100, textPaint);
             }
 
             else if (gameMode == 2) {
@@ -641,27 +552,18 @@ public class Graph {
         origin = 0;
         switch (randNum) {
             case 0:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+1]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+vColumns]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 1:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+1]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+vColumns+1]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 2:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+vColumns]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+vColumns+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+vColumns+1]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
         }
@@ -671,27 +573,18 @@ public class Graph {
         origin = vColumns-1;
         switch (randNum) {
             case 0:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-1]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin*2));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin*2]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 1:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-1]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + ((origin*2)+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[(origin*2)+1]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 2:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin*2));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin*2]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + ((origin*2)+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[(origin*2)+1]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
         }
@@ -701,27 +594,18 @@ public class Graph {
         origin = (vRows-1)*vColumns;
         switch (randNum) {
             case 0:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns+1]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 1:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+1]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 2:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns+1]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin+1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin+1]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
         }
@@ -731,27 +615,18 @@ public class Graph {
         origin = (vRows*vColumns)-1;
         switch (randNum) {
             case 0:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns-1]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 1:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns-1]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-1]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
             case 2:
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-vColumns));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-vColumns]));
-                //Log.d(TAG, "Drawing edge from " + origin + " to " + (origin-1));
                 edgeArrayList.add(new Edge(vertexArray[origin], vertexArray[origin-1]));
-                //Log.d(TAG, "Locking vertex "+ origin);
                 vertexArray[origin].setLocked();
                 break;
         }
@@ -1400,12 +1275,14 @@ public class Graph {
     }
 
     public void finishStage() {
+        /*
         stageScore.resetScore();
         if(gameMode == 0) {
             if(timer.getTimeLeft() > 0) {
                 stageScore.addToScore((long) timer.getTimeLeft() * 100);
                 score.addToScore((long) timer.getTimeLeft() * 100);
             }
+            score.addToScore(1);
         }
 
         else if(gameMode == 1) {
@@ -1414,6 +1291,7 @@ public class Graph {
                 score.addToScore((long) ((vRows*vColumns) - penalty)*100);
             }
         }
+    */
 
         constructComplete = false;
     }

@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'OllysAndroidKey'
             keyPassword 'kstrevilo2e'
-            storeFile file('/home/olly/android.jks')
+            storeFile file('C:/Users/Oliver/android.jks')
             storePassword 'kstrevilo2e'
         }
     }

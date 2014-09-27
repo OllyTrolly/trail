@@ -13,14 +13,14 @@
     <string name="achievement_forever">CgkI7OrPk6gfEAIQAw</string>
     <string name="achievement_forever_ever">CgkI7OrPk6gfEAIQBA</string>
     <string name="achievement_2000_lines">CgkI7OrPk6gfEAIQBQ</string>
-    <string name="leaderboard_endless">CgkI7OrPk6gfEAIQBw</string>
-    <string name="leaderboard_timed">CgkI7OrPk6gfEAIQAQ</string>
-    <string name="achievement_timed_toast_text">Complete Timed Mode</string>
-    <string name="achievement_time_warp_toast_text">Time Warp</string>
+    <string name="leaderboard_flawless">CgkI7OrPk6gfEAIQDQ</string>
+    <string name="leaderboard_timed">CgkI7OrPk6gfEAIQDA</string>
     <string name="achievement_500_lines">CgkI7OrPk6gfEAIQCw</string>
     <string name="achievement_5000_lines">CgkI7OrPk6gfEAIQCg</string>
     <string name="achievement_untutorable">CgkI7OrPk6gfEAIQCA</string>
     <string name="achievement_euler">CgkI7OrPk6gfEAIQCQ</string>
-    <string name="achievement_tutorial_toast_text">Euler Would Be Proud</string>
+    <string name="achievement_time_bomb">CgkI7OrPk6gfEAIQEA</string>
+    <string name="achievement_perfectionist">CgkI7OrPk6gfEAIQDw</string>
+    <string name="achievement_mistakes">CgkI7OrPk6gfEAIQDg</string>
 
 </resources>

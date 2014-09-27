@@ -11,12 +11,8 @@ import android.view.MenuItem;
 
 public class ScoreActivity extends Activity {
 
-    private static final String TAG = ScoreActivity.class.getSimpleName();
-    private MenuPanel panel;
-    private Point panelSize;
-    private int panelWidth;
-    private int panelHeight;
-    private int highScoreNumber;
+    private int stageNumber;
+    private boolean highScore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,15 +20,16 @@ public class ScoreActivity extends Activity {
 
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
-            highScoreNumber = extras.getInt("HIGH_SCORE");
-            Log.d(TAG, "High score is " + highScoreNumber);
+            stageNumber = extras.getInt("STAGE_NUMBER");
+            highScore = extras.getBoolean("HIGH_SCORE");
         }
         else {
-            highScoreNumber = 10;
+            stageNumber = 0;
+            highScore = false;
         }
 
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
-        ScorePanel panel = new ScorePanel(this, robotoLight, highScoreNumber);
+        ScorePanel panel = new ScorePanel(this, robotoLight, stageNumber, highScore);
         setContentView(panel);
     }
 

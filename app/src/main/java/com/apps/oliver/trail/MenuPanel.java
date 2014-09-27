@@ -118,7 +118,7 @@ public class MenuPanel extends SurfaceView implements
         //Draw text
         canvas.drawText("Tutorial", horizCentre, circle1Vert + (panelHeight * 1) / 100, textPaint);
         canvas.drawText("Timed", firstColumn, circle2Vert + (panelHeight * 1) / 100, textPaint);
-        canvas.drawText("Endless", secondColumn, circle2Vert + (panelHeight * 1) / 100, textPaint);
+        canvas.drawText("Flawless", secondColumn, circle2Vert + (panelHeight * 1) / 100, textPaint);
         canvas.drawText("Scores", firstColumn, circle3Vert + (panelHeight * 1) / 100, textPaint);
         canvas.drawText("Trophies", secondColumn, circle3Vert + (panelHeight * 1) / 100, textPaint);
         textPaint.setColor(Color.LTGRAY);

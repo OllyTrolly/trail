@@ -21,7 +21,6 @@ public class GameActivity extends BaseGameActivity {
 
     private static final String TAG = GameActivity.class.getSimpleName();
     private int gameMode;
-    private GamePanel panel;
     private GameActivity activity;
 
     // request codes we use when invoking an external activity
@@ -149,60 +148,17 @@ public class GameActivity extends BaseGameActivity {
     }
 
     @Override
-    public void onSignInSucceeded() {/*
-        // Show sign-out button on main menu
-        mMainMenuFragment.setShowSignInButton(false);
-
-        // Show "you are signed in" message on win screen, with no sign in button.
-        mWinFragment.setShowSignInButton(false);
-
-        // Set the greeting appropriately on main menu
-        Player p = Games.Players.getCurrentPlayer(getApiClient());
-        String displayName;
-        if (p == null) {
-            Log.w(TAG, "mGamesClient.getCurrentPlayer() is NULL!");
-            displayName = "???";
-        } else {
-            displayName = p.getDisplayName();
-        }
-        mMainMenuFragment.setGreeting("Hello, " + displayName);
-*/
-
+    public void onSignInSucceeded() {
         // if we have accomplishments to push, push them
         if (!mOutbox.isEmpty()) {
             pushAccomplishments();
             Toast.makeText(this, getString(R.string.your_progress_will_be_uploaded),
                     Toast.LENGTH_LONG).show();
         }
-
     }
 
     public void onSignInButtonClicked() {
-        // start the sign-in flow
         beginUserInitiatedSignIn();
-    }
-
-    public void onSignOutButtonClicked() {
-        signOut();
-        /*
-        mMainMenuFragment.setGreeting(getString(R.string.signed_out_greeting));
-        mMainMenuFragment.setShowSignInButton(true);
-        mWinFragment.setShowSignInButton(true);
-        */
-    }
-
-    public void onEnteredScore(int score) {
-        // check for achievements
-        //checkForAchievements(requestedScore, finalScore);
-
-        // update leaderboards
-        updateLeaderboards(score);
-
-        // push those accomplishments to the cloud, if signed in
-        pushAccomplishments();
-
-        // switch to the exciting "you won" screen
-        //switchToFragment(mWinFragment);
     }
 
     /**
@@ -213,44 +169,30 @@ public class GameActivity extends BaseGameActivity {
     void checkForAchievements(int finalScore, int stageScore, int stages, int edgesDrawn) {
         // Check if each condition is met; if so, unlock the corresponding
         // achievement.
-        if (gameMode == 0 && stages > 10) {
+        if (gameMode == 0 && stages == 10) {
             mOutbox.mTimedAchievement = true;
-            achievementToast(getString(R.string.achievement_timed_toast_text));
         }
-        if (gameMode == 0 && stageScore >= 6500) {
+        if (gameMode == 0 && stages == 20) {
+            mOutbox.mTimeBombAchievement = true;
+        }
+        if (gameMode == 0 && stageScore >= 1500) {
             mOutbox.mTimeWarpAchievement = true;
-            achievementToast(getString(R.string.achievement_time_warp_toast_text));
+        }
+        if (gameMode == 1 && stages == 10) {
+            mOutbox.mMistakesAchievement = true;
+        }
+        if (gameMode == 1 && stages == 20) {
+            mOutbox.mPerfectionistAchievement = true;
         }
         if (gameMode == 2 && stages == 10) {
             mOutbox.mTutorialAchievement = true;
-            achievementToast(getString(R.string.achievement_tutorial_toast_text));
         }
         if (gameMode == 2 && stages > 10) {
             mOutbox.mExtraTutorialStages++;
         }
-        if (gameMode == 1) {
-            mOutbox.mEndlessStages++;
-        }
 
+        mOutbox.mStages++;
         mOutbox.mEdgesDrawn += edgesDrawn;
-    }
-
-    void unlockAchievement(int achievementId, String fallbackString) {
-        if (isSignedIn()) {
-            Games.Achievements.unlock(getApiClient(), getString(achievementId));
-        } else {
-            Toast.makeText(this, getString(R.string.achievement) + ": " + fallbackString,
-                    Toast.LENGTH_LONG).show();
-        }
-    }
-
-    void achievementToast(String achievement) {
-        // Only show toast if not signed in. If signed in, the standard Google Play
-        // toasts will appear, so we don't need to show our own.
-        if (!isSignedIn()) {
-            Toast.makeText(this, getString(R.string.achievement) + ": " + achievement,
-                    Toast.LENGTH_LONG).show();
-        }
     }
 
     void pushAccomplishments() {
@@ -263,9 +205,21 @@ public class GameActivity extends BaseGameActivity {
             Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_timed));
             mOutbox.mTimedAchievement = false;
         }
+        if (mOutbox.mTimeBombAchievement) {
+            Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_time_bomb));
+            mOutbox.mTimeBombAchievement = false;
+        }
         if (mOutbox.mTimeWarpAchievement) {
             Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_timewarp));
             mOutbox.mTimeWarpAchievement = false;
+        }
+        if (mOutbox.mMistakesAchievement) {
+            Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_mistakes));
+            mOutbox.mMistakesAchievement = false;
+        }
+        if (mOutbox.mPerfectionistAchievement) {
+            Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_perfectionist));
+            mOutbox.mPerfectionistAchievement = false;
         }
         if (mOutbox.mTutorialAchievement) {
             Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_euler));
@@ -276,12 +230,12 @@ public class GameActivity extends BaseGameActivity {
                     mOutbox.mExtraTutorialStages);
             mOutbox.mExtraTutorialStages = 0;
         }
-        if (mOutbox.mEndlessStages > 0) {
+        if (mOutbox.mStages > 0) {
             Games.Achievements.increment(getApiClient(), getString(R.string.achievement_forever_ever),
-                    mOutbox.mEndlessStages);
+                    mOutbox.mStages);
             Games.Achievements.increment(getApiClient(), getString(R.string.achievement_forever),
-                    mOutbox.mEndlessStages);
-            mOutbox.mEndlessStages = 0;
+                    mOutbox.mStages);
+            mOutbox.mStages = 0;
         }
         if (mOutbox.mEdgesDrawn > 0) {
             Games.Achievements.increment(getApiClient(), getString(R.string.achievement_500_lines),
@@ -292,15 +246,15 @@ public class GameActivity extends BaseGameActivity {
                     mOutbox.mEdgesDrawn);
             mOutbox.mEdgesDrawn = 0;
         }
-        if (mOutbox.mEndlessModeScore >= 0) {
-            Games.Leaderboards.submitScore(getApiClient(), getString(R.string.leaderboard_endless),
-                    mOutbox.mEndlessModeScore);
-            mOutbox.mEndlessModeScore = -1;
+        if (mOutbox.mFlawlessModeScore > 0) {
+            Games.Leaderboards.submitScore(getApiClient(), getString(R.string.leaderboard_flawless),
+                    mOutbox.mFlawlessModeScore);
+            mOutbox.mFlawlessModeScore = 0;
         }
-        if (mOutbox.mTimedModeScore >= 0) {
+        if (mOutbox.mTimedModeScore > 0) {
             Games.Leaderboards.submitScore(getApiClient(), getString(R.string.leaderboard_timed),
                     mOutbox.mTimedModeScore);
-            mOutbox.mTimedModeScore = -1;
+            mOutbox.mTimedModeScore = 0;
         }
         mOutbox.saveLocal(this);
     }
@@ -313,24 +267,27 @@ public class GameActivity extends BaseGameActivity {
     void updateLeaderboards(int finalScore) {
         if (gameMode == 0 && mOutbox.mTimedModeScore < finalScore) {
             mOutbox.mTimedModeScore = finalScore;
-        } else if (gameMode == 1 && mOutbox.mEndlessModeScore < finalScore) {
-            mOutbox.mEndlessModeScore = finalScore;
+        } else if (gameMode == 1 && mOutbox.mFlawlessModeScore < finalScore) {
+            mOutbox.mFlawlessModeScore = finalScore;
         }
     }
 
     class AccomplishmentsOutbox {
         boolean mTimedAchievement = false;
+        boolean mTimeBombAchievement = false;
         boolean mTimeWarpAchievement = false;
+        boolean mMistakesAchievement = false;
+        boolean mPerfectionistAchievement = false;
         boolean mTutorialAchievement = false;
-        int mEndlessStages = 0;
+        int mStages = 0;
         int mExtraTutorialStages = 0;
         int mEdgesDrawn = 0;
-        int mEndlessModeScore = -1;
-        int mTimedModeScore = -1;
+        int mFlawlessModeScore = 0;
+        int mTimedModeScore = 0;
 
         boolean isEmpty() {
-            return !mTimedAchievement && !mTimeWarpAchievement && mEndlessStages == 0 && !mTutorialAchievement &&
-                    mExtraTutorialStages == 0&& mEdgesDrawn == 0 && mEndlessModeScore < 0 && mTimedModeScore < 0;
+            return !mTimedAchievement && !mTimeBombAchievement && !mTimeWarpAchievement && !mMistakesAchievement && !mPerfectionistAchievement && !mTutorialAchievement
+                    && mStages == 0 && mExtraTutorialStages == 0&& mEdgesDrawn == 0 && mFlawlessModeScore == 0 && mTimedModeScore == 0;
         }
 
         public void saveLocal(Context ctx) {

@@ -68,7 +68,7 @@ public class GamePanel extends SurfaceView implements
         getHolder().addCallback(this);
         reset = BitmapFactory.decodeResource(getResources(), R.drawable.reset);
         back = BitmapFactory.decodeResource(getResources(), R.drawable.back);
-        graph = new Graph(gameMode, panelWidth, panelHeight, tf, context);
+        graph = new Graph(gameMode, panelWidth, panelHeight, tf, context, activity);
         graph.constructStage(stageNo);
         loop = new GameLoop(getHolder(), this); //Passes the SurfaceHolder and GamePanel class (this) to the loop instance of GameLoop
         setFocusable(true); // Make the GamePanel focusable so it can handle events
@@ -118,6 +118,8 @@ public class GamePanel extends SurfaceView implements
             }
             else if (event.getX() < backPos + (back.getWidth() / 2) + h && event.getX() > backPos - (back.getWidth() / 2) - h &&
                     event.getY() < vertSpace + (back.getHeight() / 2) + h && event.getY() > vertSpace - (back.getHeight() / 2) - h) {
+                activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
+                activity.pushAccomplishments();
                 Intent i = new Intent();
                 i.setClass(this.getContext(), MenuActivity.class);
                 getContext().startActivity(i);
@@ -133,30 +135,9 @@ public class GamePanel extends SurfaceView implements
             graph.handleActionUp();
             if(graph.stageFinished()) {
                 graph.finishStage();
-                if (stageNo == 50 && gameMode == 0) {
+                if (gameMode == 0 || gameMode == 1) {
                     activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
-                    activity.updateLeaderboards((int) graph.score.getValue());
-                    activity.pushAccomplishments();
-                    stageNo++;
-                    //Exit to menu and/or call up scoring
-                    Intent i = new Intent();
-                    i.setClass(this.getContext(), ScoreActivity.class);
-                    if (graph.score.isHighScore()) {
-                        graph.score.addToBoard();
-                        //Add high score to intent as extra so it can be highlighted
-                    }
-                    int highScoreNumber = graph.score.getHighScoreNumber();
-                    i.putExtra("HIGH_SCORE", highScoreNumber);
-                    getContext().startActivity(i);
-                }
-                else if (stageNo > 50 && gameMode == 0) {
-                    Intent i = new Intent();
-                    i.setClass(this.getContext(), MenuActivity.class);
-                    getContext().startActivity(i);
-                }
-                else if (gameMode == 1) {
-                    activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
-                    activity.updateLeaderboards((int) graph.score.getValue());
+                    activity.updateLeaderboards(stageNo);
                     activity.pushAccomplishments();
                     stageNo++;
                     graph.constructStage(stageNo);

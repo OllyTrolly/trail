@@ -41,8 +41,15 @@ public class Score {
     private ArrayList<ScoreBoardXmlParser.Score> scores = new ArrayList<ScoreBoardXmlParser.Score>();
     private Paint textPaint;
     private Context context;
+    private int gameMode;
+    private String xmlName;
 
-    public Score(Typeface robotoLight, int panelWidth, int panelHeight, Context context) {
+    public Score(Typeface robotoLight, int panelWidth, int panelHeight, Context context, int gameMode) {
+        this.gameMode = gameMode;
+        if (gameMode == 0)
+            xmlName = "timedBoard";
+        else if (gameMode == 1)
+            xmlName = "flawlessBoard";
         this.context = context;
         this.robotoLight = robotoLight;
         this.panelWidth = panelWidth;
@@ -82,7 +89,7 @@ public class Score {
     public boolean isHighScore() {
         ScoreBoardXmlParser parser = new ScoreBoardXmlParser(context);
         try {
-            scores = parser.parse();
+            scores = parser.parse(gameMode);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -97,19 +104,19 @@ public class Score {
             e.printStackTrace();
         }
 
-        if (scores.size() < 10) {
+        if (scores.size() == 0) {
             return true;
         }
 
         else {
-            ScoreBoardXmlParser.Score tempScore = scores.get(scores.size() - 1);
+            ScoreBoardXmlParser.Score tempScore = scores.get(0);
 
-            if (scoreValue <= tempScore.scoreValue) {
-                return false;
+            if (scoreValue > tempScore.scoreValue) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     public int getHighScoreNumber() {
@@ -120,7 +127,7 @@ public class Score {
 
         ScoreBoardXmlParser parser = new ScoreBoardXmlParser(context);
         try {
-            scores = parser.parse();
+            scores = parser.parse(gameMode);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -172,12 +179,12 @@ public class Score {
         Log.d(TAG, "High score number is: " + highScoreNumber);
 
         try {
-            FileOutputStream fileos = context.openFileOutput("scoreBoard.xml", Context.MODE_PRIVATE);
+            FileOutputStream fileos = context.openFileOutput(xmlName + ".xml", Context.MODE_PRIVATE);
             XmlSerializer xmlSerializer = Xml.newSerializer();
             StringWriter writer = new StringWriter();
             xmlSerializer.setOutput(writer);
             xmlSerializer.startDocument("UTF-8", true);
-            xmlSerializer.startTag(null, "scoreBoard");
+            xmlSerializer.startTag(null, xmlName);
             for (ScoreBoardXmlParser.Score score : scores) {
                 xmlSerializer.startTag(null, "score");
                 xmlSerializer.startTag(null, "scoreName");
@@ -188,7 +195,7 @@ public class Score {
                 xmlSerializer.endTag(null, "scoreValue");
                 xmlSerializer.endTag(null, "score");
             }
-            xmlSerializer.endTag(null, "scoreBoard");
+            xmlSerializer.endTag(null, xmlName);
             xmlSerializer.endDocument();
             xmlSerializer.flush();
             String dataWrite = writer.toString();
