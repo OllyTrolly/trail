@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -25,6 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class ScorePanel extends SurfaceView implements
             SurfaceHolder.Callback {
+    private static final String TAG = ScorePanel.class.getSimpleName(); //Define the tag for logging
     private Typeface robotoLight;
     private SurfaceHolder surfaceHolder;
     private Context context;
@@ -37,13 +39,15 @@ public class ScorePanel extends SurfaceView implements
     private int stageNumber;
     private Bitmap back;
     private boolean highScore;
+    private int previousHigh;
 
-    public ScorePanel(Context context, Typeface robotoLight, int stageNumber, boolean highScore) {
+    public ScorePanel(Context context, Typeface robotoLight, int stageNumber, boolean highScore, int previousHigh) {
         super(context);
         this.context = context;
         this.stageNumber = stageNumber;
         this.robotoLight = robotoLight;
         this.highScore = highScore;
+        this.previousHigh = previousHigh;
 
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
@@ -76,20 +80,27 @@ public class ScorePanel extends SurfaceView implements
         textPaint.setColor(Color.LTGRAY);
         textPaint.setTypeface(robotoLight);
         textPaint.setTextSize(50);
-        canvas.drawText("Game Over", panelWidth / 2, (panelHeight * 45) / 100, textPaint);
+        canvas.drawText("Game Over", panelWidth / 2, (panelHeight * 40) / 100, textPaint);
         textPaint.setTextSize(40);
-        canvas.drawText("You completed " + stageNumber + " stages", panelWidth / 2, (panelHeight * 55) / 100, textPaint);
+        canvas.drawText("You completed " + stageNumber + " stages", panelWidth / 2, (panelHeight * 50) / 100, textPaint);
 
         if(highScore) {
             textPaint.setColor(Color.GREEN);
-            canvas.drawText("You set a high score!", panelWidth / 2, (panelHeight * 65) / 100, textPaint);
+            canvas.drawText("You set a high score!", panelWidth / 2, (panelHeight * 60) / 100, textPaint);
+            textPaint.setColor(Color.LTGRAY);
+        }
+
+        else {
+            textPaint.setColor(Color.RED);
+            canvas.drawText("Previous high score: " + previousHigh, panelWidth / 2, (panelHeight * 60) / 100, textPaint);
+            textPaint.setColor(Color.LTGRAY);
         }
 
         textPaint.setTextSize(36);
         textPaint.setColor(Color.LTGRAY);
         canvas.drawText("trail", panelWidth / 2, (panelHeight * 97) / 100, textPaint);
 
-        canvas.drawBitmap(back, backPos, (panelHeight * 3) / 100, null);
+        canvas.drawBitmap(back, backPos, (panelHeight * 4) / 100, null);
         surfaceHolder.unlockCanvasAndPost(canvas);
     }
 
@@ -97,8 +108,9 @@ public class ScorePanel extends SurfaceView implements
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (event.getX() < backPos + (back.getWidth() / 2) + h && event.getX() > backPos - (back.getWidth() / 2) - h &&
-                    event.getY() < vertSpace + (back.getHeight() / 2) + h && event.getY() > vertSpace - (back.getHeight() / 2) - h) {
+            Log.d(TAG, "User pressed on screen");
+            if (event.getX() < (panelWidth * 20) / 100 && event.getX() > 0 &&
+                    event.getY() < (panelHeight * 10) / 100 && event.getY() > 0) {
                 Intent i = new Intent();
                 i.setClass(this.getContext(), MenuActivity.class);
                 getContext().startActivity(i);

@@ -34,7 +34,7 @@ public class Vertex {
         this.x = x;
         this.y = y;
         this.r = (panelWidth * 9) / 200;
-        this.h = (panelWidth * 2) / 100;
+        this.h = (panelWidth * 5) / 200;
         isActivated = false;
         paint.setColor(Color.rgb(237, 145, 33)); //Take color as input later on (can change colour scheme this way)
         paint.setAntiAlias(true);

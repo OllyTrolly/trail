@@ -57,7 +57,7 @@ public class GamePanel extends SurfaceView implements
         resetPos = (panelWidth * 85) / 100;
         backPos = (panelWidth * 5) / 100;
         //vertSpace is the vertical co-ord for reset and back
-        vertSpace = (panelHeight * 3) / 100;
+        vertSpace = (panelHeight * 4) / 100;
         h = (panelWidth * 4) / 100;
 
         textPaint.setAntiAlias(true);
@@ -80,7 +80,21 @@ public class GamePanel extends SurfaceView implements
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        if(loop.getState() != GameLoop.State.NEW) {
+        if (loop.getState() != GameLoop.State.NEW) {
+            if (gameMode == 0) {
+                if (graph.timer.getTimeLeft() <= 0) {
+                    Intent i = new Intent();
+                    i.setClass(this.getContext(), MenuActivity.class);
+                    getContext().startActivity(i);
+                }
+            }
+            else if (gameMode == 1) {
+                if (graph.mistakesLeft <= 0) {
+                    Intent i = new Intent();
+                    i.setClass(this.getContext(), MenuActivity.class);
+                    getContext().startActivity(i);
+                }
+            }
             loop = new GameLoop(getHolder(), this);
             graph.resumeTimer();
         }
@@ -112,14 +126,17 @@ public class GamePanel extends SurfaceView implements
         // Finger touches down
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             // Delegating event handling to the graph
-            if (event.getX() < resetPos + (reset.getWidth() / 2) + h && event.getX() > resetPos - (reset.getWidth() / 2) - h &&
-                    event.getY() < vertSpace + (reset.getHeight() / 2) + h && event.getY() > vertSpace - (reset.getHeight() / 2) - h) {
+            if (event.getX() < panelWidth && event.getX() > (panelWidth * 80) / 100 &&
+                    event.getY() < (panelHeight * 10) / 100 && event.getY() > 0) {
                 graph.reset();
             }
-            else if (event.getX() < backPos + (back.getWidth() / 2) + h && event.getX() > backPos - (back.getWidth() / 2) - h &&
-                    event.getY() < vertSpace + (back.getHeight() / 2) + h && event.getY() > vertSpace - (back.getHeight() / 2) - h) {
-                activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
+            else if (event.getX() < (panelWidth * 20) / 100 && event.getX() > 0 &&
+                    event.getY() < (panelHeight * 10) / 100 && event.getY() > 0) {
+                activity.checkForAchievements(graph.timer.getTimeLeft(), stageNo, graph.numEdges);
                 activity.pushAccomplishments();
+                if (gameMode == 0 || gameMode == 1) {
+                    graph.score.addToBoard();
+                }
                 Intent i = new Intent();
                 i.setClass(this.getContext(), MenuActivity.class);
                 getContext().startActivity(i);
@@ -136,14 +153,15 @@ public class GamePanel extends SurfaceView implements
             if(graph.stageFinished()) {
                 graph.finishStage();
                 if (gameMode == 0 || gameMode == 1) {
-                    activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
+                    activity.checkForAchievements(graph.timer.getTimeLeft(), stageNo, graph.numEdges);
                     activity.updateLeaderboards(stageNo);
                     activity.pushAccomplishments();
+                    graph.score.setScoreValue(stageNo);
                     stageNo++;
                     graph.constructStage(stageNo);
                 }
                 else {
-                    activity.checkForAchievements((int) graph.score.getValue(),(int) graph.stageScore.getValue(), stageNo, graph.numEdges);
+                    activity.checkForAchievements(graph.timer.getTimeLeft(), stageNo, graph.numEdges);
                     activity.pushAccomplishments();
                     stageNo++;
                     graph.constructStage(stageNo);
@@ -173,12 +191,12 @@ public class GamePanel extends SurfaceView implements
         paint.setFilterBitmap(true);
         paint.setDither(true);
         canvas.drawBitmap(reset, resetPos, vertSpace, paint);
-        textPaint.setTextSize((panelHeight * 4) / 100);
+        textPaint.setTextSize((panelHeight * 5) / 100);
         if (gameMode == 2) {
-            canvas.drawText("Tutorial", panelWidth / 2, (panelHeight * 10) / 100, textPaint);
+            canvas.drawText("Tutorial", panelWidth / 2, (panelHeight * 9) / 100, textPaint);
         }
         else {
-            canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 10) / 100, textPaint);
+            canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 9) / 100, textPaint);
         }
         canvas.drawBitmap(back, backPos, vertSpace, paint);
         textPaint.setTextSize((panelWidth * 5) / 100);

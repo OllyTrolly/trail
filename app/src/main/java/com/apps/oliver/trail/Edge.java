@@ -40,7 +40,7 @@ public class Edge {
         rectRadius = (vertexA.panelWidth * 2) / 100;
         paint.setColor(Color.GRAY); //Take color as input later on (can change colour scheme this way)
         paint.setAlpha(100);
-        paint.setAntiAlias(true);
+        //paint.setAntiAlias(true);
         diagEdgeLength = (vertexA.panelWidth * 51) / 200;
 
         aX = vertexA.getX();

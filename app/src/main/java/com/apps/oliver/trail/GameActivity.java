@@ -164,9 +164,8 @@ public class GameActivity extends BaseGameActivity {
     /**
      * Check for achievements and unlock the appropriate ones.
      *
-     * @param finalScore the score the user got.
      */
-    void checkForAchievements(int finalScore, int stageScore, int stages, int edgesDrawn) {
+    void checkForAchievements(int timeLeft, int stages, int edgesDrawn) {
         // Check if each condition is met; if so, unlock the corresponding
         // achievement.
         if (gameMode == 0 && stages == 10) {
@@ -175,13 +174,13 @@ public class GameActivity extends BaseGameActivity {
         if (gameMode == 0 && stages == 20) {
             mOutbox.mTimeBombAchievement = true;
         }
-        if (gameMode == 0 && stageScore >= 1500) {
+        if (gameMode == 0 && timeLeft >= 15) {
             mOutbox.mTimeWarpAchievement = true;
         }
-        if (gameMode == 1 && stages == 10) {
+        if (gameMode == 1 && stages == 15) {
             mOutbox.mMistakesAchievement = true;
         }
-        if (gameMode == 1 && stages == 20) {
+        if (gameMode == 1 && stages == 30) {
             mOutbox.mPerfectionistAchievement = true;
         }
         if (gameMode == 2 && stages == 10) {

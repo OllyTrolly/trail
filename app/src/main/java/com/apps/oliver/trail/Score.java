@@ -59,31 +59,33 @@ public class Score {
         textPaint = new Paint();
     }
 
-    public void addToScore(long score) {
-        scoreValue += score;
-    }
+    public long getHighScore() {
+        ScoreBoardXmlParser parser = new ScoreBoardXmlParser(context);
+        try {
+            scores = parser.parse(gameMode);
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e) {
+            e.printStackTrace();
+        }
+        catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
 
-    public void resetScore() {
-        scoreValue = 0;
+        return scores.get(0).scoreValue;
     }
 
     public long getValue() {
         return scoreValue;
     }
 
-    public void nameScore(String inputName) {
-        scoreName = inputName;
-    }
-
-    public void draw(Canvas canvas) {
-
-        textPaint.setAntiAlias(true);
-        textPaint.setTextAlign(Paint.Align.CENTER);
-        textPaint.setColor(Color.LTGRAY);
-        textPaint.setTypeface(robotoLight);
-        textPaint.setTextSize((panelHeight * 7) / 200);
-        //Draw text
-        canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 90) / 100, textPaint);
+    public void setScoreValue(long scoreValue) {
+        this.scoreValue = scoreValue;
     }
 
     public boolean isHighScore() {
@@ -114,13 +116,11 @@ public class Score {
             if (scoreValue > tempScore.scoreValue) {
                 return true;
             }
+            else
+                Log.d(TAG, "Score " + scoreValue + " is no bigger than current high score " + tempScore.scoreValue);
         }
 
         return false;
-    }
-
-    public int getHighScoreNumber() {
-        return highScoreNumber;
     }
 
     public void addToBoard() {
@@ -175,8 +175,6 @@ public class Score {
             }
             i++;
         }
-
-        Log.d(TAG, "High score number is: " + highScoreNumber);
 
         try {
             FileOutputStream fileos = context.openFileOutput(xmlName + ".xml", Context.MODE_PRIVATE);

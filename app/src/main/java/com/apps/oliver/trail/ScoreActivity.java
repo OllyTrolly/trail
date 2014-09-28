@@ -12,6 +12,7 @@ import android.view.MenuItem;
 public class ScoreActivity extends Activity {
 
     private int stageNumber;
+    private int previousHigh;
     private boolean highScore;
 
     @Override
@@ -22,14 +23,18 @@ public class ScoreActivity extends Activity {
             Bundle extras = getIntent().getExtras();
             stageNumber = extras.getInt("STAGE_NUMBER");
             highScore = extras.getBoolean("HIGH_SCORE");
+            previousHigh = extras.getInt("PREVIOUS_HIGH");
         }
         else {
             stageNumber = 0;
             highScore = false;
         }
+        if (stageNumber <= 0) {
+            highScore = false;
+        }
 
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
-        ScorePanel panel = new ScorePanel(this, robotoLight, stageNumber, highScore);
+        ScorePanel panel = new ScorePanel(this, robotoLight, stageNumber, highScore, previousHigh);
         setContentView(panel);
     }
 

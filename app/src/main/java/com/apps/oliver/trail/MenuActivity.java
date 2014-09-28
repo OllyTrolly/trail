@@ -10,6 +10,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 
 import com.google.android.gms.games.Games;
@@ -38,6 +40,9 @@ public class MenuActivity extends BaseGameActivity {
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
         MenuActivity activity = this;
         MenuPanel panel = new MenuPanel(this, robotoLight, activity);
+        // Can only be used on higher APIs
+        //int uiOptions = SurfaceView.SYSTEM_UI_FLAG_LOW_PROFILE;
+        //panel.setSystemUiVisibility(uiOptions);
         setContentView(panel);
 
 
