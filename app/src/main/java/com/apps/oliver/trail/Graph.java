@@ -49,14 +49,14 @@ public class Graph {
     private int activated = 0;
     public int timerSecs = 0;
     public boolean constructComplete = false;
-    private int penalty = 0; //Number of penalties incurred, for use in endless mode's scoring
+    public int penalty = 0; //Number of penalties incurred, for use in endless mode's scoring
     public int numEdges;
     private boolean tutorial = false;
     private String tutorialMessage;
     private String tutorialMessage2;
     private Paint textPaint = new Paint();
     private Context context;
-    private boolean launchingActivity;
+    public boolean launchingActivity;
     public int mistakesLeft;
     private GameActivity activity;
     private int baseTime;
@@ -136,7 +136,7 @@ public class Graph {
                 vRows = 3;
                 vColumns = 3;
                 eulCircuit = true;
-                baseTime = 4;
+                baseTime = 10;
                 break;
             case 1:
                 randNum = randInt(1,2);
@@ -149,13 +149,13 @@ public class Graph {
                     vColumns = 3;
                 }
                 eulCircuit = true;
-                baseTime = 3;
+                baseTime = 8;
                 break;
             case 2:
                 vRows = 4;
                 vColumns = 4;
                 eulCircuit = true;
-                baseTime = 1;
+                baseTime = 6;
                 break;
             case 3:
                 randNum = randInt(1,2);
@@ -167,13 +167,15 @@ public class Graph {
                     vRows = 4;
                     vColumns = 5;
                 }
-                baseTime = 1;
+                baseTime = 4;
                 eulCircuit = true;
                 break;
             default:
                 vRows = 5;
                 vColumns = 5;
                 eulCircuit = true;
+                baseTime = 7 - difficultyLevel;
+                if(baseTime < 0) baseTime = 0;
                 break;
         }
 
@@ -282,6 +284,10 @@ public class Graph {
         constructComplete = true;
     }
 
+    private void createEdge(int start, int end) {
+        edgeArrayList.add(new Edge(vertexArray[start], vertexArray[end]));
+    }
+
     private void tutorialMode() {
         tutorial = true;
         switch(stageNo) {
@@ -292,7 +298,7 @@ public class Graph {
                 tutorialMessage2 = "the line";
                 eulCircuit = true;
                 constructVertices();
-                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
+                createEdge(0,1);
                 break;
             case 2:
                 vRows = 2;
@@ -301,55 +307,49 @@ public class Graph {
                 tutorialMessage2 = "to complete the level";
                 eulCircuit = true;
                 constructVertices();
-                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
-                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[3]));
-                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[2]));
-                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[0]));
+                createEdge(0,1);
+                createEdge(1,3);
+                createEdge(3,2);
+                createEdge(2,0);
                 break;
             case 3:
-                vRows = 2;
-                vColumns = 2;
-                tutorialMessage = "The yellow line is the last";
-                tutorialMessage2 = "line you drew along";
-                eulCircuit = true;
-                constructVertices();
-                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
-                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[3]));
-                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[2]));
-                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[0]));
-                break;
-            case 4:
                 vRows = 3;
-                vColumns = 2;
+                vColumns = 3;
                 tutorialMessage = "You can select a dot more";
                 tutorialMessage2 = "than once, but not a line";
                 eulCircuit = true;
                 constructVertices();
-                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
-                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[3]));
-                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[5]));
-                edgeArrayList.add(new Edge(vertexArray[5], vertexArray[4]));
-                edgeArrayList.add(new Edge(vertexArray[4], vertexArray[2]));
-                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[0]));
+                createEdge(0,3);
+                createEdge(0,4);
+                createEdge(1,2);
+                createEdge(1,4);
+                createEdge(2,4);
+                createEdge(3,4);
+                createEdge(4,5);
+                createEdge(4,6);
+                createEdge(4,7);
+                createEdge(4,8);
+                createEdge(5,8);
+                createEdge(6,7);
                 break;
-            case 5:
+            case 4:
                 vRows = 2;
                 vColumns = 3;
                 tutorialMessage = "Lines can cross";
                 tutorialMessage2 = "";
                 eulCircuit = true;
                 constructVertices();
-                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
-                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[5]));
-                edgeArrayList.add(new Edge(vertexArray[5], vertexArray[2]));
-                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[4]));
-                edgeArrayList.add(new Edge(vertexArray[4], vertexArray[3]));
-                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[0]));
+                createEdge(0,1);
+                createEdge(1,5);
+                createEdge(5,2);
+                createEdge(2,4);
+                createEdge(4,3);
+                createEdge(3,0);
                 break;
-            case 6:
+            case 5:
                 vRows = 3;
                 vColumns = 3;
-                tutorialMessage = "If you get stuck trace back or";
+                tutorialMessage = "If you get stuck, trace back or";
                 tutorialMessage2 = "hit the button on the top right";
                 eulCircuit = true;
                 constructVertices();
@@ -361,38 +361,38 @@ public class Graph {
                     return;
                 }
                 break;
-            case 7:
+            case 6:
                 vRows = 2;
                 vColumns = 2;
-                tutorialMessage = "In Flawless mode, sometimes you";
+                tutorialMessage =  "In Flawless, sometimes you";
                 tutorialMessage2 = "have to start on certain dots";
                 eulCircuit = true;
                 constructVertices();
-                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
-                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[3]));
-                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[2]));
-                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[0]));
-                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[2]));
+                createEdge(0,1);
+                createEdge(1,3);
+                createEdge(3,2);
+                createEdge(2,0);
+                createEdge(1,2);
                 break;
-            case 8:
+            case 7:
                 vRows = 2;
                 vColumns = 3;
-                tutorialMessage = "Can you figure out why?";
-                tutorialMessage2 = "The number of lines is important";
+                tutorialMessage = "If a dot has an odd number";
+                tutorialMessage2 = "of lines from it, start there";
                 eulCircuit = true;
                 constructVertices();
-                edgeArrayList.add(new Edge(vertexArray[0], vertexArray[1]));
-                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[2]));
-                edgeArrayList.add(new Edge(vertexArray[2], vertexArray[5]));
-                edgeArrayList.add(new Edge(vertexArray[5], vertexArray[4]));
-                edgeArrayList.add(new Edge(vertexArray[4], vertexArray[3]));
-                edgeArrayList.add(new Edge(vertexArray[3], vertexArray[0]));
-                edgeArrayList.add(new Edge(vertexArray[1], vertexArray[4]));
+                createEdge(0,1);
+                createEdge(1,2);
+                createEdge(2,5);
+                createEdge(5,4);
+                createEdge(4,3);
+                createEdge(3,0);
+                createEdge(1,4);
                 break;
-            case 9:
+            case 8:
                 vRows = 3;
                 vColumns = 3;
-                tutorialMessage = "In Timed mode you must finish";
+                tutorialMessage = "In Timed, you must finish";
                 tutorialMessage2 = "before the timer hits 0:00";
                 eulCircuit = true;
                 constructVertices();
@@ -405,11 +405,11 @@ public class Graph {
                 }
                 timerSecs = vRows * vColumns * 3;
                 break;
-            case 10:
+            case 9:
                 vRows = 3;
                 vColumns = 3;
-                tutorialMessage = "Practice more if you want";
-                tutorialMessage2 = "Press the arrow for the menu!";
+                tutorialMessage = "Practice more if you want.";
+                tutorialMessage2 = "Press back when you're done!";
                 eulCircuit = true;
                 constructVertices();
                 constructCornerEdges();
@@ -471,56 +471,12 @@ public class Graph {
 
             if(gameMode == 0) {
                 timer.draw(canvas);
-                if(!launchingActivity) {
-                    if (timer.timeLeft <= 0) {
-                        launchingActivity = true;
-                        activity.checkForAchievements(timer.getTimeLeft(), stageNo, numEdges);
-                        activity.updateLeaderboards(stageNo - 1);
-                        activity.pushAccomplishments();
-                        Intent i = new Intent();
-                        i.setClass(context, ScoreActivity.class);
-                        if (score.isHighScore()) {
-                            score.addToBoard();
-                            Log.d(TAG, "Adding " + (stageNo - 1) + " to scoreboard");
-                            i.putExtra("HIGH_SCORE", true);
-                            i.putExtra("PREVIOUS_HIGH", stageNo - 1);
-                            //Add high score to intent as extra so it can be highlighted
-                        }
-                        else {
-                            i.putExtra("HIGH_SCORE", false);
-                            i.putExtra("PREVIOUS_HIGH", (int) score.getHighScore());
-                        }
-                        i.putExtra("STAGE_NUMBER", stageNo - 1);
-                        context.startActivity(i);
-                    }
-                }
             }
 
             else if (gameMode == 1) {
-                if(!launchingActivity) {
-                    mistakesLeft = 10 - penalty;
-                    if (mistakesLeft <= 0) {
-                        launchingActivity = true;
-                        activity.checkForAchievements(timer.getTimeLeft(), stageNo, numEdges);
-                        activity.updateLeaderboards(stageNo - 1);
-                        activity.pushAccomplishments();
-                        mistakesLeft = 0;
-                        Intent i = new Intent();
-                        i.setClass(context, ScoreActivity.class);
-                        if (score.isHighScore()) {
-                            score.addToBoard();
-                            Log.d(TAG, "Adding " + (stageNo - 1) + " to scoreboard");
-                            i.putExtra("HIGH_SCORE", true);
-                            i.putExtra("PREVIOUS_HIGH", stageNo - 1);
-                            //Add high score to intent as extra so it can be highlighted
-                        }
-                        else {
-                            i.putExtra("HIGH_SCORE", false);
-                            i.putExtra("PREVIOUS_HIGH", (int) score.getHighScore());
-                        }
-                        i.putExtra("STAGE_NUMBER", stageNo - 1);
-                        context.startActivity(i);
-                    }
+                mistakesLeft = 10 - penalty;
+                if (mistakesLeft < 0) {
+                    mistakesLeft = 0;
                 }
                 textPaint.setTextSize((panelHeight * 11) / 200);
                 canvas.drawText("" + mistakesLeft, panelWidth / 2, (panelHeight * 23) / 100, textPaint);
@@ -528,7 +484,7 @@ public class Graph {
             }
 
             else if (gameMode == 2) {
-                if (stageNo == 9) {
+                if (stageNo == 8) {
                     timer.draw(canvas);
                     canvas.drawText(tutorialMessage, panelWidth / 2, (panelHeight * 30) / 100, textPaint);
                     canvas.drawText(tutorialMessage2, panelWidth / 2, (panelHeight * 35) / 100, textPaint);

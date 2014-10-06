@@ -3,6 +3,7 @@ package com.apps.oliver.trail;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -20,11 +21,8 @@ import com.google.example.games.basegameutils.BaseGameActivity;
 
 public class MenuActivity extends BaseGameActivity {
 
-    private static final String TAG = MenuActivity.class.getSimpleName();
-    private MenuPanel panel;
-    private Point panelSize;
-    private int panelWidth;
-    private int panelHeight;
+    public static final String PREFS_NAME = "Settings";
+    private boolean gPlayServices;
 
     // request codes we use when invoking an external activity
     final int RC_RESOLVE = 5000, RC_UNUSED = 5001;
@@ -32,10 +30,13 @@ public class MenuActivity extends BaseGameActivity {
     // achievements and scores we're pending to push to the cloud
     // (waiting for the user to sign in, for instance)
     AccomplishmentsOutbox mOutbox = new AccomplishmentsOutbox();
+    private SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        settings = getSharedPreferences(PREFS_NAME, 0);
 
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
         MenuActivity activity = this;
@@ -45,9 +46,18 @@ public class MenuActivity extends BaseGameActivity {
         //panel.setSystemUiVisibility(uiOptions);
         setContentView(panel);
 
-
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        settings = getSharedPreferences(PREFS_NAME, 0);
+        if(settings.getBoolean("gPlayServices", false)) {
+            gPlayServices = settings.getBoolean("gPlayServices", false);
+            if(gPlayServices) beginUserInitiatedSignIn();
+        }
+        else getGameHelper().setMaxAutoSignInAttempts(0);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -96,7 +106,9 @@ public class MenuActivity extends BaseGameActivity {
 
     @Override
     public void onSignInFailed() {
-        // Sign-in failed, so show sign-in button on main menu
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("gPlayServices", false);
+        editor.commit();
     }
 
     @Override

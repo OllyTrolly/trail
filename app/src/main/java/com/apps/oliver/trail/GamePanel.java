@@ -4,7 +4,6 @@ package com.apps.oliver.trail;
  * Created by Oliver on 13/07/2014.
  * Credit goes to javacodegeeks for template code http://www.javacodegeeks.com/2011/07/android-game-development-basic-game_05.html
  */
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,9 +12,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -41,6 +37,8 @@ public class GamePanel extends SurfaceView implements
     private boolean scoreScreen = false;
     private Typeface tf;
     private GameActivity activity;
+    public boolean isHighScore;
+    public int highScore;
 
     public GamePanel(Context context, Typeface tf, int gameMode, GameActivity activity) {
         super(context);
@@ -137,9 +135,7 @@ public class GamePanel extends SurfaceView implements
                 if (gameMode == 0 || gameMode == 1) {
                     graph.score.addToBoard();
                 }
-                Intent i = new Intent();
-                i.setClass(this.getContext(), MenuActivity.class);
-                getContext().startActivity(i);
+                activity.finish();
             }
             else graph.handleActionDown((int) event.getX(), (int) event.getY());
         }
@@ -175,6 +171,57 @@ public class GamePanel extends SurfaceView implements
 
     }
 
+    public boolean failedGame(Canvas canvas) {
+        if(gameMode == 0) {
+            graph.timer.draw(canvas);
+            if(!graph.launchingActivity) {
+                if (graph.timer.timeLeft <= 0) {
+                    graph.launchingActivity = true;
+                    activity.checkForAchievements(graph.timer.getTimeLeft(), stageNo, graph.numEdges);
+                    activity.updateLeaderboards(stageNo - 1);
+                    activity.pushAccomplishments();
+                    Intent i = new Intent();
+                    if (graph.score.isHighScore()) {
+                        graph.score.addToBoard();
+                        isHighScore = true;
+                        highScore = stageNo - 1;
+                        //Add high score to intent as extra so it can be highlighted
+                    }
+                    else {
+                        isHighScore = false;
+                        highScore = (int) graph.score.getHighScore();
+                    }
+                    return true;
+                }
+            }
+        }
+
+        else if (gameMode == 1) {
+            if (!graph.launchingActivity) {
+                graph.mistakesLeft = 10 - graph.penalty;
+                if (graph.mistakesLeft <= 0) {
+                    graph.launchingActivity = true;
+                    activity.checkForAchievements(graph.timer.getTimeLeft(), stageNo, graph.numEdges);
+                    activity.updateLeaderboards(stageNo - 1);
+                    activity.pushAccomplishments();
+                    graph.mistakesLeft = 0;
+                    if (graph.score.isHighScore()) {
+                        graph.score.addToBoard();
+                        isHighScore = true;
+                        highScore = stageNo - 1;
+                        //Add high score to intent as extra so it can be highlighted
+                    }
+                    else {
+                        isHighScore = false;
+                        highScore = (int) graph.score.getHighScore();
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     //The fps to be displayed
     private String avgFps;
     public void setAvgFps(String avgFps) {
@@ -182,25 +229,57 @@ public class GamePanel extends SurfaceView implements
     }
 
     public void render(Canvas canvas) {
-        canvas.drawColor(Color.DKGRAY);
-        graph.draw(canvas);
-        //Display FPS
-        //displayFps(canvas, avgFps);
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setFilterBitmap(true);
-        paint.setDither(true);
-        canvas.drawBitmap(reset, resetPos, vertSpace, paint);
-        textPaint.setTextSize((panelHeight * 5) / 100);
-        if (gameMode == 2) {
-            canvas.drawText("Tutorial", panelWidth / 2, (panelHeight * 9) / 100, textPaint);
+
+        if(!scoreScreen) {
+            scoreScreen = failedGame(canvas);
+            canvas.drawColor(Color.DKGRAY);
+            graph.draw(canvas);
+            //Display FPS
+            //displayFps(canvas, avgFps);
+            Paint paint = new Paint();
+            paint.setAntiAlias(true);
+            paint.setFilterBitmap(true);
+            paint.setDither(true);
+            canvas.drawBitmap(reset, resetPos, vertSpace, paint);
+            textPaint.setTextSize((panelHeight * 5) / 100);
+            if (gameMode == 2) {
+                canvas.drawText("Tutorial", panelWidth / 2, (panelHeight * 9) / 100, textPaint);
+            } else {
+                canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 9) / 100, textPaint);
+            }
+            canvas.drawBitmap(back, backPos, vertSpace, paint);
+            textPaint.setTextSize((panelWidth * 5) / 100);
+            canvas.drawText("trail", panelWidth / 2, (panelHeight * 97) / 100, textPaint);
         }
         else {
-            canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 9) / 100, textPaint);
+            canvas.drawColor(Color.DKGRAY);
+
+            textPaint.setAntiAlias(true);
+            textPaint.setTextAlign(Paint.Align.CENTER);
+            textPaint.setColor(Color.LTGRAY);
+            textPaint.setTextSize((panelHeight * 5) / 100);
+            canvas.drawText("Game Over", panelWidth / 2, (panelHeight * 40) / 100, textPaint);
+            textPaint.setTextSize((panelHeight * 4) / 100);
+            canvas.drawText("You completed " + stageNo + " stages", panelWidth / 2, (panelHeight * 50) / 100, textPaint);
+
+            if(isHighScore) {
+                textPaint.setColor(Color.GREEN);
+                canvas.drawText("You set a high score!", panelWidth / 2, (panelHeight * 60) / 100, textPaint);
+                textPaint.setColor(Color.LTGRAY);
+            }
+
+            else {
+                textPaint.setColor(Color.RED);
+                canvas.drawText("Previous high score: " + highScore, panelWidth / 2, (panelHeight * 60) / 100, textPaint);
+                textPaint.setColor(Color.LTGRAY);
+            }
+
+            textPaint.setTextSize(36);
+            textPaint.setColor(Color.LTGRAY);
+            canvas.drawText("trail", panelWidth / 2, (panelHeight * 97) / 100, textPaint);
+
+            canvas.drawBitmap(back, backPos, (panelHeight * 4) / 100, null);
         }
-        canvas.drawBitmap(back, backPos, vertSpace, paint);
-        textPaint.setTextSize((panelWidth * 5) / 100);
-        canvas.drawText("trail", panelWidth / 2, (panelHeight * 97) / 100, textPaint);
     }
 
     private void displayFps(Canvas canvas, String fps) {

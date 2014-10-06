@@ -1,20 +1,13 @@
 package com.apps.oliver.trail;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.widget.Toast;
-
 import com.google.android.gms.games.Games;
-import com.google.android.gms.games.Player;
 import com.google.example.games.basegameutils.BaseGameActivity;
 
 public class GameActivity extends BaseGameActivity {
@@ -33,6 +26,9 @@ public class GameActivity extends BaseGameActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getGameHelper().setMaxAutoSignInAttempts(0);
+
         activity = this;
 
         if (savedInstanceState == null) {
@@ -44,7 +40,7 @@ public class GameActivity extends BaseGameActivity {
             Log.d(TAG, "Can't find gameMode");
             gameMode = 1;
         }
-        onSignInButtonClicked();
+        //onSignInButtonClicked();
         Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
         final GamePanel panel = new GamePanel(this, robotoLight, gameMode, activity);
         int id = 0;
@@ -183,10 +179,10 @@ public class GameActivity extends BaseGameActivity {
         if (gameMode == 1 && stages == 30) {
             mOutbox.mPerfectionistAchievement = true;
         }
-        if (gameMode == 2 && stages == 10) {
+        if (gameMode == 2 && stages == 9) {
             mOutbox.mTutorialAchievement = true;
         }
-        if (gameMode == 2 && stages > 10) {
+        if (gameMode == 2 && stages > 9) {
             mOutbox.mExtraTutorialStages++;
         }
 
