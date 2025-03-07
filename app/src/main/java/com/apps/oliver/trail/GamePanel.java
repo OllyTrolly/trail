@@ -1,7 +1,7 @@
 package com.apps.oliver.trail;
 
 /**
- * Created by Oliver on 13/07/2014.
+ * Updated to work with modern Android API
  */
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +14,8 @@ import android.graphics.Typeface;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import androidx.core.content.res.ResourcesCompat;
 
 public class GamePanel extends SurfaceView implements
         SurfaceHolder.Callback {
@@ -38,6 +40,11 @@ public class GamePanel extends SurfaceView implements
         // Getting width and height of panel for scaling purposes
         panelWidth = context.getResources().getDisplayMetrics().widthPixels;
         panelHeight = context.getResources().getDisplayMetrics().heightPixels;
+
+        // If typeface is null, load it using ResourcesCompat
+        if (tf == null) {
+            tf = ResourcesCompat.getFont(context, R.font.roboto_light);
+        }
 
         resetPos = (panelWidth * 90) / 100;  // Horizontal position of reset button
         backPos = (panelWidth * 5) / 100; // Horizontal position of back button
@@ -67,7 +74,7 @@ public class GamePanel extends SurfaceView implements
     // On surface creation, start loop, if resuming create new loop and resume stage's timer
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        if(loop.getState() != GameLoop.State.NEW) {
+        if(loop.getState() != Thread.State.NEW) {
             loop = new GameLoop(getHolder(), this);
             graph.resumeTimer();
         }
@@ -140,6 +147,7 @@ public class GamePanel extends SurfaceView implements
     }
 
     public void draw(Canvas canvas) {
+        if (canvas == null) return;
 
         canvas.drawColor(Color.DKGRAY);
         if(scoreScreen) {
@@ -159,5 +167,4 @@ public class GamePanel extends SurfaceView implements
         textPaint.setTextSize(36);
         canvas.drawText("trail", panelWidth / 2, (panelHeight * 97) / 100, textPaint);
     }
-
 }
