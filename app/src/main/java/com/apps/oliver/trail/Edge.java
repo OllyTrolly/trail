@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 
 /**
- * Created by Oliver on 13/07/2014.
+ * Updated to work with modern Android API
  */
 public class Edge {
 
@@ -111,9 +111,13 @@ public class Edge {
 
         //Diagonal
         else {
-            canvas.save(Canvas.MATRIX_SAVE_FLAG);
+            // Save the current state of the canvas
+            canvas.save();
+            // Rotate the canvas
             canvas.rotate(rotation, aX, aY);
+            // Draw the rectangle
             canvas.drawRect(aX, aY - rectRadius, aX + diagEdgeLength, aY + rectRadius, paint);
+            // Restore the canvas to its previous state
             canvas.restore();
         }
     }
