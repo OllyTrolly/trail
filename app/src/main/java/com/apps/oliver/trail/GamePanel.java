@@ -147,6 +147,7 @@ public class GamePanel extends SurfaceView implements
     }
 
     public void draw(Canvas canvas) {
+        super.draw(canvas);
         if (canvas == null) return;
 
         canvas.drawColor(Color.DKGRAY);

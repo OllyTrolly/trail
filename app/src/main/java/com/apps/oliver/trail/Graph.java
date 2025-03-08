@@ -100,39 +100,8 @@ public class Graph {
 
     public void timedMode() {
 
-        // Switch for difficulty curve
-        switch (stageNo) {
-            case 1:
-                difficultyLevel = 1;
-                break;
-            case 2:
-                difficultyLevel = 1;
-                break;
-            case 3:
-                difficultyLevel = 2;
-                break;
-            case 4:
-                difficultyLevel = 2;
-                break;
-            case 5:
-                difficultyLevel = 3;
-                break;
-            case 6:
-                difficultyLevel = 3;
-                break;
-            case 7:
-                difficultyLevel = 4;
-                break;
-            case 8:
-                difficultyLevel = 4;
-                break;
-            case 9:
-                difficultyLevel = 5;
-                break;
-            case 10:
-                difficultyLevel = 5;
-                break;
-        }
+        // Difficulty curve - scales by 1 level each 2 stages
+        difficultyLevel = (stageNo + 1) / 2;
 
         // Switch for what each difficulty entails for the graph (probability of Euler circuit, size)
         switch (difficultyLevel) {
@@ -720,10 +689,10 @@ public class Graph {
         int noVertices = vRows * vColumns;
         //ArrayList for all the visited vertices
         ArrayList<Integer> visited = new ArrayList<Integer>();
-        visited.add(new Integer(0));
+        visited.add(0);
         //Stack for parents to get children of
         Stack<Integer> parents = new Stack<Integer>();
-        parents.add(new Integer(0));
+        parents.add(0);
         //An array of the integer modifiers for adjacent vertices
         int[] adjVertices = new int[] {
                 - vColumns - 1,
@@ -739,15 +708,15 @@ public class Graph {
         //While the parents stack still has children to check, carry on
         while(!parents.empty()) {
             //Pop parent off the stack(in int form)
-            origin = parents.pop().intValue();
+            origin = parents.pop();
             //For all adjacent vertices (always size 8)
             for(int i = 0; i < 8; i++) {
                 //If the parent is connected to the adjacent vertex, proceed
                 if(connectedTo(origin + adjVertices[i])) {
                     //Else if child has not yet been visited, add it to parents stack
-                    if(!visited.contains(new Integer(origin + adjVertices[i]))) {
-                        parents.add(new Integer(origin + adjVertices[i]));
-                        visited.add(new Integer(origin + adjVertices[i]));
+                    if(!visited.contains(origin + adjVertices[i])) {
+                        parents.add(origin + adjVertices[i]);
+                        visited.add(origin + adjVertices[i]);
                         if(visited.size() == noVertices) {
                             return true;
                         }
