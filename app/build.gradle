@@ -1,24 +1,54 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application' // Or id 'com.android.library' for library modules
+    id 'org.jetbrains.kotlin.android'
+}
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    namespace 'com.apps.oliver.trail' // Replace with your package name
+    compileSdk 35 // Use the latest stable SDK
 
     defaultConfig {
-        applicationId "com.apps.oliver.trail"
-        minSdkVersion 14
-        targetSdkVersion 20
+        applicationId 'com.apps.oliver.trail' // Replace with your package name
+        minSdk 24 // Use a reasonable minimum SDK
+        targetSdk 35 // Match the compileSdk
         versionCode 1
-        versionName "1.0"
+        versionName '1.0'
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+
     buildTypes {
         release {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled false // Change from runProguard
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro' // Update file name if necessary
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs += ['-Xlint:deprecation', '-Xlint:unchecked']
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildFeatures {
+        viewBinding true // if applicable, add this in to enable view binding.
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.core:core-ktx:1.15.0' // Example: Core KTX
+    implementation 'androidx.appcompat:appcompat:1.7.0' // Example: Appcompat
+    implementation 'com.google.android.material:material:1.12.0' // Material Design
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1' // ConstraintLayout
+    testImplementation 'junit:junit:4.13.2' // Example: JUnit
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1' // Example: AndroidX Test
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1' // Example: Espresso
 }

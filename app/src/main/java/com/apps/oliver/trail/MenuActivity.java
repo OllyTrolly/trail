@@ -1,25 +1,22 @@
 package com.apps.oliver.trail;
 
-import android.app.Activity;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 
-
-public class MenuActivity extends Activity {
+public class MenuActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Create new typeface from font file (Roboto Light) in assets folder
-        Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
-        // Instantiate a custom SurfaceView object called GamePanel, then set it as the view
-        // that can be interacted with
-        MenuPanel panel = new MenuPanel(this, robotoLight);
+        
+        // Create new typeface from font resource using ResourcesCompat
+        // Assuming you've moved the font to the res/font directory
+        MenuPanel panel = new MenuPanel(this, ResourcesCompat.getFont(this, R.font.roboto_light));
         setContentView(panel);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -10,14 +10,16 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import androidx.annotation.NonNull;
+
 /**
- * Created by Oliver on 15/08/2014.
+ * Updated to work with modern Android API
  */
 public class MenuPanel extends SurfaceView implements
         SurfaceHolder.Callback {
 
-    private Typeface robotoLight;
-    private SurfaceHolder surfaceHolder;
+    private final Typeface robotoLight;
+    private final SurfaceHolder surfaceHolder;
 
     int horizCentre; // Horizontal centre of panel
     int circle1Vert; // Vertical co-ord of first dot
@@ -44,21 +46,21 @@ public class MenuPanel extends SurfaceView implements
         rectRadius = panelWidth/36;
         circleRadius = (panelHeight * 8) / 100;
 
-
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this); // Adding the callback (this) to the surface holder to intercept events
         setFocusable(true); // Make the MenuPanel focusable so it can handle events
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
+    public void surfaceCreated(@NonNull SurfaceHolder holder) {
         //Lock user interaction with the canvas
         Canvas canvas = surfaceHolder.lockCanvas();
+        if (canvas == null) return;
+        
         //Set background colour
         canvas.drawColor(Color.DKGRAY);
         //Draw angled rectangles by rotating canvas each time
@@ -66,7 +68,7 @@ public class MenuPanel extends SurfaceView implements
         rectPaint.setAntiAlias(true);
         rectPaint.setColor(Color.LTGRAY);
         //First line
-        canvas.save(Canvas.MATRIX_SAVE_FLAG);
+        canvas.save();
         canvas.rotate(40, horizCentre, circle1Vert);
         canvas.drawRect(horizCentre, circle1Vert - rectRadius, (float) (panelWidth + (0.75*horizCentre)), circle1Vert + rectRadius, rectPaint);
         canvas.restore();
@@ -75,7 +77,7 @@ public class MenuPanel extends SurfaceView implements
         //Third line
         rectPaint.setColor(Color.GRAY);
         rectPaint.setAlpha(150);
-        canvas.save(Canvas.MATRIX_SAVE_FLAG);
+        canvas.save();
         canvas.rotate(320, horizCentre, circle2Vert);
         canvas.drawRect((float) (0 - (0.75*horizCentre)), circle2Vert - rectRadius, horizCentre, circle2Vert + rectRadius, rectPaint);
         canvas.restore();
@@ -101,30 +103,26 @@ public class MenuPanel extends SurfaceView implements
         textPaint.setTypeface(robotoLight);
         textPaint.setTextSize(36);
         //Draw text
-        canvas.drawText("Timed", horizCentre, circle1Vert + (panelHeight * 1) / 100, textPaint);
-        canvas.drawText("Endless", horizCentre, circle2Vert + (panelHeight * 1) / 100, textPaint);
-        canvas.drawText("Scores", horizCentre, circle3Vert + (panelHeight * 1) / 100, textPaint);
+        canvas.drawText("Timed", horizCentre, circle1Vert + (float) panelHeight / 100, textPaint);
+        canvas.drawText("Endless", horizCentre, circle2Vert + (float) panelHeight / 100, textPaint);
+        canvas.drawText("Scores", horizCentre, circle3Vert + (float) panelHeight / 100, textPaint);
         textPaint.setColor(Color.LTGRAY);
-        canvas.drawText("trail", horizCentre, (panelHeight * 97) / 100, textPaint);
+        canvas.drawText("trail", horizCentre, (float) (panelHeight * 97) / 100, textPaint);
         textPaint.setTextSize(50);
-        canvas.drawText("Menu", horizCentre, (panelHeight * 10) / 100, textPaint);
+        canvas.drawText("Menu", horizCentre, (float) (panelHeight * 10) / 100, textPaint);
         //Unlock user interaction with the canvas
         surfaceHolder.unlockCanvasAndPost(canvas);
     }
 
     private boolean dotSelection(int vert, int eventX, int eventY) {
-        if((eventX >= (horizCentre - circleRadius) &&
+        return (eventX >= (horizCentre - circleRadius) &&
                 (eventX <= (horizCentre + circleRadius)))
                 && (eventY >= (vert - circleRadius) &&
-                (eventY <= vert + circleRadius))) {
-            return true;
-        }
-        return false;
+                (eventY <= vert + circleRadius));
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-
+    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
     }
 
     @Override
@@ -145,9 +143,6 @@ public class MenuPanel extends SurfaceView implements
                 i.setClass(this.getContext(), GameActivity.class);
                 i.putExtra("GAME_MODE", 1);
                 getContext().startActivity(i);
-            }
-            else if(dotSelection(circle3Vert, x, y)) {
-                // Doesn't do anything yet, will call up scoreboard
             }
         }
         return true;

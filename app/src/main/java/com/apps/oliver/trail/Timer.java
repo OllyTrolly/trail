@@ -5,19 +5,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
-/**
- * Created by Oliver on 13/07/2014.
- */
-
 public class Timer {
 
-    private int timerSecs;
+    private final int timerSecs;
     public long startTime;
     private long pauseTime;
     public int timeLeft;
-    private Paint paint;
-    private int panelWidth;
-    private int panelHeight;
+    private final Paint paint;
+    private final int panelWidth;
+    private final int panelHeight;
     private long offset = 0;
 
     public Timer(int timerSecs, Typeface robotoLight, int panelWidth, int panelHeight) {
@@ -58,12 +54,12 @@ public class Timer {
         // Change display to 'Too slow!' if all the time has elapsed
         if(timeLeft <= 0) {
             paint.setColor(Color.RED);
-            canvas.drawText("Too slow!", panelWidth / 2, (panelHeight * 23) / 100, paint);
+            canvas.drawText("Too slow!", (float) panelWidth / 2, (float) (panelHeight * 23) / 100, paint);
             paint.setColor(Color.LTGRAY);
         }
         else if(secsLeft < 10) {
-            canvas.drawText(minsLeft + ":0" + secsLeft, panelWidth / 2, (panelHeight * 23) / 100, paint);
+            canvas.drawText(minsLeft + ":0" + secsLeft, (float) panelWidth / 2, (float) (panelHeight * 23) / 100, paint);
         }
-        else canvas.drawText(minsLeft + ":" + secsLeft, panelWidth / 2, (panelHeight * 23) / 100, paint);
+        else canvas.drawText(minsLeft + ":" + secsLeft, (float) panelWidth / 2, (float) (panelHeight * 23) / 100, paint);
     }
 }

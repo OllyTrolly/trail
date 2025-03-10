@@ -1,12 +1,14 @@
 package com.apps.oliver.trail;
 
-import android.app.Activity;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
-public class GameActivity extends Activity {
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class GameActivity extends AppCompatActivity {
 
     private int gameMode;
 
@@ -17,20 +19,20 @@ public class GameActivity extends Activity {
         // Get intent from bundle (if it exists) that denotes the game mode that should be started
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
-            gameMode = extras.getInt("GAME_MODE");
+            if (extras != null) {
+                gameMode = extras.getInt("GAME_MODE");
+            } else {
+                gameMode = 1; // Default value if extras is null
+            }
         }
         else {
-            gameMode = 1;
+            gameMode = savedInstanceState.getInt("GAME_MODE", 1);
         }
 
         // Create new typeface from font file (Roboto Light) in assets folder
-        Typeface robotoLight = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
-
-        // Instantiate a custom SurfaceView object called GamePanel, give it an id so it can
-        // save and restore state, then set it as the view that can be interacted with
-        final GamePanel panel = new GamePanel(this, robotoLight, gameMode);
-        int id = 0;
-        panel.setId(id);
+        // Note: Using ResourcesCompat is recommended for newer Android versions
+        final GamePanel panel = new GamePanel(this, null, gameMode);
+        panel.setId(View.generateViewId());
         setContentView(panel);
     }
 
@@ -46,6 +48,7 @@ public class GameActivity extends Activity {
         super.onPause();
     }
 
+    @Override
     protected void onResume() {
         super.onResume();
     }
@@ -62,14 +65,15 @@ public class GameActivity extends Activity {
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        // The UI component values are saved here.
+        // Save the game mode
+        savedInstanceState.putInt("GAME_MODE", gameMode);
         super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        // The UI component values are restored here.
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        // The game mode is restored in onCreate()
     }
     
     @Override

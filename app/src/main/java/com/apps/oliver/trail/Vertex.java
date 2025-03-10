@@ -1,9 +1,5 @@
 package com.apps.oliver.trail;
 
-/**
- * Created by Oliver on 13/07/2014.
- */
-
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,18 +7,18 @@ import java.util.ArrayList;
 
 public class Vertex {
 
-    private int x; // The X coordinate
-    private int y; // The Y coordinate
-    private int r; // The radius
-    private int h; // The hitbox
+    private final int x; // The X coordinate
+    private final int y; // The Y coordinate
+    private final int r; // The radius
+    private final int h; // The hit-box
     public int panelWidth;
     public int panelHeight;
-    private Paint paint = new Paint(); // Instantiate paint
-    private Paint paintBorder = new Paint();
+    private final Paint paint = new Paint(); // Instantiate paint
+    private final Paint paintBorder = new Paint();
     private boolean isActivated;
     private boolean isLocked;
-    private ArrayList<Vertex> conVertices = new ArrayList<Vertex>(); // Array of vertices connected to this vertex
-    private ArrayList<Edge> conEdges = new ArrayList<Edge>(); // Array of edges connected to this vertex
+    private final ArrayList<Vertex> conVertices = new ArrayList<>(); // Array of vertices connected to this vertex
+    private final ArrayList<Edge> conEdges = new ArrayList<>(); // Array of edges connected to this vertex
 
     public Vertex(int x, int y, int panelWidth, int panelHeight) {
         this.panelWidth = panelWidth;
@@ -53,7 +49,7 @@ public class Vertex {
         return r;
     }
 
-    // Get hitbox extension of vertex
+    // Get hit-box extension of vertex
     public int getH() {
         return h;
     }
@@ -123,7 +119,7 @@ public class Vertex {
             //Draw circle border in background
             canvas.drawCircle((float) x, (float) y, (float) r, paintBorder);
             //Draw diminished circle over top
-            canvas.drawCircle((float) x, (float) y, (float) r - ((panelWidth * 1) / 100), paint);
+            canvas.drawCircle((float) x, (float) y, (float) r - ((float) panelWidth / 100), paint);
         }
         else {
             canvas.drawCircle((float) x, (float) y, (float) r, paint);
