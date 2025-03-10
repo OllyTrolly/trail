@@ -1,8 +1,5 @@
 package com.apps.oliver.trail;
 
-/**
- * Updated to work with modern Android API
- */
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -15,23 +12,24 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 
 public class GamePanel extends SurfaceView implements
         SurfaceHolder.Callback {
 
     private GameLoop loop;
-    private Graph graph;
-    private int stageNo = 1;
-    private int resetPos;
-    private int backPos;
-    private int vertSpace;
-    private int h;
-    private Bitmap reset;
-    private Bitmap back;
-    private Paint textPaint = new Paint();
-    private int panelWidth;
-    private int panelHeight;
+    private final Graph graph;
+    private final int stageNo = 1;
+    private final int resetPos;
+    private final int backPos;
+    private final int vertSpace;
+    private final int h;
+    private final Bitmap reset;
+    private final Bitmap back;
+    private final Paint textPaint = new Paint();
+    private final int panelWidth;
+    private final int panelHeight;
     private boolean scoreScreen = false;
 
     public GamePanel(Context context, Typeface tf, int gameMode) {
@@ -49,7 +47,7 @@ public class GamePanel extends SurfaceView implements
         resetPos = (panelWidth * 90) / 100;  // Horizontal position of reset button
         backPos = (panelWidth * 5) / 100; // Horizontal position of back button
         vertSpace = (panelHeight * 3) / 100; // vertSpace is the vertical co-ord for reset and back
-        h = (panelWidth * 2) / 100; // The hitbox extension of an object's already existing dimensions
+        h = (panelWidth * 2) / 100; // The hit-box extension of an object's already existing dimensions
 
         // Setting relevant properties for the text's paint
         textPaint.setAntiAlias(true);
@@ -68,12 +66,12 @@ public class GamePanel extends SurfaceView implements
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
     }
 
     // On surface creation, start loop, if resuming create new loop and resume stage's timer
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
+    public void surfaceCreated(@NonNull SurfaceHolder holder) {
         if(loop.getState() != Thread.State.NEW) {
             loop = new GameLoop(getHolder(), this);
             graph.resumeTimer();
@@ -86,7 +84,7 @@ public class GamePanel extends SurfaceView implements
     // On surface destruction, pause the stage's timer, tell loop to stop running
     // and wait for it to finish by itself.
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
+    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
 
         graph.pauseTimer();
         loop.setRunning(false);
@@ -107,8 +105,8 @@ public class GamePanel extends SurfaceView implements
 
         // Check if touch event was at back button, if so start MenuActivity
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (event.getX() < backPos + (back.getWidth() / 2) + h && event.getX() > backPos - (back.getWidth() / 2) - h &&
-                    event.getY() < vertSpace + (back.getHeight() / 2) + h && event.getY() > vertSpace - (back.getHeight() / 2) - h) {
+            if (event.getX() < backPos + ((float) back.getWidth() / 2) + h && event.getX() > backPos - ((float) back.getWidth() / 2) - h &&
+                    event.getY() < vertSpace + ((float) back.getHeight() / 2) + h && event.getY() > vertSpace - ((float) back.getHeight() / 2) - h) {
                 Intent i = new Intent();
                 i.setClass(this.getContext(), MenuActivity.class);
                 getContext().startActivity(i);
@@ -119,8 +117,8 @@ public class GamePanel extends SurfaceView implements
         if(!scoreScreen) {
             // Check if touch event was at reset button
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                if (event.getX() < resetPos + (reset.getWidth() / 2) + h && event.getX() > resetPos - (reset.getWidth() / 2) - h &&
-                        event.getY() < vertSpace + (reset.getHeight() / 2) + h && event.getY() > vertSpace - (reset.getHeight() / 2) - h) {
+                if (event.getX() < resetPos + ((float) reset.getWidth() / 2) + h && event.getX() > resetPos - ((float) reset.getWidth() / 2) - h &&
+                        event.getY() < vertSpace + ((float) reset.getHeight() / 2) + h && event.getY() > vertSpace - ((float) reset.getHeight() / 2) - h) {
                     graph.reset();
                 }
                 // If not at back or reset, delegate event handling to the graph
@@ -161,11 +159,11 @@ public class GamePanel extends SurfaceView implements
             graph.draw(canvas);
             canvas.drawBitmap(reset, resetPos, vertSpace, null);
             textPaint.setTextSize(50);
-            canvas.drawText("Stage " + graph.stageNo, panelWidth / 2, (panelHeight * 10) / 100, textPaint);
+            canvas.drawText("Stage " + graph.stageNo, (float) panelWidth / 2, (float) (panelHeight * 10) / 100, textPaint);
         }
 
         canvas.drawBitmap(back, backPos, vertSpace, null);
         textPaint.setTextSize(36);
-        canvas.drawText("trail", panelWidth / 2, (panelHeight * 97) / 100, textPaint);
+        canvas.drawText("trail", (float) panelWidth / 2, (float) (panelHeight * 97) / 100, textPaint);
     }
 }

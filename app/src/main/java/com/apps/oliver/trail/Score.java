@@ -11,29 +11,22 @@ import android.graphics.Typeface;
 public class Score {
 
     private long scoreValue;
-    private String scoreName;
-    private Typeface robotoLight;
-    private int panelWidth;
-    private int panelHeight;
-    private Paint textPaint;
+    private final Typeface robotoLight;
+    private final int panelWidth;
+    private final int panelHeight;
+    private final Paint textPaint;
 
     public Score(Typeface robotoLight, int panelWidth, int panelHeight) {
         this.robotoLight = robotoLight;
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
         scoreValue = 0;
-        scoreName = "Player";
         textPaint = new Paint();
     }
 
     // Add end of stage score to running total scoreValue
     public void addToScore(long score) {
         scoreValue += score;
-    }
-
-    // Give a name to the score (was not used in the end)
-    public void nameScore(String inputName) {
-        scoreName = inputName;
     }
 
     // Draw score text
@@ -43,7 +36,7 @@ public class Score {
         textPaint.setColor(Color.LTGRAY);
         textPaint.setTypeface(robotoLight);
         textPaint.setTextSize(45);
-        canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 90) / 100, textPaint);
+        canvas.drawText(scoreValue + "", (float) panelWidth / 2, (float) (panelHeight * 90) / 100, textPaint);
     }
 
     // Draw final score screen
@@ -53,7 +46,7 @@ public class Score {
         textPaint.setColor(Color.LTGRAY);
         textPaint.setTypeface(robotoLight);
         textPaint.setTextSize(60);
-        canvas.drawText("Final score: ", panelWidth / 2, (panelHeight * 45) / 100, textPaint);
-        canvas.drawText(scoreValue + "", panelWidth / 2, (panelHeight * 55) / 100, textPaint);
+        canvas.drawText("Final score: ", (float) panelWidth / 2, (float) (panelHeight * 45) / 100, textPaint);
+        canvas.drawText(scoreValue + "", (float) panelWidth / 2, (float) (panelHeight * 55) / 100, textPaint);
     }
 }

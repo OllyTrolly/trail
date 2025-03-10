@@ -10,22 +10,22 @@ import android.graphics.Paint;
 public class Edge {
 
     // Connected vertices
-    private Vertex vertexA;
-    private Vertex vertexB;
-    private float aX;
-    private float aY;
-    private float bX;
-    private float bY;
-    private float smallX;
-    private float smallY;
-    private float bigX;
-    private float bigY;
-    private float rectRadius;
-    private int rotation;
-    private Paint paint = new Paint(); // Instantiate paint
+    private final Vertex vertexA;
+    private final Vertex vertexB;
+    private final float aX;
+    private final float aY;
+    private final float bX;
+    private final float bY;
+    private final float smallX;
+    private final float smallY;
+    private final float bigX;
+    private final float bigY;
+    private final float rectRadius;
+    private final int rotation;
+    private final Paint paint = new Paint(); // Instantiate paint
     private boolean isActivated;
     private boolean lastSelected;
-    private float diagEdgeLength;
+    private final float diagEdgeLength;
 
     public Edge(Vertex vertexA, Vertex vertexB) {
         // Setting up properties of deactivated vertices as connected to each other
@@ -35,11 +35,11 @@ public class Edge {
         vertexB.setConnected(vertexA, this);
         isActivated = false;
 
-        rectRadius = (vertexA.panelWidth * 2) / 100;
+        rectRadius = (float) (vertexA.panelWidth * 2) / 100;
         paint.setColor(Color.GRAY); // Take color as input later on (can change colour scheme this way)
         paint.setAlpha(100);
         paint.setAntiAlias(true);
-        diagEdgeLength = (vertexA.panelWidth * 51) / 200;  // Pre-calculated length of a diagonal edge
+        diagEdgeLength = (float) (vertexA.panelWidth * 51) / 200;  // Pre-calculated length of a diagonal edge
 
         // Shorthands for x and y co-ordinates of each vertex
         aX = vertexA.getX();

@@ -27,11 +27,11 @@ public class Graph {
     private int origin;
     private int limit;
     private int locked;
-    private int panelWidth;
-    private int panelHeight;
-    private int centreHoriz;
-    private int centreVert;
-    private int vertexSpacing;
+    private final int panelWidth;
+    private final int panelHeight;
+    private final int centreHoriz;
+    private final int centreVert;
+    private final int vertexSpacing;
     private int initHoriz;
     private int initVert;
     private int edgeCount;
@@ -40,10 +40,10 @@ public class Graph {
 
     public Score score;
     private Timer timer;
-    private Typeface tf;
+    private final Typeface tf;
     private Vertex selectedVertex; // Last selected vertex
-    private Stack<Edge> selectedEdges = new Stack<Edge>(); // All edges that have been activated
-    private ArrayList<Edge> edgeArrayList = new ArrayList<Edge>(); // All edges
+    private final Stack<Edge> selectedEdges = new Stack<>(); // All edges that have been activated
+    private final ArrayList<Edge> edgeArrayList = new ArrayList<>(); // All edges
     private Vertex[] vertexArray; // All vertices
 
 
@@ -202,14 +202,12 @@ public class Graph {
                     vRows = 4;
                     vColumns = 3;
                 }
-                if(randInt(1, 100) <= 5) eulCircuit = false;
-                else eulCircuit = true;
+                eulCircuit = randInt(1, 100) > 5;
                 break;
             case 3:
                 vRows = 4;
                 vColumns = 4;
-                if(randInt(1, 100) <= 10) eulCircuit = false;
-                else eulCircuit = true;
+                eulCircuit = randInt(1, 100) > 10;
                 break;
             case 4:
                 randNum = randInt(1,2);
@@ -221,15 +219,13 @@ public class Graph {
                     vRows = 4;
                     vColumns = 5;
                 }
-                if(randInt(1, 100) <= 15) eulCircuit = false;
-                else eulCircuit = true;
+                eulCircuit = randInt(1, 100) > 15;
                 break;
             case 5:
                 vRows = 5;
                 vColumns = 5;
                 eulCircuit = true;
-                if(randInt(1, 100) <= 20) eulCircuit = false;
-                else eulCircuit = true;
+                eulCircuit = randInt(1, 100) > 20;
                 break;
         }
 
@@ -289,8 +285,7 @@ public class Graph {
     // Generate random integer between (and inclusive of) two integers
     public int randInt(int min, int max) {
         Random rand = new Random();
-        int randomNum = rand.nextInt((max - min) + 1) + min;
-        return randomNum;
+        return rand.nextInt((max - min) + 1) + min;
     }
 
     // Construct vertices dependent on number of rows and columns expected
@@ -456,11 +451,9 @@ public class Graph {
             }
         }
         // Either 2 or 4 edges wanted for Euler path
-        while (true) {
+        do {
             randNum = (randInt(1, 2)) * 2;
-            if ((5 - locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
-                break;
-        }
+        } while ((5 - locked) + vertexArray[origin].numConnected() < randNum || vertexArray[origin].numConnected() > randNum);
         // Want 2 or 4 edges minus the number of existing edges to be generated
         limit = randNum - vertexArray[origin].numConnected();
         for (int j = 0; j < limit; j++) {
@@ -501,11 +494,9 @@ public class Graph {
                     return false;
                 }
                 // Either 2, 4, 6 or 8 edges wanted for Euler path
-                while(true) {
-                    randNum = (randInt(1,4)) * 2;
-                    if((8 - locked) + vertexArray[origin].numConnected() >= randNum && vertexArray[origin].numConnected() <= randNum)
-                        break;
-                }
+                do {
+                    randNum = (randInt(1, 4)) * 2;
+                } while ((8 - locked) + vertexArray[origin].numConnected() < randNum || vertexArray[origin].numConnected() > randNum);
 
                 limit = randNum - vertexArray[origin].numConnected();
                 for (int k = 0; k < limit; k++) {
@@ -530,7 +521,7 @@ public class Graph {
     // Add a random edge to a graph with an Eulerian circuit
     private void addNonCircuitEdge() {
 
-        outerloop:
+        outerLoop:
         while(true) {
             //Find random vertex
             randNum = randInt(0, (vRows * vColumns) - 1);
@@ -552,7 +543,7 @@ public class Graph {
                             //If there isn't already a connection, create edge
                             if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
                                 edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
-                                break outerloop;
+                                break outerLoop;
                             }
                         }
                     }
@@ -571,7 +562,7 @@ public class Graph {
                             //If there isn't already a connection, create edge
                             if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
                                 edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
-                                break outerloop;
+                                break outerLoop;
                             }
                         }
                     }
@@ -590,7 +581,7 @@ public class Graph {
                             //If there isn't already a connection, create edge
                             if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
                                 edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
-                                break outerloop;
+                                break outerLoop;
                             }
                         }
                     }
@@ -609,7 +600,7 @@ public class Graph {
                             //If there isn't already a connection, create edge
                             if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
                                 edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
-                                break outerloop;
+                                break outerLoop;
                             }
                         }
                     }
@@ -630,7 +621,7 @@ public class Graph {
                             //If there isn't already a connection, create edge
                             if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
                                 edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
-                                break outerloop;
+                                break outerLoop;
                             }
                         }
                     }
@@ -651,7 +642,7 @@ public class Graph {
                             //If there isn't already a connection, create edge
                             if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
                                 edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
-                                break outerloop;
+                                break outerLoop;
                             }
                         }
                     }
@@ -674,7 +665,7 @@ public class Graph {
                             //If there isn't already a connection, create edge
                             if (!vertexArray[randNum].isConnectedTo(vertexArray[randNum + adjVertices[randNum2]])) {
                                 edgeArrayList.add(new Edge(vertexArray[randNum], vertexArray[randNum + adjVertices[randNum2]]));
-                                break outerloop;
+                                break outerLoop;
                             }
                         }
                     }
@@ -688,10 +679,10 @@ public class Graph {
     private boolean traverseGraph() {
         int noVertices = vRows * vColumns;
         //ArrayList for all the visited vertices
-        ArrayList<Integer> visited = new ArrayList<Integer>();
+        ArrayList<Integer> visited = new ArrayList<>();
         visited.add(0);
         //Stack for parents to get children of
-        Stack<Integer> parents = new Stack<Integer>();
+        Stack<Integer> parents = new Stack<>();
         parents.add(0);
         //An array of the integer modifiers for adjacent vertices
         int[] adjVertices = new int[] {
@@ -742,24 +733,18 @@ public class Graph {
 
     // Check if touch event is within a rectangular grid of vertices
     private boolean vertexSelection(Vertex vertex1, Vertex vertex2, int eventX, int eventY) {
-        if((eventX >= (vertex1.getX() - vertex1.getR() - vertex1.getH()) &&
+        return (eventX >= (vertex1.getX() - vertex1.getR() - vertex1.getH()) &&
                 (eventX <= (vertex2.getX() + vertex2.getR() + vertex2.getH())))
                 && (eventY >= (vertex1.getY() - vertex1.getR() - vertex1.getH()) &&
-                (eventY <= vertex2.getY() + vertex2.getR() + vertex2.getH()))) {
-            return true;
-        }
-        return false;
+                (eventY <= vertex2.getY() + vertex2.getR() + vertex2.getH()));
     }
 
     // Check if touch event is within that vertex
     private boolean vertexSelection(Vertex vertex, int eventX, int eventY) {
-        if((eventX >= (vertex.getX() - vertex.getR() - vertex.getH()) &&
+        return (eventX >= (vertex.getX() - vertex.getR() - vertex.getH()) &&
                 (eventX <= (vertex.getX() + vertex.getR() + vertex.getH())))
                 && (eventY >= (vertex.getY() - vertex.getR() - vertex.getH()) &&
-                (eventY <= vertex.getY() + vertex.getR() + vertex.getH()))) {
-            return true;
-        }
-        return false;
+                (eventY <= vertex.getY() + vertex.getR() + vertex.getH()));
     }
 
     // Reset all the activations and variables tracking activations
@@ -784,8 +769,7 @@ public class Graph {
     // Check if game mode has finished
     public boolean modeFinished() {
         if(gameMode == 0)
-            if(stageNo > 10)
-                return true;
+            return stageNo > 10;
 
         return false;
     }
@@ -815,7 +799,6 @@ public class Graph {
                         return;
                     }
                 }
-                return;
             }
         }
 
@@ -913,7 +896,7 @@ public class Graph {
             // Tally score based on penalties incurred for Endless mode
             else if(gameMode == 1) {
                 if((vRows * vColumns) - penalty > 0) {
-                    score.addToScore((long) ((vRows * vColumns) - penalty) * 100);
+                    score.addToScore((((long) vRows * vColumns) - penalty) * 100);
                 }
             }
 

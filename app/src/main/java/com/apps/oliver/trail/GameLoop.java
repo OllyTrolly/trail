@@ -8,8 +8,8 @@ import android.view.SurfaceHolder;
  */
 public class GameLoop extends Thread {
 
-    private SurfaceHolder surfaceHolder; // Surface holder that can access the physical surface
-    private GamePanel gamePanel; // The actual view that handles inputs and draws to the surface
+    private final SurfaceHolder surfaceHolder; // Surface holder that can access the physical surface
+    private final GamePanel gamePanel; // The actual view that handles inputs and draws to the surface
     private boolean running; // Flag to hold game state
 
     public GameLoop(SurfaceHolder surfaceHolder, GamePanel gamePanel) {

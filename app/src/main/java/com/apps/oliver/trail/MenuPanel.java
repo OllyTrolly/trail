@@ -10,14 +10,16 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import androidx.annotation.NonNull;
+
 /**
  * Updated to work with modern Android API
  */
 public class MenuPanel extends SurfaceView implements
         SurfaceHolder.Callback {
 
-    private Typeface robotoLight;
-    private SurfaceHolder surfaceHolder;
+    private final Typeface robotoLight;
+    private final SurfaceHolder surfaceHolder;
 
     int horizCentre; // Horizontal centre of panel
     int circle1Vert; // Vertical co-ord of first dot
@@ -50,11 +52,11 @@ public class MenuPanel extends SurfaceView implements
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
+    public void surfaceCreated(@NonNull SurfaceHolder holder) {
         //Lock user interaction with the canvas
         Canvas canvas = surfaceHolder.lockCanvas();
         if (canvas == null) return;
@@ -101,13 +103,13 @@ public class MenuPanel extends SurfaceView implements
         textPaint.setTypeface(robotoLight);
         textPaint.setTextSize(36);
         //Draw text
-        canvas.drawText("Timed", horizCentre, circle1Vert + (panelHeight * 1) / 100, textPaint);
-        canvas.drawText("Endless", horizCentre, circle2Vert + (panelHeight * 1) / 100, textPaint);
-        canvas.drawText("Scores", horizCentre, circle3Vert + (panelHeight * 1) / 100, textPaint);
+        canvas.drawText("Timed", horizCentre, circle1Vert + (float) panelHeight / 100, textPaint);
+        canvas.drawText("Endless", horizCentre, circle2Vert + (float) panelHeight / 100, textPaint);
+        canvas.drawText("Scores", horizCentre, circle3Vert + (float) panelHeight / 100, textPaint);
         textPaint.setColor(Color.LTGRAY);
-        canvas.drawText("trail", horizCentre, (panelHeight * 97) / 100, textPaint);
+        canvas.drawText("trail", horizCentre, (float) (panelHeight * 97) / 100, textPaint);
         textPaint.setTextSize(50);
-        canvas.drawText("Menu", horizCentre, (panelHeight * 10) / 100, textPaint);
+        canvas.drawText("Menu", horizCentre, (float) (panelHeight * 10) / 100, textPaint);
         //Unlock user interaction with the canvas
         surfaceHolder.unlockCanvasAndPost(canvas);
     }
@@ -120,7 +122,7 @@ public class MenuPanel extends SurfaceView implements
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
+    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
     }
 
     @Override
@@ -141,9 +143,6 @@ public class MenuPanel extends SurfaceView implements
                 i.setClass(this.getContext(), GameActivity.class);
                 i.putExtra("GAME_MODE", 1);
                 getContext().startActivity(i);
-            }
-            else if(dotSelection(circle3Vert, x, y)) {
-                // Doesn't do anything yet, will call up scoreboard
             }
         }
         return true;
